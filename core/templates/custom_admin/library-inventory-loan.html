@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Library Inventory &amp; Loans - School Admin</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;family=Noto+Sans:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0d59f2",
+              "primary-hover": "#0b4ecf",
+              "background-light": "#f5f6f8",
+              "background-dark": "#101622",
+              "surface-light": "#ffffff",
+              "surface-dark": "#1a2230",
+              "border-light": "#dbdfe6",
+              "border-dark": "#2d3748",
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"],
+              "body": ["Noto Sans", "sans-serif"],
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem", 
+              "lg": "0.5rem", 
+              "xl": "0.75rem", 
+              "2xl": "1rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden antialiased">
+<div class="flex h-screen w-full">
+<!-- Sidebar -->
+<aside class="w-72 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex flex-col justify-between shrink-0 transition-colors duration-200">
+<div class="flex flex-col h-full p-4">
+<!-- User Profile -->
+<div class="flex gap-3 items-center mb-8 px-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border border-border-light dark:border-border-dark" data-alt="School logo with abstract education symbol" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB1y6ETuZaGYqQhdJ_Zf5W9LzXZawM4Qz0UEPqfbUmvP063S9M35IMWfL4G039Wtj1nopfUcqpoJaQ3plwZJm9QJIikbwhxvTA9SSmtVIB55nAhiVTpkMy7eMB2dP5Q_VvhMANjaG2WmMbTJeI1O6WY-NlBhcV_eWwxkhZguAtCxnY_sLVoqyLTzrEjG7GAgSz1gxpkAVCegeN4jtC3YmcvYQ_vjxUYudnCJtsC-sYh68dW_VAsjt0FOXV7g7df8LqwS_w2jse2yg");'></div>
+<div class="flex flex-col">
+<h1 class="text-[#111318] dark:text-white text-base font-medium leading-normal">School Admin</h1>
+<p class="text-[#606e8a] dark:text-gray-400 text-sm font-normal leading-normal">Lagos, NG</p>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex flex-col gap-2 grow">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-background-light dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#606e8a] group-hover:text-[#111318] dark:text-gray-400 dark:group-hover:text-white">dashboard</span>
+<p class="text-[#111318] dark:text-gray-300 dark:group-hover:text-white text-sm font-medium leading-normal">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-background-light dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#606e8a] group-hover:text-[#111318] dark:text-gray-400 dark:group-hover:text-white">group</span>
+<p class="text-[#111318] dark:text-gray-300 dark:group-hover:text-white text-sm font-medium leading-normal">Students</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-background-light dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#606e8a] group-hover:text-[#111318] dark:text-gray-400 dark:group-hover:text-white">school</span>
+<p class="text-[#111318] dark:text-gray-300 dark:group-hover:text-white text-sm font-medium leading-normal">Academics</p>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 dark:bg-primary/20" href="#">
+<span class="material-symbols-outlined text-primary fill">local_library</span>
+<p class="text-primary dark:text-primary-400 text-sm font-bold leading-normal">Library</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-background-light dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#606e8a] group-hover:text-[#111318] dark:text-gray-400 dark:group-hover:text-white">payments</span>
+<p class="text-[#111318] dark:text-gray-300 dark:group-hover:text-white text-sm font-medium leading-normal">Finance</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-background-light dark:hover:bg-slate-800 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[#606e8a] group-hover:text-[#111318] dark:text-gray-400 dark:group-hover:text-white">settings</span>
+<p class="text-[#111318] dark:text-gray-300 dark:group-hover:text-white text-sm font-medium leading-normal">Settings</p>
+</a>
+</nav>
+<!-- Bottom Actions -->
+<div class="mt-auto pt-4 border-t border-border-light dark:border-border-dark">
+<button class="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 group">
+<span class="material-symbols-outlined text-red-500">logout</span>
+<p class="text-red-500 font-medium text-sm">Sign Out</p>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Top Header / Search Area -->
+<header class="h-16 border-b border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark flex items-center justify-between px-8 shrink-0 z-10">
+<!-- Breadcrumbs -->
+<div class="flex items-center gap-2">
+<a class="text-[#606e8a] dark:text-gray-400 text-sm font-medium hover:text-primary" href="#">Dashboard</a>
+<span class="text-[#606e8a] dark:text-gray-500 text-sm">/</span>
+<a class="text-[#606e8a] dark:text-gray-400 text-sm font-medium hover:text-primary" href="#">Library</a>
+<span class="text-[#606e8a] dark:text-gray-500 text-sm">/</span>
+<span class="text-[#111318] dark:text-white text-sm font-medium">Inventory</span>
+</div>
+<!-- Global Search & Notifications -->
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+<span class="material-symbols-outlined" style="font-size: 20px;">search</span>
+</span>
+<input class="pl-10 pr-4 py-2 bg-background-light dark:bg-background-dark border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64 text-gray-700 dark:text-gray-200" placeholder="Search system..." type="text"/>
+</div>
+<button class="relative p-2 text-gray-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
+</button>
+<div class="bg-gray-200 dark:bg-gray-700 rounded-full size-8 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300">AD</div>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-6 md:p-8">
+<div class="max-w-7xl mx-auto flex flex-col gap-6">
+<!-- Page Heading & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h2 class="text-[#111318] dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">Library Management</h2>
+<p class="text-[#606e8a] dark:text-gray-400 text-base font-normal mt-1">Manage school inventory, track loans, and organize catalogs.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center gap-2 rounded-lg h-10 px-5 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark text-[#111318] dark:text-white text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+<span class="material-symbols-outlined" style="font-size: 20px;">keyboard_return</span>
+<span>Return Book</span>
+</button>
+<button class="flex items-center justify-center gap-2 rounded-lg h-10 px-5 bg-primary hover:bg-primary-hover text-white text-sm font-bold shadow-sm transition-all">
+<span class="material-symbols-outlined" style="font-size: 20px;">local_library</span>
+<span>Issue Book</span>
+</button>
+</div>
+</div>
+<!-- Main Card -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden flex flex-col flex-1 min-h-[600px]">
+<!-- Toolbar: Tabs & Filters -->
+<div class="border-b border-border-light dark:border-border-dark px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<!-- Tabs -->
+<div class="flex gap-6">
+<a class="relative flex flex-col items-center justify-center text-primary dark:text-blue-400 pb-2" href="#">
+<p class="text-sm font-bold tracking-wide">Book Catalog</p>
+<span class="absolute bottom-[-17px] w-full h-[3px] bg-primary rounded-t-full"></span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#606e8a] dark:text-gray-400 hover:text-[#111318] dark:hover:text-gray-200 pb-2 transition-colors" href="#">
+<p class="text-sm font-bold tracking-wide">Borrowed Books</p>
+</a>
+<a class="flex flex-col items-center justify-center text-[#606e8a] dark:text-gray-400 hover:text-[#111318] dark:hover:text-gray-200 pb-2 transition-colors" href="#">
+<p class="text-sm font-bold tracking-wide">Overdue</p>
+</a>
+</div>
+<!-- Table Filters -->
+<div class="flex gap-3">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+<span class="material-symbols-outlined" style="font-size: 20px;">filter_list</span>
+</span>
+<select class="pl-9 pr-8 py-2 bg-background-light dark:bg-background-dark border-transparent rounded-lg text-sm text-[#111318] dark:text-white focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+<option>All Categories</option>
+<option>Science</option>
+<option>Arts &amp; Humanities</option>
+<option>Fiction</option>
+</select>
+</div>
+<div class="relative w-full lg:w-64">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+<span class="material-symbols-outlined" style="font-size: 20px;">search</span>
+</span>
+<input class="w-full pl-10 pr-4 py-2 bg-background-light dark:bg-background-dark border-transparent rounded-lg text-sm focus:ring-2 focus:ring-primary text-[#111318] dark:text-white placeholder-gray-400" placeholder="Search by title, author, ISBN..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead class="bg-gray-50 dark:bg-gray-800/50 text-[#606e8a] dark:text-gray-400 text-xs uppercase font-bold tracking-wider">
+<tr>
+<th class="px-6 py-4 w-16">Cover</th>
+<th class="px-6 py-4">Book Details</th>
+<th class="px-6 py-4">Category</th>
+<th class="px-6 py-4">ISBN</th>
+<th class="px-6 py-4 text-center">Availability</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark text-sm text-[#111318] dark:text-gray-200">
+<!-- Row 1 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="h-16 w-12 rounded bg-gray-200 dark:bg-gray-700 bg-cover bg-center shadow-sm" data-alt="Cover of New General Mathematics book" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAAhKTSRb0NejADfFuIAfw1Q6UxVAZuBWXVsQVfzp_6u9gX6BAXOSAagUuBNSjhIgvE49uiE1TWDPCUF2JuYd5gREVK8s_RcmIvz5m2o1pXEQHoDWl_P-a-iyzzw8SHG6ZieWqlxtmtfrS4EbqULoBpNf-ZH7qjDBgNaVde4tI-beGw6EjM1TV-BOPQGR18DWcg9Jmi9KxQ--J2IqYcvU-AR9NNMsmNMPOoN6EYd2ybznHSc9_CKDnJAmwdB7X_5ZimMYBlTy5rOQ');"></div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-bold text-base text-[#111318] dark:text-white">New General Mathematics</span>
+<span class="text-[#606e8a] dark:text-gray-400">J.B. Channon, A. McLeish Smith</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                Education
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-gray-500">978-1234567890</td>
+<td class="px-6 py-4">
+<div class="flex flex-col items-center gap-1">
+<div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-yellow-500 h-full rounded-full" style="width: 30%"></div>
+</div>
+<span class="text-xs font-medium text-yellow-600 dark:text-yellow-400">15 / 50 Available</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-gray-400 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="h-16 w-12 rounded bg-gray-200 dark:bg-gray-700 bg-cover bg-center shadow-sm" data-alt="Cover of Things Fall Apart book" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC73aFlLmvcu_IF_yxvTRWk_3nAL_JQ-05OuO_hsLLUNe1E0uickseRGEgbDhkkUW1IjyXmnYz63tXywT29V8KZfYU41x3mJq3mm13tewUqCaEfL96DGq5AqKUvpwjZOVqo_H5_RvF3YN82Taq_Rnw7mpSoDLAIrq1dUJ9taGhXGWdLB0VVQr319NG_-P-laNrnVQ1jlQ5AOjkHDJlzAIasoKFZ_Dnx8KTdRhXz8OpVAFGry79P4ccMD6xUaPwdF_-PHiPd8yjnyA');"></div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-bold text-base text-[#111318] dark:text-white">Things Fall Apart</span>
+<span class="text-[#606e8a] dark:text-gray-400">Chinua Achebe</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                                                Literature
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-gray-500">978-0385474542</td>
+<td class="px-6 py-4">
+<div class="flex flex-col items-center gap-1">
+<div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-green-500 h-full rounded-full" style="width: 85%"></div>
+</div>
+<span class="text-xs font-medium text-green-600 dark:text-green-400">28 / 33 Available</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-gray-400 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="h-16 w-12 rounded bg-gray-200 dark:bg-gray-700 bg-cover bg-center shadow-sm" data-alt="Cover of Integrated Science book" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDc3TUW7utk3nSiucRSMzuzzPFl04Kb0vHagM6iNUixO22o_TNlEVhgxPkh7LdhEiEVvXcpRAUG9oicMZFFKyTPontCB1ZUvUCdgfdaZw9d3CPazp8GxsMsR6wIH27XM3PYi3vZfOI67N7C8L8qxSWxrT7bmIif8p14Xujvg1F96aywPgw2tOaHFYX6MZiQZ_n96Ieopl-ej8h0CuCFnMT5TR0fBBUZ0oImWjcVPe7WZ3pJWOU7CGobHRJU99_DptIwAY7FC9dH5g');"></div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-bold text-base text-[#111318] dark:text-white">Integrated Science for JSS</span>
+<span class="text-[#606e8a] dark:text-gray-400">P.A. Okebukola</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                Science
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-gray-500">978-9781234567</td>
+<td class="px-6 py-4">
+<div class="flex flex-col items-center gap-1">
+<div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-red-500 h-full rounded-full" style="width: 5%"></div>
+</div>
+<span class="text-xs font-medium text-red-600 dark:text-red-400">2 / 40 Available</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-gray-400 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="h-16 w-12 rounded bg-gray-200 dark:bg-gray-700 bg-cover bg-center shadow-sm" data-alt="Cover of The Lion and the Jewel book" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAFOg1nBJtjnqQ59H7dBAREsm3MiWDMZfhcb8QkllWOsFSRUnAFaGhquDlrymO0TLOFwtd9aU61-Znk03A3l0NVd4c43dIsz7I5xBIB04e5yNZD4_FwWFY07k5y75fnVINM7loWUgVHVFptuyG-HLAyzPhCLsub25-nLBNXbvsZHRaolFp-GgoazOVDhxBVhV2ugyoK8OcSvysumA9mRyIcqbFe8M_OZQrsaLKNcVkFy0RY7MEudbpPzVLh6IDedx9ESDcle5jz7g');"></div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-bold text-base text-[#111318] dark:text-white">The Lion and the Jewel</span>
+<span class="text-[#606e8a] dark:text-gray-400">Wole Soyinka</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                                                Drama
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-gray-500">978-0199110834</td>
+<td class="px-6 py-4">
+<div class="flex flex-col items-center gap-1">
+<div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-green-500 h-full rounded-full" style="width: 100%"></div>
+</div>
+<span class="text-xs font-medium text-green-600 dark:text-green-400">12 / 12 Available</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-gray-400 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+<td class="px-6 py-4">
+<div class="h-16 w-12 rounded bg-gray-200 dark:bg-gray-700 bg-cover bg-center shadow-sm" data-alt="Cover of Essential Physics book" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBnZwcqqI1nhVk5YwFsR_xoI2j2_tLA8pgyIzNFc8wewNi4gm8lFOSTyKFiZ3IWL6pjPYiV-aUE2-q6bsXE8wrPGjWtaBh_bK_Q3czIqvRE8Ea7LbPo5hv0BwVNqBUdBvq8PNGWYUQUGbMCGQUtzJutWBE0BhIXWORQ4tPEhU4Rv-AIKpu4JbtWGdUxJmHaH5rd6F0fp3_floIT7wT8ZUsr2N2g6Bpu5d_yvR6WIwHk6fRxplJuN2lSr9kWbcjBo1hIwZdXEyffsg');"></div>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-bold text-base text-[#111318] dark:text-white">Essential Physics for SS</span>
+<span class="text-[#606e8a] dark:text-gray-400">O. E. Farinde</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                Science
+                                            </span>
+</td>
+<td class="px-6 py-4 font-mono text-xs text-gray-500">978-9781231231</td>
+<td class="px-6 py-4">
+<div class="flex flex-col items-center gap-1">
+<div class="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="bg-yellow-500 h-full rounded-full" style="width: 45%"></div>
+</div>
+<span class="text-xs font-medium text-yellow-600 dark:text-yellow-400">11 / 25 Available</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-gray-400 hover:text-primary dark:hover:text-white transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="bg-surface-light dark:bg-surface-dark px-6 py-4 border-t border-border-light dark:border-border-dark flex items-center justify-between">
+<p class="text-sm text-[#606e8a] dark:text-gray-400">Showing <span class="font-bold text-[#111318] dark:text-white">1</span> to <span class="font-bold text-[#111318] dark:text-white">5</span> of <span class="font-bold text-[#111318] dark:text-white">128</span> books</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 text-sm rounded border border-border-light dark:border-border-dark text-[#606e8a] dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50" disabled="">Previous</button>
+<button class="px-3 py-1 text-sm rounded border border-border-light dark:border-border-dark text-[#111318] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800">Next</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student Result Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Print styles to hide non-printable elements and format the report card */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .printable-area, .printable-area * {
+                visibility: visible;
+            }
+            .printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                color: black;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+                border: none;
+            }
+            .no-print {
+                display: none !important;
+            }
+            /* Ensure background colors print */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111318] dark:text-white min-h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f0f1f5] dark:border-[#2a3140] px-10 py-3 bg-white dark:bg-[#1a202c] sticky top-0 z-50 no-print">
+<div class="flex items-center gap-4 text-[#111318] dark:text-white">
+<div class="size-8 text-primary">
+<span class="material-symbols-outlined !text-3xl">school</span>
+</div>
+<h2 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Bright Future High School</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9 hidden md:flex">
+<a class="text-[#111318] dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-[#111318] dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Portal Help</a>
+<a class="text-[#111318] dark:text-gray-200 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined !text-xl">person</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center justify-start py-8 px-4 md:px-10 gap-8">
+<!-- SECTION 1: Validation Gateway (Initially visible, conceptually) -->
+<!-- In a real app, this would be a separate route or toggleable state. Showing it as the top section here. -->
+<div class="w-full max-w-[960px] bg-white dark:bg-[#1a202c] rounded-xl shadow-sm border border-[#e5e7eb] dark:border-[#2a3140] overflow-hidden flex flex-col md:flex-row no-print">
+<div class="md:w-1/2 p-8 flex flex-col justify-center gap-6">
+<div>
+<h1 class="text-3xl font-bold tracking-tight text-[#111318] dark:text-white mb-2">Check Student Results</h1>
+<p class="text-gray-500 dark:text-gray-400 text-sm">Enter the student's credentials and the scratch card PIN to access the terminal report sheet.</p>
+</div>
+<div class="flex flex-col gap-4">
+<label class="flex flex-col gap-1.5">
+<span class="text-[#111318] dark:text-gray-200 text-sm font-medium">Student ID</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">badge</span>
+<input class="w-full h-11 pl-10 pr-4 rounded-lg border border-[#dbdfe6] dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-[#111318] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm" placeholder="e.g. SCH/2023/054"/>
+</div>
+</label>
+<label class="flex flex-col gap-1.5">
+<span class="text-[#111318] dark:text-gray-200 text-sm font-medium">Scratch Card PIN</span>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock</span>
+<input class="w-full h-11 pl-10 pr-4 rounded-lg border border-[#dbdfe6] dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-[#111318] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm" placeholder="Enter 12-digit PIN" type="password"/>
+</div>
+</label>
+<div class="grid grid-cols-2 gap-4">
+<label class="flex flex-col gap-1.5">
+<span class="text-[#111318] dark:text-gray-200 text-sm font-medium">Session</span>
+<select class="w-full h-11 px-3 rounded-lg border border-[#dbdfe6] dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-[#111318] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm">
+<option>2023/2024</option>
+<option>2022/2023</option>
+</select>
+</label>
+<label class="flex flex-col gap-1.5">
+<span class="text-[#111318] dark:text-gray-200 text-sm font-medium">Term</span>
+<select class="w-full h-11 px-3 rounded-lg border border-[#dbdfe6] dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-[#111318] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm">
+<option>3rd Term</option>
+<option>2nd Term</option>
+<option>1st Term</option>
+</select>
+</label>
+</div>
+<button class="mt-2 w-full h-12 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2">
+<span>Check Result</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="md:w-1/2 bg-cover bg-center min-h-[300px] md:min-h-full relative" data-alt="Happy African students studying with digital tablets" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBfw2s_LGMK1VKoEOFJOcBoBlcuQL5qYoNmOuHdH1yCXlHLaKbsgWZVyRo2aH8xPZg2kg82rzU301bn432DTqsfL6HhQpcZLCzjo-51d_Dwh6akxTZTvoY1Ss_FD6dz5jvC6igA9a42IjH7VBp7XSu2mQsCCafEzAmOeM2eqttslyqmG7XGRq5IAIANGFCrihxP4s0UgyrEWE400EYqdpyvadyrdbDBDxYu2yBM4kYXuShfY0xseP1i3vysRcLn-p7HgoEIyh3zIg');">
+<div class="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-white p-8 text-center z-10">
+<span class="material-symbols-outlined text-6xl mb-4">school</span>
+<h3 class="text-2xl font-bold mb-2">Academic Excellence</h3>
+<p class="text-sm opacity-90">Access real-time academic performance reports securely from anywhere.</p>
+</div>
+</div>
+</div>
+<div class="w-full max-w-[960px] flex items-center gap-4 py-4 no-print">
+<div class="h-px bg-gray-300 dark:bg-gray-700 flex-1"></div>
+<span class="text-sm text-gray-500 font-medium">RESULT DASHBOARD PREVIEW</span>
+<div class="h-px bg-gray-300 dark:bg-gray-700 flex-1"></div>
+</div>
+<!-- SECTION 2: Result Display Dashboard (The main report card view) -->
+<div class="printable-area w-full max-w-[960px] bg-white dark:bg-[#1a202c] shadow-lg border border-[#e5e7eb] dark:border-[#2a3140] rounded-xl overflow-hidden flex flex-col mb-10">
+<!-- Dashboard Controls (No Print) -->
+<div class="bg-gray-50 dark:bg-[#2d3748] border-b border-[#e5e7eb] dark:border-[#4a5568] p-4 flex flex-wrap gap-4 items-center justify-between no-print">
+<div class="flex gap-2">
+<!-- Tabs for 3rd Term -->
+<button class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg shadow-sm">Term Result</button>
+<button class="px-4 py-2 bg-white dark:bg-[#1a202c] text-[#606e8a] dark:text-gray-300 border border-[#dbdfe6] dark:border-[#4a5568] hover:bg-gray-50 dark:hover:bg-[#2d3748] text-sm font-medium rounded-lg transition-colors">Annual Result</button>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a202c] text-[#111318] dark:text-white border border-[#dbdfe6] dark:border-[#4a5568] hover:bg-gray-50 dark:hover:bg-[#2d3748] rounded-lg text-sm font-medium transition-colors" onclick="window.print()">
+<span class="material-symbols-outlined text-lg">print</span>
+<span>Print / Download PDF</span>
+</button>
+</div>
+<!-- Report Card Content -->
+<div class="p-8 md:p-12 flex flex-col gap-8">
+<!-- School Header -->
+<div class="flex flex-col items-center text-center border-b-2 border-primary pb-6">
+<div class="flex items-center gap-4 mb-4">
+<div class="size-16 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined !text-4xl">local_library</span>
+</div>
+<div class="text-left">
+<h1 class="text-2xl md:text-3xl font-bold text-primary dark:text-blue-400 uppercase tracking-tight">Bright Future High School</h1>
+<p class="text-sm text-gray-600 dark:text-gray-300">12 Education Close, Victoria Island, Lagos, Nigeria</p>
+<p class="text-sm text-gray-600 dark:text-gray-300">Tel: +234 800 123 4567 | Email: info@brightfuture.edu.ng</p>
+</div>
+</div>
+<div class="bg-primary text-white px-8 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide">Student Report Sheet</div>
+</div>
+<!-- Student Info Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+<div class="md:col-span-3 grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+<div>
+<p class="text-xs text-gray-500 uppercase font-semibold">Student Name</p>
+<p class="text-base font-bold text-[#111318] dark:text-white">Emeka Nwadike</p>
+</div>
+<div>
+<p class="text-xs text-gray-500 uppercase font-semibold">Admission Number</p>
+<p class="text-base font-bold text-[#111318] dark:text-white">SCH/2023/054</p>
+</div>
+<div>
+<p class="text-xs text-gray-500 uppercase font-semibold">Class</p>
+<p class="text-base font-bold text-[#111318] dark:text-white">JSS 3 (Gold)</p>
+</div>
+<div>
+<p class="text-xs text-gray-500 uppercase font-semibold">Academic Session</p>
+<p class="text-base font-bold text-[#111318] dark:text-white">2023/2024</p>
+</div>
+<div>
+<p class="text-xs text-gray-500 uppercase font-semibold">Term</p>
+<p class="text-base font-bold text-[#111318] dark:text-white">3rd Term</p>
+</div>
+<div>
+<p class="text-xs text-gray-500 uppercase font-semibold">Attendance</p>
+<p class="text-base font-bold text-[#111318] dark:text-white">98 / 100 Days</p>
+</div>
+</div>
+<div class="flex justify-center md:justify-end">
+<div class="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600 relative" data-alt="Student passport photograph placeholder">
+<img alt="Student Passport" class="w-full h-full object-cover" data-alt="Portrait of student Emeka Nwadike" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDfkFHGgOwVblPr1Q57HpXgwHQD1qiOzYMakXHGX-qYmCSqcvFrAIXD9R6KeNXLQ-U855wGRXvWmP5yE-TlM3N9QrnzdgoKkf3bjDAEIzdxtV7Q07b2jtpL09MOqb8sjgMpLHoB_oBfnmktuF-dtnGrwnouVC0UsBK8KxsHYKFUrqbOs8-Wjp7AAiy923Actp2lzyDSohBRA_li43c-QllEHKk2hdnwtRq5cLTBAL81pOSTv75UU4LZt2pmjg-gL62a26mb4cSkA"/>
+</div>
+</div>
+</div>
+<!-- Academic Performance Table -->
+<div class="overflow-x-auto">
+<h3 class="text-sm font-bold uppercase text-gray-500 mb-2">Cognitive Domain</h3>
+<table class="w-full text-sm text-left border-collapse min-w-[600px]">
+<thead>
+<tr class="bg-primary/5 dark:bg-primary/20 text-[#111318] dark:text-white border-y-2 border-primary">
+<th class="py-3 px-4 font-bold w-1/3">Subject</th>
+<th class="py-3 px-2 text-center font-semibold">CA (40)</th>
+<th class="py-3 px-2 text-center font-semibold">Exam (60)</th>
+<th class="py-3 px-2 text-center font-semibold">Total (100)</th>
+<th class="py-3 px-2 text-center font-semibold">Grade</th>
+<th class="py-3 px-4 text-left font-semibold">Remark</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+<!-- Row 1 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+<td class="py-3 px-4 font-medium text-[#111318] dark:text-white">Mathematics</td>
+<td class="py-3 px-2 text-center">35</td>
+<td class="py-3 px-2 text-center">54</td>
+<td class="py-3 px-2 text-center font-bold">89</td>
+<td class="py-3 px-2 text-center font-bold text-green-600">A</td>
+<td class="py-3 px-4 text-sm">Excellent Performance</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+<td class="py-3 px-4 font-medium text-[#111318] dark:text-white">English Language</td>
+<td class="py-3 px-2 text-center">28</td>
+<td class="py-3 px-2 text-center">45</td>
+<td class="py-3 px-2 text-center font-bold">73</td>
+<td class="py-3 px-2 text-center font-bold text-blue-600">B</td>
+<td class="py-3 px-4 text-sm">Good Result</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+<td class="py-3 px-4 font-medium text-[#111318] dark:text-white">Basic Science</td>
+<td class="py-3 px-2 text-center">30</td>
+<td class="py-3 px-2 text-center">50</td>
+<td class="py-3 px-2 text-center font-bold">80</td>
+<td class="py-3 px-2 text-center font-bold text-green-600">A</td>
+<td class="py-3 px-4 text-sm">Distinction</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+<td class="py-3 px-4 font-medium text-[#111318] dark:text-white">Civic Education</td>
+<td class="py-3 px-2 text-center">25</td>
+<td class="py-3 px-2 text-center">40</td>
+<td class="py-3 px-2 text-center font-bold">65</td>
+<td class="py-3 px-2 text-center font-bold text-blue-600">B</td>
+<td class="py-3 px-4 text-sm">Very Good</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+<td class="py-3 px-4 font-medium text-[#111318] dark:text-white">Social Studies</td>
+<td class="py-3 px-2 text-center">22</td>
+<td class="py-3 px-2 text-center">35</td>
+<td class="py-3 px-2 text-center font-bold">57</td>
+<td class="py-3 px-2 text-center font-bold text-yellow-600">C</td>
+<td class="py-3 px-4 text-sm">Credit</td>
+</tr>
+<!-- Row 6 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+<td class="py-3 px-4 font-medium text-[#111318] dark:text-white">Business Studies</td>
+<td class="py-3 px-2 text-center">32</td>
+<td class="py-3 px-2 text-center">48</td>
+<td class="py-3 px-2 text-center font-bold">80</td>
+<td class="py-3 px-2 text-center font-bold text-green-600">A</td>
+<td class="py-3 px-4 text-sm">Excellent</td>
+</tr>
+</tbody>
+<tfoot>
+<tr class="bg-gray-100 dark:bg-gray-800 border-t-2 border-gray-300 dark:border-gray-600 font-bold">
+<td class="py-3 px-4" colspan="3">Overall Average</td>
+<td class="py-3 px-2 text-center text-primary">74.0</td>
+<td class="py-3 px-2 text-center text-primary">B</td>
+<td class="py-3 px-4"></td>
+</tr>
+</tfoot>
+</table>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Psychomotor Domain -->
+<div>
+<h3 class="text-sm font-bold uppercase text-gray-500 mb-2">Affective &amp; Psychomotor</h3>
+<div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+<table class="w-full text-xs md:text-sm">
+<thead class="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+<tr>
+<th class="py-2 px-3 text-left">Behavior / Skill</th>
+<th class="py-2 px-3 text-center">Rating (1-5)</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+<tr>
+<td class="py-2 px-3">Punctuality</td>
+<td class="py-2 px-3 text-center">5</td>
+</tr>
+<tr>
+<td class="py-2 px-3">Neatness</td>
+<td class="py-2 px-3 text-center">4</td>
+</tr>
+<tr>
+<td class="py-2 px-3">Politeness</td>
+<td class="py-2 px-3 text-center">5</td>
+</tr>
+<tr>
+<td class="py-2 px-3">Self Control</td>
+<td class="py-2 px-3 text-center">4</td>
+</tr>
+<tr>
+<td class="py-2 px-3">Handwriting</td>
+<td class="py-2 px-3 text-center">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-2 text-xs text-gray-500 italic">Key: 5-Excellent, 4-Very Good, 3-Good, 2-Fair, 1-Poor</div>
+</div>
+<!-- Remarks & Signature -->
+<div class="flex flex-col gap-4">
+<div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
+<h4 class="text-sm font-bold text-primary mb-1">Class Teacher's Remark</h4>
+<p class="text-sm italic text-gray-700 dark:text-gray-300">"Emeka is a well-behaved student who pays attention in class. He needs to improve his handwriting to match his academic brilliance."</p>
+<div class="mt-3 flex justify-end">
+<div class="h-8 w-24 bg-contain bg-no-repeat bg-center opacity-70" data-alt="Digital signature of class teacher" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCVZARmTGOPo71TwOppLw-fxA1fPGXHQEY8VVqstrvFVODY9YjMncf4grNm9WALXQn5SRqXolmalbhd-Gd5U6NaocdKan43YHu-QGleL6r0Km4AlKIP07cfJ2i0IQqLIsKPPNhNPHQ1s6FIZ84BOPhetsZaUORKWui3BsxLSb7eS6PvvznodgX9qAmYEgFAGa6slZVkDJCIwKsVuX2zjgoleLRU18Z_kV_1PT1kO8JkY0wCyubVmDnqU-QMykehGLGFGnxALkfz3Q');"></div>
+</div>
+</div>
+<div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
+<h4 class="text-sm font-bold text-primary mb-1">Principal's Remark</h4>
+<p class="text-sm italic text-gray-700 dark:text-gray-300">"An outstanding result. Promoted to SS 1."</p>
+<div class="mt-3 flex justify-end">
+<div class="h-8 w-24 bg-contain bg-no-repeat bg-center opacity-70" data-alt="Digital signature of principal" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1pjQDVXt9VB1Gx91WbMAuFrf9BH6zkmX0Cq6_03-vF4muFXastnk-EayDk-RBELrdlm8s0EeQr35adyFp8LzBgOL-ROwnC6bLKEIdbL4r2JaTXc8CD1Ypr2OEF9E5h4GnQzC2UtOeykpoTbwfeZouoTKEfE3augGf37lB3XkQMGK1X7wgnaXC2GjI7HOktkZKjmQNCjLB1F5ki4Pp6U88WV2gUN2XDdosFQUMWk9BYfkhNtvqbFTwbkqbk9ZRE59yUr_Ir1zYkA');"></div>
+</div>
+</div>
+<div class="mt-auto text-right">
+<p class="text-xs text-gray-400">Date Generated: <span class="font-medium text-gray-600 dark:text-gray-400">12th August, 2024</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-white dark:bg-[#1a202c] border-t border-[#f0f1f5] dark:border-[#2a3140] py-6 px-10 no-print">
+<div class="max-w-[960px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+<p>© 2024 Bright Future High School. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Use</a>
+<a class="hover:text-primary" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

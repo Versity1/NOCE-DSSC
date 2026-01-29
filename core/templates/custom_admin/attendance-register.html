@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Attendance Tracker - School Manager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "primary-dark": "#0b4bc9",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "card-light": "#ffffff",
+                        "card-dark": "#1A2235",
+                        "border-light": "#e5e7eb",
+                        "border-dark": "#2d3748",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for better aesthetics in lists */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display min-h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark px-4 md:px-10 py-3 shadow-sm">
+<div class="flex items-center justify-between whitespace-nowrap">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">school</span>
+</div>
+<h2 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">School Manager</h2>
+</div>
+<div class="hidden lg:flex items-center gap-9">
+<a class="text-[#606e8a] dark:text-slate-400 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="text-[#606e8a] dark:text-slate-400 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Students</a>
+<a class="text-primary text-sm font-medium leading-normal" href="#">Academics</a>
+<a class="text-[#606e8a] dark:text-slate-400 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Staff</a>
+<a class="text-[#606e8a] dark:text-slate-400 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal transition-colors" href="#">Reports</a>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-[#606e8a] flex border-none bg-background-light dark:bg-background-dark items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111318] dark:text-white focus:outline-0 focus:ring-0 border-none bg-background-light dark:bg-background-dark focus:border-none h-full placeholder:text-[#606e8a] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search students..." value=""/>
+</div>
+</label>
+<button class="relative bg-card-light dark:bg-card-dark rounded-full p-2 hover:bg-background-light dark:hover:bg-gray-800 transition-colors">
+<span class="material-symbols-outlined text-[#606e8a] dark:text-slate-400">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-card-dark"></span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border border-border-light dark:border-border-dark cursor-pointer" data-alt="User profile picture showing a smiling teacher" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAi8HY9t7BcIwJt6VeSaMCNTb-mQUkv7yolSoL0dPKrNjEunT0KjDXHgW3liHVnKpjL6vW-D1bi3wpw_u2TEnWmCLJJNAs6ODGpu9vkyAYdMcf-w3Pls0gDVFJ40gXp_cdKhBNGUw8DWwRDdg0wYcbiTQonf7-u_lQ8cPat4KyV8ujlupvAWnLjaSeoCepqI_07aF28zjAOTnUD94nvpDh1ASR06MqGFBtgpoWS0dzH6JP1E7JrRujcRxzz0_bWgDEy58I1xEjqsA");'></div>
+</div>
+</div>
+</header>
+<!-- Main Content Layout -->
+<div class="flex-1 w-full max-w-[1280px] mx-auto px-4 md:px-8 py-6 pb-24">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap items-center gap-2 pb-4">
+<a class="text-[#606e8a] dark:text-slate-400 text-sm font-medium leading-normal hover:text-primary" href="#">Academics</a>
+<span class="material-symbols-outlined text-[#606e8a] dark:text-slate-500 text-sm">chevron_right</span>
+<span class="text-[#111318] dark:text-white text-sm font-medium leading-normal">Daily Attendance</span>
+</div>
+<!-- Header & Filters -->
+<div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-8">
+<div class="flex flex-col gap-2 max-w-2xl">
+<h1 class="text-[#111318] dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">Daily Attendance</h1>
+<p class="text-[#606e8a] dark:text-slate-400 text-base font-normal leading-normal">Record and track daily attendance for your assigned class. Ensure all records are submitted by 10:00 AM.</p>
+</div>
+<div class="flex flex-wrap items-end gap-3 w-full lg:w-auto">
+<label class="flex flex-col min-w-40 flex-1 lg:flex-initial">
+<span class="text-[#111318] dark:text-white text-xs font-bold uppercase tracking-wider pb-2">Select Class</span>
+<div class="relative">
+<select class="form-select flex w-full lg:w-48 cursor-pointer rounded-lg text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-12 px-4 pr-10 text-base font-normal leading-normal appearance-none">
+<option>JSS 1 Gold</option>
+<option>JSS 1 Silver</option>
+<option>JSS 2 Blue</option>
+<option>SSS 1 Science</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-3 text-[#606e8a] pointer-events-none">expand_more</span>
+</div>
+</label>
+<label class="flex flex-col min-w-40 flex-1 lg:flex-initial">
+<span class="text-[#111318] dark:text-white text-xs font-bold uppercase tracking-wider pb-2">Date</span>
+<input class="form-input flex w-full lg:w-48 rounded-lg text-[#111318] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark h-12 px-4 text-base font-normal leading-normal" type="date" value="2023-10-24"/>
+</label>
+</div>
+</div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<div class="flex flex-col gap-1 rounded-xl p-5 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
+<div class="flex items-center gap-3 mb-2">
+<div class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined text-2xl">groups</span>
+</div>
+<p class="text-[#606e8a] dark:text-slate-400 text-sm font-medium">Total Students</p>
+</div>
+<p class="text-[#111318] dark:text-white text-3xl font-bold leading-tight pl-1">35</p>
+</div>
+<div class="flex flex-col gap-1 rounded-xl p-5 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
+<div class="flex items-center gap-3 mb-2">
+<div class="p-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400">
+<span class="material-symbols-outlined text-2xl">check_circle</span>
+</div>
+<p class="text-[#606e8a] dark:text-slate-400 text-sm font-medium">Present</p>
+</div>
+<div class="flex items-baseline gap-2 pl-1">
+<p class="text-[#111318] dark:text-white text-3xl font-bold leading-tight">32</p>
+<span class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">91%</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 rounded-xl p-5 border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark shadow-sm">
+<div class="flex items-center gap-3 mb-2">
+<div class="p-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined text-2xl">cancel</span>
+</div>
+<p class="text-[#606e8a] dark:text-slate-400 text-sm font-medium">Absent / Late</p>
+</div>
+<div class="flex items-baseline gap-2 pl-1">
+<p class="text-[#111318] dark:text-white text-3xl font-bold leading-tight">3</p>
+<span class="text-xs font-medium text-red-600 bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full">9%</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex justify-between items-center mb-4 px-1">
+<h3 class="text-lg font-bold text-[#111318] dark:text-white">Student List</h3>
+<button class="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark hover:bg-primary/5 px-3 py-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-lg">done_all</span>
+                Mark All Present
+            </button>
+</div>
+<!-- Attendance List -->
+<div class="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-background-light dark:bg-gray-800/50 border-b border-border-light dark:border-border-dark">
+<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-slate-400 w-[35%]">Student Name / ID</th>
+<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-slate-400 w-[35%] text-center">Status</th>
+<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-slate-400 w-[30%]">Remarks</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-light dark:divide-border-dark">
+<!-- Student Row 1: Present -->
+<tr class="group hover:bg-background-light dark:hover:bg-gray-800/30 transition-colors">
+<td class="py-3 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-center bg-cover border border-border-light dark:border-border-dark flex-shrink-0" data-alt="Portrait of student Adebayo Oluwaseun" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC6toobJyTVSpt8HWIFRmxx9ib4e2oqMjT47vXwXJkcSomimv_PCU_aROyqyecpzX0wLp3mi0TjylBy43X6v8kKpPx1k9-m5Zzd7PJBd_m9luYUKFNIhll7uVWk54KNQfwn78E2163Khkis-tFxTJUsONq6C3FughL3xIHG3cXpqEQVEBMgcYG_ERfqh9gk4ySv9FvRWhhMwX8wklXIvPXmdIq9_0V6EfkORbiI2A9L9BVSrbvVwLfJLOmDT2Q8nwJBKngJqR1IMA");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold text-[#111318] dark:text-white">Adebayo, Oluwaseun</p>
+<p class="text-xs text-[#606e8a] dark:text-slate-400 font-mono">ID: 2023001</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<div class="flex justify-center">
+<div class="bg-background-light dark:bg-background-dark p-1 rounded-lg inline-flex shadow-inner border border-border-light dark:border-border-dark">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="status-001" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm">Present</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-001" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-red-500 peer-checked:text-white peer-checked:shadow-sm">Absent</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-001" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:shadow-sm">Late</div>
+</label>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<input class="w-full bg-transparent border-b border-transparent focus:border-primary placeholder:text-gray-400 text-sm py-1 focus:outline-none transition-colors dark:text-white" placeholder="Add remark..." type="text"/>
+</td>
+</tr>
+<!-- Student Row 2: Absent -->
+<tr class="group hover:bg-background-light dark:hover:bg-gray-800/30 transition-colors">
+<td class="py-3 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-center bg-cover border border-border-light dark:border-border-dark flex-shrink-0" data-alt="Portrait of student Chukwu Chioma" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuALPSfuGUZk4KqbzZ9CT7rshu9cVSlNeOo1eFoXTguXv05T7zmyp37nA4HwN120Cv7uRUexXXzo_NO_65FOSqbUEItSH5VUSeIz3TdE6d974KBLDu5Dfroa3vklNJOF_puOSZ-uiI5-MMTBOKJgTjKpKBfydKGFWbONKhbTFbJ68lZ1k2jhIGzrthmZI4y8BoUee4Zn60tYyAxS_6wI8LrIgN2NArC_zxLj1hWsKsH9EiNnRDDQxWy01AC4nQnBLM9ycHDbkT-jNA");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold text-[#111318] dark:text-white">Chukwu, Chioma</p>
+<p class="text-xs text-[#606e8a] dark:text-slate-400 font-mono">ID: 2023004</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<div class="flex justify-center">
+<div class="bg-background-light dark:bg-background-dark p-1 rounded-lg inline-flex shadow-inner border border-border-light dark:border-border-dark">
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-004" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm">Present</div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="status-004" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-red-500 peer-checked:text-white peer-checked:shadow-sm">Absent</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-004" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:shadow-sm">Late</div>
+</label>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<input class="w-full bg-transparent border-b border-transparent focus:border-primary placeholder:text-gray-400 text-sm py-1 focus:outline-none transition-colors dark:text-white text-red-500 font-medium" type="text" value="Sick leave reported by parent"/>
+</td>
+</tr>
+<!-- Student Row 3: Late -->
+<tr class="group hover:bg-background-light dark:hover:bg-gray-800/30 transition-colors">
+<td class="py-3 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-center bg-cover border border-border-light dark:border-border-dark flex-shrink-0" data-alt="Portrait of student Ibrahim Musa" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDGnP6fDz8UOBRzDD4-HroWeR8WvfDSwqd5LRo9UmlddPcp28k39RaATsyz2XXNsVtMM2zbV-WU6Ut9VUR6mKaz1H1_dmhQjVffrQ-Yt7fdlsabeBvlrcwRol5RnnU_izFyh6P0hovqy6Ebk2H5gw2HdjKblo43qdhYbnZb2a_RM5Aex8HoYNaQxwesUeEE6gqlKnGmY5QlkffnHQthTtPXll-wkyxDZcBM6uEOnmerj2S1LR638WtiYGoRvonzCSG2QIlmrWoSig");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold text-[#111318] dark:text-white">Ibrahim, Musa</p>
+<p class="text-xs text-[#606e8a] dark:text-slate-400 font-mono">ID: 2023012</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<div class="flex justify-center">
+<div class="bg-background-light dark:bg-background-dark p-1 rounded-lg inline-flex shadow-inner border border-border-light dark:border-border-dark">
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-012" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm">Present</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-012" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-red-500 peer-checked:text-white peer-checked:shadow-sm">Absent</div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="status-012" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:shadow-sm">Late</div>
+</label>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<input class="w-full bg-transparent border-b border-transparent focus:border-primary placeholder:text-gray-400 text-sm py-1 focus:outline-none transition-colors dark:text-white text-yellow-600 dark:text-yellow-400" type="text" value="Arrived 8:15 AM"/>
+</td>
+</tr>
+<!-- Student Row 4: Present -->
+<tr class="group hover:bg-background-light dark:hover:bg-gray-800/30 transition-colors">
+<td class="py-3 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-lg border border-border-light dark:border-border-dark flex-shrink-0">
+                                        EO
+                                    </div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold text-[#111318] dark:text-white">Okoro, Emeka</p>
+<p class="text-xs text-[#606e8a] dark:text-slate-400 font-mono">ID: 2023028</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<div class="flex justify-center">
+<div class="bg-background-light dark:bg-background-dark p-1 rounded-lg inline-flex shadow-inner border border-border-light dark:border-border-dark">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="status-028" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm">Present</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-028" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-red-500 peer-checked:text-white peer-checked:shadow-sm">Absent</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-028" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:shadow-sm">Late</div>
+</label>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<input class="w-full bg-transparent border-b border-transparent focus:border-primary placeholder:text-gray-400 text-sm py-1 focus:outline-none transition-colors dark:text-white" placeholder="Add remark..." type="text"/>
+</td>
+</tr>
+<!-- Student Row 5: Present -->
+<tr class="group hover:bg-background-light dark:hover:bg-gray-800/30 transition-colors">
+<td class="py-3 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-center bg-cover border border-border-light dark:border-border-dark flex-shrink-0" data-alt="Portrait of student Yusuf Zainab" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDekW1Gpz6_aGr4TPPYvfCb3pGtAwKxSwi6QwsnvkDVXq4TD4Rbqk2nz-MdCTkZ2HXK2g0mkJdqxnbpqhLUIxOoie3-OUibH9GQiH_FgCN4BBaqf4qyp8ojRU_BXbhJCeFN4sB3PX2j07siT2psDExEVoE_pgnLcKHXs4k9r8xyrx1blsPqrbNATRZAhb2vR1pPUCHRzMMxe4M9az48tqU4lWG7-3rspLpLuknm98sTiIKXjcjIWCTgPWnTSfrR7-2wj54k10dHdg");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold text-[#111318] dark:text-white">Yusuf, Zainab</p>
+<p class="text-xs text-[#606e8a] dark:text-slate-400 font-mono">ID: 2023045</p>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<div class="flex justify-center">
+<div class="bg-background-light dark:bg-background-dark p-1 rounded-lg inline-flex shadow-inner border border-border-light dark:border-border-dark">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="status-045" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-primary peer-checked:text-white peer-checked:shadow-sm">Present</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-045" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-red-500 peer-checked:text-white peer-checked:shadow-sm">Absent</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="status-045" type="radio"/>
+<div class="px-3 py-1.5 rounded-md text-xs font-medium text-[#606e8a] dark:text-slate-400 hover:text-[#111318] dark:hover:text-white transition-all peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:shadow-sm">Late</div>
+</label>
+</div>
+</div>
+</td>
+<td class="py-3 px-6">
+<input class="w-full bg-transparent border-b border-transparent focus:border-primary placeholder:text-gray-400 text-sm py-1 focus:outline-none transition-colors dark:text-white" placeholder="Add remark..." type="text"/>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / List Footer -->
+<div class="px-6 py-4 border-t border-border-light dark:border-border-dark bg-background-light/50 dark:bg-gray-800/20 flex justify-between items-center text-sm text-[#606e8a] dark:text-slate-400">
+<p>Showing 1-5 of 35 students</p>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded border border-border-light dark:border-border-dark bg-white dark:bg-card-dark hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50" disabled="">Prev</button>
+<button class="px-3 py-1 rounded border border-border-light dark:border-border-dark bg-white dark:bg-card-dark hover:bg-gray-50 dark:hover:bg-gray-700">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Footer for Submit Action -->
+<div class="fixed bottom-0 w-full bg-card-light dark:bg-card-dark border-t border-border-light dark:border-border-dark py-4 px-8 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+<div class="max-w-[1280px] mx-auto flex items-center justify-between">
+<div class="hidden md:flex flex-col">
+<span class="text-sm font-medium text-[#111318] dark:text-white">Attendance Summary</span>
+<span class="text-xs text-[#606e8a] dark:text-slate-400">Please review statuses before submitting.</span>
+</div>
+<div class="flex gap-4 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-6 py-3 rounded-lg border border-border-light dark:border-border-dark text-[#111318] dark:text-white font-medium hover:bg-background-light dark:hover:bg-gray-800 transition-colors">
+                    Save Draft
+                </button>
+<button class="flex-1 md:flex-none px-8 py-3 rounded-lg bg-primary hover:bg-primary-dark text-white font-medium shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">save</span>
+                    Submit Attendance
+                </button>
+</div>
+</div>
+</div>
+</body></html>

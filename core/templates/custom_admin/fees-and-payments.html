@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fee &amp; Payment Management - School Admin</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d59f2",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e5e7eb] dark:border-b-[#2a3441] bg-white dark:bg-[#1a202c] px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">school</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] dark:text-white">School Admin</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<!-- Search Bar -->
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full overflow-hidden">
+<div class="text-[#606e8a] flex border-none bg-[#f0f1f5] dark:bg-[#2a3441] items-center justify-center pl-4">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-[#111318] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f0f1f5] dark:bg-[#2a3441] focus:border-none h-full placeholder:text-[#606e8a] px-3 text-sm font-normal leading-normal" placeholder="Search students..." value=""/>
+</div>
+</label>
+<!-- Icons -->
+<div class="flex gap-3 text-[#606e8a] dark:text-[#9ca3af]">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<!-- User Profile -->
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-white shadow-sm cursor-pointer" data-alt="User avatar of the administrator" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCxPXXvqkngUJ-kKrjr3AXYhQmfcEeu1IiYB-NpnbpI22n8wbecO0u8IXYqCa95QN24X5fHvk7GKCSGUjcKpRkdacK-17HP9Z_3z6FPyJ9b4aRCNBjE3HFPm6AtdfxNiAmVPPaQxNjECeCPY6FxtWc7e_wXsQxFhLOfzsDRW6INLz86LPcjjxAo1kgTi8apdtyZgUS5wFO4w12dy5W0FJPRdwFaVEqZ26wlL7DoEBzq0x9z37jqHtq_Yg-jEpyPdBXDEhU0YlCE5Q");'>
+</div>
+</div>
+</header>
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1 gap-6">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 px-4">
+<a class="text-[#606e8a] dark:text-[#9ca3af] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Fee Management</a>
+<span class="text-[#606e8a] dark:text-[#9ca3af] text-sm font-medium leading-normal">/</span>
+<span class="text-[#111318] dark:text-white text-sm font-medium leading-normal">Dashboard</span>
+</div>
+<!-- Page Heading & Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 px-4">
+<div class="flex flex-col gap-2">
+<h1 class="text-[#111318] dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Fee &amp; Payment Management</h1>
+<div class="flex items-center gap-2 text-[#606e8a] dark:text-[#9ca3af]">
+<span class="material-symbols-outlined text-lg">calendar_month</span>
+<p class="text-base font-normal leading-normal">First Term 2023/2024</p>
+<span class="material-symbols-outlined text-lg cursor-pointer hover:text-primary">expand_more</span>
+</div>
+</div>
+<button class="flex items-center justify-center rounded-lg h-12 px-6 bg-primary hover:bg-blue-700 text-white gap-2 text-sm font-bold shadow-md shadow-blue-500/20 transition-all">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+<span class="truncate">Generate Invoice</span>
+</button>
+</div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4">
+<div class="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#e5e7eb] dark:border-[#2a3441] shadow-sm">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-primary">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</div>
+<span class="material-symbols-outlined text-gray-400">more_vert</span>
+</div>
+<div>
+<p class="text-[#606e8a] dark:text-[#9ca3af] text-sm font-medium mb-1">Total Expected Revenue</p>
+<p class="text-[#111318] dark:text-white text-2xl font-bold">₦45,000,000</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#e5e7eb] dark:border-[#2a3441] shadow-sm relative overflow-hidden group">
+<div class="absolute right-0 top-0 h-full w-1 bg-[#07883b]"></div>
+<div class="flex justify-between items-start">
+<div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-[#07883b]">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="flex items-center gap-1 text-[#07883b] bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs font-bold">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+<span>72%</span>
+</div>
+</div>
+<div>
+<p class="text-[#606e8a] dark:text-[#9ca3af] text-sm font-medium mb-1">Total Collected (Paid)</p>
+<p class="text-[#111318] dark:text-white text-2xl font-bold">₦32,500,000</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-[#1a202c] border border-[#e5e7eb] dark:border-[#2a3441] shadow-sm">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-500">
+<span class="material-symbols-outlined">pending</span>
+</div>
+<div class="flex items-center gap-1 text-orange-600 bg-orange-50 dark:bg-orange-900/20 px-2 py-1 rounded text-xs font-bold">
+<span>28% pending</span>
+</div>
+</div>
+<div>
+<p class="text-[#606e8a] dark:text-[#9ca3af] text-sm font-medium mb-1">Outstanding Balance</p>
+<p class="text-[#111318] dark:text-white text-2xl font-bold">₦12,500,000</p>
+</div>
+</div>
+</div>
+<!-- Main Content Grid: Table + Sidebar -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
+<!-- Left Column: Student Payments Table (Span 2) -->
+<div class="lg:col-span-2 flex flex-col gap-4">
+<!-- Toolbar -->
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-[#1a202c] p-4 rounded-xl border border-[#e5e7eb] dark:border-[#2a3441] shadow-sm">
+<div class="flex gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+<button class="px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-bold whitespace-nowrap">All Students</button>
+<button class="px-4 py-2 text-[#606e8a] dark:text-[#9ca3af] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium whitespace-nowrap transition">Paid</button>
+<button class="px-4 py-2 text-[#606e8a] dark:text-[#9ca3af] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium whitespace-nowrap transition">Partial</button>
+<button class="px-4 py-2 text-[#606e8a] dark:text-[#9ca3af] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg text-sm font-medium whitespace-nowrap transition">Unpaid</button>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<div class="relative w-full sm:w-48">
+<span class="material-symbols-outlined absolute left-2.5 top-2.5 text-gray-400 text-[18px]">filter_list</span>
+<select class="w-full bg-[#f0f1f5] dark:bg-[#2a3441] border-none rounded-lg py-2 pl-9 pr-8 text-sm text-[#111318] dark:text-white focus:ring-1 focus:ring-primary cursor-pointer">
+<option>All Classes</option>
+<option>JSS 1</option>
+<option>JSS 2</option>
+<option>JSS 3</option>
+<option>SS 1</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Table Card -->
+<div class="bg-white dark:bg-[#1a202c] rounded-xl border border-[#e5e7eb] dark:border-[#2a3441] shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-gray-50 dark:bg-[#232b38] text-[#606e8a] dark:text-[#9ca3af] text-xs uppercase font-semibold">
+<tr>
+<th class="p-4 border-b dark:border-[#2a3441]">Student</th>
+<th class="p-4 border-b dark:border-[#2a3441]">Class</th>
+<th class="p-4 border-b dark:border-[#2a3441]">Total Fee</th>
+<th class="p-4 border-b dark:border-[#2a3441]">Paid</th>
+<th class="p-4 border-b dark:border-[#2a3441]">Balance</th>
+<th class="p-4 border-b dark:border-[#2a3441]">Status</th>
+<th class="p-4 border-b dark:border-[#2a3441]">Action</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-[#f0f1f5] dark:divide-[#2a3441]">
+<!-- Row 1 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-[#232b38]/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">CO</div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111318] dark:text-white">Chinedu Okafor</span>
+<span class="text-xs text-[#606e8a]">ID: 2023001</span>
+</div>
+</div>
+</td>
+<td class="p-4 text-[#606e8a] dark:text-[#9ca3af]">JSS 2</td>
+<td class="p-4 font-medium text-[#111318] dark:text-white">₦150,000</td>
+<td class="p-4 text-[#07883b]">₦135,000</td>
+<td class="p-4 font-bold text-[#111318] dark:text-white">₦15,000</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                                                        Partial
+                                                    </span>
+</td>
+<td class="p-4">
+<button class="text-primary hover:text-blue-700 dark:hover:text-blue-400 font-medium text-xs">Details</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-[#232b38]/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold text-xs">AN</div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111318] dark:text-white">Amara Nnaji</span>
+<span class="text-xs text-[#606e8a]">ID: 2023042</span>
+</div>
+</div>
+</td>
+<td class="p-4 text-[#606e8a] dark:text-[#9ca3af]">SS 1</td>
+<td class="p-4 font-medium text-[#111318] dark:text-white">₦180,000</td>
+<td class="p-4 text-[#07883b]">₦180,000</td>
+<td class="p-4 font-bold text-[#606e8a] dark:text-[#9ca3af]">₦0</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                                                        Paid
+                                                    </span>
+</td>
+<td class="p-4">
+<button class="text-[#606e8a] hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">print</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-[#232b38]/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">BA</div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111318] dark:text-white">Bolu Adebayo</span>
+<span class="text-xs text-[#606e8a]">ID: 2023112</span>
+</div>
+</div>
+</td>
+<td class="p-4 text-[#606e8a] dark:text-[#9ca3af]">JSS 1</td>
+<td class="p-4 font-medium text-[#111318] dark:text-white">₦150,000</td>
+<td class="p-4 text-[#606e8a] dark:text-[#9ca3af]">₦0</td>
+<td class="p-4 font-bold text-red-600">₦150,000</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                                        Unpaid
+                                                    </span>
+</td>
+<td class="p-4">
+<button class="text-primary hover:text-blue-700 dark:hover:text-blue-400 font-medium text-xs">Remind</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-gray-50 dark:hover:bg-[#232b38]/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-bold text-xs">ZA</div>
+<div class="flex flex-col">
+<span class="font-bold text-[#111318] dark:text-white">Zainab Aliyu</span>
+<span class="text-xs text-[#606e8a]">ID: 2023089</span>
+</div>
+</div>
+</td>
+<td class="p-4 text-[#606e8a] dark:text-[#9ca3af]">SS 2</td>
+<td class="p-4 font-medium text-[#111318] dark:text-white">₦180,000</td>
+<td class="p-4 text-[#07883b]">₦90,000</td>
+<td class="p-4 font-bold text-[#111318] dark:text-white">₦90,000</td>
+<td class="p-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                                                        Partial
+                                                    </span>
+</td>
+<td class="p-4">
+<button class="text-primary hover:text-blue-700 dark:hover:text-blue-400 font-medium text-xs">Details</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-4 py-3 border-t border-[#e5e7eb] dark:border-[#2a3441] bg-gray-50 dark:bg-[#232b38] flex justify-between items-center">
+<span class="text-xs text-[#606e8a] dark:text-[#9ca3af]">Showing 4 of 124 students</span>
+<div class="flex gap-2">
+<button class="size-8 flex items-center justify-center rounded-lg border border-[#e5e7eb] bg-white dark:bg-[#1a202c] dark:border-[#2a3441] text-[#606e8a] hover:bg-gray-100"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="size-8 flex items-center justify-center rounded-lg border border-[#e5e7eb] bg-white dark:bg-[#1a202c] dark:border-[#2a3441] text-[#606e8a] hover:bg-gray-100"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Sidebar (Span 1) -->
+<div class="flex flex-col gap-6">
+<!-- Quick Actions Card -->
+<div class="bg-white dark:bg-[#1a202c] p-5 rounded-xl border border-[#e5e7eb] dark:border-[#2a3441] shadow-sm">
+<h3 class="text-[#111318] dark:text-white font-bold text-lg mb-4">Quick Actions</h3>
+<div class="flex flex-col gap-3">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-4 bg-[#f0f1f5] dark:bg-[#2a3441] hover:bg-[#e5e7eb] dark:hover:bg-[#323d4d] text-[#111318] dark:text-white gap-2 text-sm font-bold transition">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span class="truncate">Record Manual Payment</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 text-[#606e8a] dark:text-[#9ca3af] hover:text-primary gap-3 text-sm font-medium transition">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span>View Transaction Logs</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-start overflow-hidden rounded-lg h-10 px-4 text-[#606e8a] dark:text-[#9ca3af] hover:text-primary gap-3 text-sm font-medium transition">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span>Manage Fee Structure</span>
+</button>
+</div>
+</div>
+<!-- Fee Categories Card -->
+<div class="bg-white dark:bg-[#1a202c] p-5 rounded-xl border border-[#e5e7eb] dark:border-[#2a3441] shadow-sm">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-[#111318] dark:text-white font-bold text-lg">Fee Categories</h3>
+<span class="text-xs text-primary font-medium cursor-pointer">View Details</span>
+</div>
+<div class="flex flex-col gap-5">
+<!-- Category 1 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between text-sm">
+<span class="text-[#606e8a] dark:text-[#9ca3af]">Tuition Fees</span>
+<span class="font-bold text-[#111318] dark:text-white">₦25.4M</span>
+</div>
+<div class="h-2 w-full bg-[#f0f1f5] dark:bg-[#2a3441] rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%] rounded-full"></div>
+</div>
+</div>
+<!-- Category 2 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between text-sm">
+<span class="text-[#606e8a] dark:text-[#9ca3af]">Uniforms</span>
+<span class="font-bold text-[#111318] dark:text-white">₦8.1M</span>
+</div>
+<div class="h-2 w-full bg-[#f0f1f5] dark:bg-[#2a3441] rounded-full overflow-hidden">
+<div class="h-full bg-purple-500 w-[60%] rounded-full"></div>
+</div>
+</div>
+<!-- Category 3 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between text-sm">
+<span class="text-[#606e8a] dark:text-[#9ca3af]">Library Levy</span>
+<span class="font-bold text-[#111318] dark:text-white">₦540k</span>
+</div>
+<div class="h-2 w-full bg-[#f0f1f5] dark:bg-[#2a3441] rounded-full overflow-hidden">
+<div class="h-full bg-teal-500 w-[90%] rounded-full"></div>
+</div>
+</div>
+<!-- Category 4 -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between text-sm">
+<span class="text-[#606e8a] dark:text-[#9ca3af]">PTA Levy</span>
+<span class="font-bold text-[#111318] dark:text-white">₦3.2M</span>
+</div>
+<div class="h-2 w-full bg-[#f0f1f5] dark:bg-[#2a3441] rounded-full overflow-hidden">
+<div class="h-full bg-orange-500 w-[45%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Notice/Promo Area -->
+<div class="bg-gradient-to-br from-primary to-blue-700 p-5 rounded-xl shadow-lg text-white relative overflow-hidden">
+<div class="absolute -right-4 -top-4 opacity-20">
+<span class="material-symbols-outlined text-[100px]">payments</span>
+</div>
+<h3 class="font-bold text-lg mb-2 relative z-10">Reconciliation Due</h3>
+<p class="text-blue-100 text-sm mb-4 relative z-10">The weekly bank reconciliation report is ready for review.</p>
+<button class="bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 px-4 rounded-lg relative z-10 transition">View Report</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>
