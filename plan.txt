@@ -1,0 +1,41 @@
+A client who runs a primary and secondary school here in Onitsha, Anambra State, Nigeria, wants to automate their school management system. The system should be able to handle the following:
+
+1. Student Management
+2. Staff Management
+3. Class Management
+4. Subject Management
+5. Exam Management
+6. Fee Management
+7. Attendance Management
+8. Result Management
+9. Library Management
+10. Transport Management
+11. Inventory Management
+
+The students should be able to use a purchased pin to their result per term, an academic session contains 3 terms which are first term, second term and third term. The result of the third term should be two, one the term's result and two the annual result. The annual result is the average of the three terms. the teachers should be able to upload CA (contineous assessment) and exam marks for each subject, either student wise or bulk upload through csv file. The result should be calculated based on the following:
+CA (40%), Exam (60%) and Total (100%) with remarks as Failed, Pass, Good, Very Good and Excellent.
+
+there should be a page for students to buy a pin, the pin should be purchased through the school's website and the payment should be made through the school's website. the pin should be valid for a term and the student should be able to use the pin to access their result per term.
+
+The admin should be able to add, edit, delete and view students, staff, classes, subjects, exams, fees, attendance, results, library, transport, hostel and inventory, promote students to the next class, and generate reports for students, staff, classes, subjects, exams, fees, attendance, results, library, transport, hostel and inventory.
+
+Pages:
+1. Login Page
+2. Dashboard Page
+3. Student Management Page
+4. Staff Management Page
+5. Class Management Page
+6. Subject Management Page
+7. Exam Management Page
+8. Fee Management Page
+9. Attendance Management Page
+10. Result Management Page
+11. Library Management Page
+12. Transport Management Page
+13. Inventory Management Page
+
+
+Add other things and features as may be necessary to make the system functional and user-friendly. The website should be mobile friendly and responsive.
+
+Tech stack
+we will use django and htmx(for frontend interactivity and smooth user experience) and postgresql(for production) and sqlite(for development) for the database.
