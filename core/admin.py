@@ -46,3 +46,32 @@ admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(StudentProfile, StudentProfileAdmin)
 admin.site.register(TeacherProfile, TeacherProfileAdmin)
 admin.site.register(StaffProfile, StaffProfileAdmin)
+
+# Academics Models Registration
+from .models import AcademicSession, Term, ClassInfo, Subject, StudentResult
+
+@admin.register(AcademicSession)
+class AcademicSessionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_current', 'start_date', 'end_date')
+    list_filter = ('is_current',)
+
+@admin.register(Term)
+class TermAdmin(admin.ModelAdmin):
+    list_display = ('name', 'academic_session', 'is_current')
+    list_filter = ('academic_session', 'is_current')
+
+@admin.register(ClassInfo)
+class ClassInfoAdmin(admin.ModelAdmin):
+    list_display = ('name', 'level')
+    list_filter = ('level',)
+
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'is_elective')
+    search_fields = ('name', 'code')
+
+@admin.register(StudentResult)
+class StudentResultAdmin(admin.ModelAdmin):
+    list_display = ('student', 'subject', 'student_class', 'term', 'total', 'grade')
+    list_filter = ('student_class', 'subject', 'term', 'grade')
+    search_fields = ('student__username', 'student__first_name', 'student__last_name')

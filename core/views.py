@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -222,7 +222,97 @@ def manage_students(request):
 
 @login_required
 def enter_marks(request):
+    from .models import ClassInfo, Subject, Term, AcademicSession, StudentResult, CustomUser
+    
     user = request.user
+    
+    # Fetch filter options
+    classes = ClassInfo.objects.all()
+    subjects = Subject.objects.all()
+    
+    # Get current session & terms
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    # Selected filters from GET request
+    selected_class_id = request.GET.get('class_id')
+    selected_subject_id = request.GET.get('subject_id')
+    selected_term_id = request.GET.get('term_id')
+    
+    students = []
+    existing_results_map = {}
+    
+    if selected_class_id and selected_subject_id and selected_term_id:
+        # Fetch students in the selected class
+        # Assuming we need to link students to classes later, currently using role='student'
+        # For now, let's filter by student profile class_level matching the selected class name/level
+        try:
+             selected_class = ClassInfo.objects.get(id=selected_class_id)
+             students = CustomUser.objects.filter(
+                 role='student', 
+                 student_profile__class_level=selected_class.level
+             ).order_by('last_name')
+             
+             # Fetch existing results
+             results = StudentResult.objects.filter(
+                 student__in=students,
+                 subject_id=selected_subject_id,
+                 term_id=selected_term_id
+             )
+             existing_results_map = {res.student_id: res for res in results}
+             
+        except ClassInfo.DoesNotExist:
+            messages.error(request, "Selected class not found.")
+            
+    # Combine student and result data for the template
+    student_data = []
+    for student in students:
+        student_data.append({
+            'student': student,
+            'result': existing_results_map.get(student.id)
+        })
+    
+    if request.method == 'POST':
+        try:
+            class_id = request.POST.get('class_id')
+            subject_id = request.POST.get('subject_id')
+            term_id = request.POST.get('term_id')
+            
+            if not (class_id and subject_id and term_id):
+                 raise ValueError("Missing required filter data.")
+
+            student_ids = request.POST.getlist('student_ids')
+            
+            for student_id in student_ids:
+                ca1 = int(request.POST.get(f'ca1_{student_id}', 0) or 0)
+                ca2 = int(request.POST.get(f'ca2_{student_id}', 0) or 0)
+                ca3 = int(request.POST.get(f'ca3_{student_id}', 0) or 0)
+                ca4 = int(request.POST.get(f'ca4_{student_id}', 0) or 0)
+                exam = int(request.POST.get(f'exam_{student_id}', 0) or 0)
+                
+                # Update or Create Result
+                StudentResult.objects.update_or_create(
+                    student_id=student_id,
+                    subject_id=subject_id,
+                    term_id=term_id,
+                    defaults={
+                        'student_class_id': class_id,
+                        'ca1': ca1,
+                        'ca2': ca2,
+                        'ca3': ca3,
+                        'ca4': ca4,
+                        'exam': exam,
+                        'recorded_by': user
+                    }
+                )
+            
+            messages.success(request, "Marks saved successfully!")
+            return redirect(f"{reverse('enter_marks')}?class_id={class_id}&subject_id={subject_id}&term_id={term_id}")
+            
+        except Exception as e:
+            messages.error(request, f"Error saving marks: {str(e)}")
+    
+    
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
@@ -230,13 +320,191 @@ def enter_marks(request):
         'active_page': 'marks',
         'breadcrumb_parent': 'Academic',
         'breadcrumb_current': 'Enter Marks',
+        
+        'classes': classes,
+        'subjects': subjects,
+        'terms': terms,
+        'current_session': current_session,
+        
+        'selected_class_id': int(selected_class_id) if selected_class_id else None,
+        'selected_subject_id': int(selected_subject_id) if selected_subject_id else None,
+        'selected_term_id': int(selected_term_id) if selected_term_id else None,
+        
+        'student_data': student_data,
     }
     return render(request, 'custom_admin/enter-mark.html', context)
 
 
 @login_required
-def fees_payments(request):
+def upload_marks_csv(request):
+    import csv
+    import io
+    from .models import ClassInfo, Subject, Term, StudentResult, CustomUser
+    
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        csv_file = request.FILES['csv_file']
+        
+        # Check if it's a csv file
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, 'Please upload a CSV file.')
+            return redirect('enter_marks')
+        
+        # Get filter data from form
+        class_id = request.POST.get('class_id')
+        subject_id = request.POST.get('subject_id')
+        term_id = request.POST.get('term_id')
+        
+        if not (class_id and subject_id and term_id):
+            messages.error(request, 'Please select Class, Subject, and Term before uploading.')
+            return redirect('enter_marks')
+
+        try:
+            data_set = csv_file.read().decode('UTF-8')
+            io_string = io.StringIO(data_set)
+            next(io_string) # Skip header
+            
+            for column in csv.reader(io_string, delimiter=',', quotechar='"'):
+                # Expected format: Username/AdmissionNo, CA1, CA2, CA3, CA4, Exam
+                # Adjust index based on your CSV template
+                if len(column) < 6:
+                    continue
+                    
+                username = column[0].strip()
+                ca1 = int(column[1] or 0)
+                ca2 = int(column[2] or 0)
+                ca3 = int(column[3] or 0)
+                ca4 = int(column[4] or 0)
+                exam = int(column[5] or 0) # Exam is now at index 5
+                
+                try:
+                    student = CustomUser.objects.get(username=username, role='student')
+                    
+                    StudentResult.objects.update_or_create(
+                        student=student,
+                        subject_id=subject_id,
+                        term_id=term_id,
+                        defaults={
+                            'student_class_id': class_id,
+                            'ca1': ca1,
+                            'ca2': ca2,
+                            'ca3': ca3,
+                            'ca4': ca4,
+                            'exam': exam,
+                            'recorded_by': request.user
+                        }
+                    )
+                except CustomUser.DoesNotExist:
+                    # Log error or skip
+                    continue
+                    
+            messages.success(request, 'Marks uploaded successfully.')
+            
+        except Exception as e:
+            messages.error(request, f'Error processing CSV: {str(e)}')
+            
+        return redirect(f"{reverse('enter_marks')}?class_id={class_id}&subject_id={subject_id}&term_id={term_id}")
+    
+    return redirect('enter_marks')
+
+
+@login_required
+def broadsheet(request):
+    from .models import ClassInfo, Subject, Term, AcademicSession, StudentResult, CustomUser
+    from django.db.models import Sum, Avg
+    
     user = request.user
+    classes = ClassInfo.objects.all()
+    
+    # Get current session & terms
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    selected_class_id = request.GET.get('class_id')
+    selected_term_id = request.GET.get('term_id')
+    
+    broadsheet_data = []
+    subjects = []
+    
+    if selected_class_id and selected_term_id:
+        try:
+            selected_class = ClassInfo.objects.get(id=selected_class_id)
+            # Get valid subjects for this class level (or all for now)
+            subjects = Subject.objects.all()
+            
+            # Get students
+            students = CustomUser.objects.filter(
+                 role='student', 
+                 student_profile__class_level=selected_class.level
+             ).order_by('last_name')
+             
+            # Build broadsheet data
+            for student in students:
+                results = StudentResult.objects.filter(
+                    student=student, 
+                    term_id=selected_term_id,
+                    student_class_id=selected_class_id
+                )
+                result_map = {res.subject_id: res for res in results}
+                
+                subject_scores = []
+                total_score = 0
+                subject_count = 0
+                
+                for subject in subjects:
+                    if subject.id in result_map:
+                        res = result_map[subject.id]
+                        score = res.total
+                        grade = res.grade
+                        subject_scores.append({'score': score, 'grade': grade})
+                        total_score += score
+                        subject_count += 1
+                    else:
+                        subject_scores.append({'score': '-', 'grade': '-'})
+                
+                average = round(total_score / subject_count, 1) if subject_count > 0 else 0
+                
+                broadsheet_data.append({
+                    'student': student,
+                    'scores': subject_scores,
+                    'total': total_score,
+                    'average': average
+                })
+            
+            # Sort by Average/Total for position
+            broadsheet_data.sort(key=lambda x: x['total'], reverse=True)
+            
+            # Assign positions
+            current_pos = 1
+            for data in broadsheet_data:
+                data['position'] = current_pos
+                current_pos += 1
+                
+        except ClassInfo.DoesNotExist:
+            messages.error(request, "Selected class not found.")
+
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'broadsheet', 
+        'breadcrumb_parent': 'Academic',
+        'breadcrumb_current': 'Broadsheet',
+        
+        'classes': classes,
+        'terms': terms,
+        'subjects': subjects,
+        'current_session': current_session,
+        
+        'selected_class_id': int(selected_class_id) if selected_class_id else None,
+        'selected_term_id': int(selected_term_id) if selected_term_id else None,
+        
+        'broadsheet_data': broadsheet_data,
+    }
+    return render(request, 'custom_admin/broadsheet.html', context)
+
+
+@login_required
+def fees_payments(request):
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,

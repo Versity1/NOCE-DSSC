@@ -12,54 +12,98 @@
         <p class="text-text-sub dark:text-gray-400 text-base font-normal">Enter CA and Exam marks for students.</p>
     </div>
     <div class="flex flex-wrap items-center gap-3">
-        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
+        <button onclick="document.getElementById('upload-modal').classList.remove('hidden')" class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
             <span class="material-symbols-outlined text-lg">upload</span>
             <span class="truncate">Bulk Upload CSV</span>
         </button>
-        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
-            <span class="material-symbols-outlined text-lg">save</span>
-            <span class="truncate">Save All</span>
-        </button>
+        <!-- Save button is inside the form below now -->
     </div>
 </div>
 
-<!-- Filters -->
-<div class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4">
+<!-- Upload Modal -->
+<div id="upload-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('upload-modal').classList.add('hidden')"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white dark:bg-surface-dark rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form action="{% url 'upload_marks_csv' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="class_id" value="{{ selected_class_id }}">
+                <input type="hidden" name="subject_id" value="{{ selected_subject_id }}">
+                <input type="hidden" name="term_id" value="{{ selected_term_id }}">
+                
+                <div class="bg-white dark:bg-surface-dark px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg leading-6 font-medium text-text-main dark:text-white" id="modal-title">Upload Marks CSV</h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-text-sub dark:text-gray-400 mb-4">
+                            Upload a CSV file with columns: <strong>Username/AdmissionNo, CA1, CA2, CA3, CA4, Exam</strong>.<br>
+                            Ensure you have selected Class, Subject, and Term.
+                        </p>
+                        <input type="file" name="csv_file" accept=".csv" required class="block w-full text-sm text-text-sub dark:text-gray-400
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-primary/10 file:text-primary
+                            hover:file:bg-primary/20
+                        "/>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-dark focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+                        Upload
+                    </button>
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick="document.getElementById('upload-modal').classList.add('hidden')">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Filters Form -->
+<form method="get" class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4">
     <div class="flex-1">
         <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Class</label>
-        <select class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
-            <option>Select Class</option>
-            <option>JSS 1A</option>
-            <option>JSS 1B</option>
-            <option>JSS 2A</option>
-            <option>SS 1A</option>
+        <select name="class_id" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
+            <option value="">Select Class</option>
+            {% for class_obj in classes %}
+            <option value="{{ class_obj.id }}" {% if selected_class_id == class_obj.id %}selected{% endif %}>{{ class_obj.name }}</option>
+            {% endfor %}
         </select>
     </div>
     <div class="flex-1">
         <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Subject</label>
-        <select class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
-            <option>Select Subject</option>
-            <option>Mathematics</option>
-            <option>English Language</option>
-            <option>Basic Science</option>
+        <select name="subject_id" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
+            <option value="">Select Subject</option>
+            {% for subject in subjects %}
+            <option value="{{ subject.id }}" {% if selected_subject_id == subject.id %}selected{% endif %}>{{ subject.name }}</option>
+            {% endfor %}
         </select>
     </div>
     <div class="flex-1">
         <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Term</label>
-        <select class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
-            <option>First Term</option>
-            <option>Second Term</option>
-            <option>Third Term</option>
+        <select name="term_id" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
+            <option value="">Select Term</option>
+            {% for term in terms %}
+            <option value="{{ term.id }}" {% if selected_term_id == term.id %}selected{% endif %}>{{ term.name }}</option>
+            {% endfor %}
         </select>
     </div>
     <div class="flex items-end">
-        <button class="h-11 px-6 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors">Load Students</button>
+        <button type="submit" class="h-11 px-6 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors">Load Students</button>
     </div>
-</div>
+</form>
 
 <!-- Marks Entry Table -->
-<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+<form method="post" action="{% url 'enter_marks' %}" class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+    {% csrf_token %}
+    <input type="hidden" name="class_id" value="{{ selected_class_id }}">
+    <input type="hidden" name="subject_id" value="{{ selected_subject_id }}">
+    <input type="hidden" name="term_id" value="{{ selected_term_id }}">
+    
     <div class="overflow-x-auto">
+        {% if student_data %}
         <table class="w-full text-sm">
             <thead class="bg-background-light dark:bg-[#2d3748]">
                 <tr>
@@ -67,45 +111,92 @@
                     <th class="py-4 px-4 text-left font-bold text-text-sub">Student Name</th>
                     <th class="py-4 px-4 text-center font-bold text-text-sub">CA1 (10)</th>
                     <th class="py-4 px-4 text-center font-bold text-text-sub">CA2 (10)</th>
-                    <th class="py-4 px-4 text-center font-bold text-text-sub">CA3 (20)</th>
+                    <th class="py-4 px-4 text-center font-bold text-text-sub">CA3 (10)</th>
+                    <th class="py-4 px-4 text-center font-bold text-text-sub">CA4 (10)</th>
                     <th class="py-4 px-4 text-center font-bold text-text-sub">Exam (60)</th>
                     <th class="py-4 px-4 text-center font-bold text-text-sub">Total</th>
                     <th class="py-4 px-4 text-center font-bold text-text-sub">Grade</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4">1</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Adebayo Chioma</td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="8" max="10"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="9" max="10"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="18" max="20"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="52" max="60"></td>
-                    <td class="py-3 px-4 text-center font-bold text-primary">87</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded font-bold">A</span></td>
+                {% for item in student_data %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 data-row" data-student-id="{{ item.student.id }}">
+                    <td class="py-3 px-4">{{ forloop.counter }}</td>
+                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">
+                        {{ item.student.get_full_name }}
+                        <input type="hidden" name="student_ids" value="{{ item.student.id }}">
+                    </td>
+                    <td class="py-3 px-4"><input type="number" name="ca1_{{ item.student.id }}" class="mark-input w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="{{ item.result.ca1|default:0 }}" max="10" min="0"></td>
+                    <td class="py-3 px-4"><input type="number" name="ca2_{{ item.student.id }}" class="mark-input w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="{{ item.result.ca2|default:0 }}" max="10" min="0"></td>
+                    <td class="py-3 px-4"><input type="number" name="ca3_{{ item.student.id }}" class="mark-input w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="{{ item.result.ca3|default:0 }}" max="10" min="0"></td>
+                    <td class="py-3 px-4"><input type="number" name="ca4_{{ item.student.id }}" class="mark-input w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="{{ item.result.ca4|default:0 }}" max="10" min="0"></td>
+                    <td class="py-3 px-4"><input type="number" name="exam_{{ item.student.id }}" class="mark-input w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="{{ item.result.exam|default:0 }}" max="60" min="0"></td>
+                    <td class="py-3 px-4 text-center font-bold text-primary total-display">{{ item.result.total|default:0 }}</td>
+                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded font-bold grade-display">{{ item.result.grade|default:"-" }}</span></td>
                 </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4">2</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Bakare Tunde</td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="7" max="10"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="8" max="10"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="15" max="20"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="45" max="60"></td>
-                    <td class="py-3 px-4 text-center font-bold text-primary">75</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded font-bold">B</span></td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4">3</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Okonkwo Emeka</td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="6" max="10"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="7" max="10"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="14" max="20"></td>
-                    <td class="py-3 px-4"><input type="number" class="w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748]" value="38" max="60"></td>
-                    <td class="py-3 px-4 text-center font-bold text-primary">65</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded font-bold">C</span></td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
+        
+        <!-- Save Button Floating or Bottom -->
+        <div class="p-4 border-t border-border-color dark:border-[#2d3748] flex justify-end">
+             <button type="submit" class="flex items-center justify-center rounded-lg h-10 px-6 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
+                <span class="material-symbols-outlined text-lg">save</span>
+                <span>Save All Marks</span>
+            </button>
+        </div>
+        
+        {% else %}
+        <div class="p-8 text-center text-text-sub dark:text-gray-400">
+            {% if selected_class_id %}
+            No students found in this class yet.
+            {% else %}
+            Please select Class, Subject, and Term to load students.
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
-</div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.data-row');
+        
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('.mark-input');
+            const totalDisplay = row.querySelector('.total-display');
+            const gradeDisplay = row.querySelector('.grade-display');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', () => calculateRow(row));
+            });
+        });
+        
+        function calculateRow(row) {
+            const inputs = row.querySelectorAll('.mark-input');
+            let total = 0;
+            inputs.forEach(input => {
+                total += parseInt(input.value || 0);
+            });
+            
+            const totalDisplay = row.querySelector('.total-display');
+            const gradeDisplay = row.querySelector('.grade-display');
+            
+            totalDisplay.textContent = total;
+            
+            // Simple Grade Calc
+            let grade = 'F';
+            let colorClass = 'bg-red-100 text-red-700';
+            
+            if (total >= 70) { grade = 'A'; colorClass = 'bg-green-100 text-green-700'; }
+            else if (total >= 60) { grade = 'B'; colorClass = 'bg-blue-100 text-blue-700'; }
+            else if (total >= 50) { grade = 'C'; colorClass = 'bg-yellow-100 text-yellow-700'; }
+            else if (total >= 45) { grade = 'D'; colorClass = 'bg-orange-100 text-orange-700'; }
+            else if (total >= 40) { grade = 'E'; colorClass = 'bg-gray-300 text-gray-800'; }
+            
+            gradeDisplay.textContent = grade;
+            gradeDisplay.className = `px-2 py-1 rounded font-bold grade-display ${colorClass}`;
+        }
+    });
+</script>
 {% endblock %}

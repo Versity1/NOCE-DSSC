@@ -1,0 +1,96 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Broadsheet - NOCE DSSC{% endblock %}
+
+{% block page_title_mobile %}Broadsheet{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+            <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Class Broadsheet</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base font-normal">View consolidated results for all students.</p>
+        </div>
+        <div>
+             <button onclick="window.print()" class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
+                <span class="material-symbols-outlined text-lg">print</span>
+                <span class="truncate">Print Broadsheet</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4 print:hidden">
+        <div class="flex-1">
+            <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Class</label>
+            <select name="class_id" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
+                <option value="">Select Class</option>
+                {% for class_obj in classes %}
+                <option value="{{ class_obj.id }}" {% if selected_class_id == class_obj.id %}selected{% endif %}>{{ class_obj.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-1">
+            <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Term</label>
+            <select name="term_id" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
+                <option value="">Select Term</option>
+                {% for term in terms %}
+                <option value="{{ term.id }}" {% if selected_term_id == term.id %}selected{% endif %}>{{ term.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="h-11 px-6 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors">Generate</button>
+        </div>
+    </form>
+
+    <!-- Broadsheet Table -->
+    {% if broadsheet_data %}
+    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+                <thead class="bg-background-light dark:bg-[#2d3748]">
+                    <tr>
+                        <th class="py-3 px-3 border border-border-color dark:border-[#4a5568] text-left font-bold text-text-sub min-w-[50px]">Pos</th>
+                        <th class="py-3 px-3 border border-border-color dark:border-[#4a5568] text-left font-bold text-text-sub min-w-[200px]">Student Name</th>
+                        {% for subject in subjects %}
+                        <th class="py-3 px-2 border border-border-color dark:border-[#4a5568] text-center font-bold text-text-sub min-w-[80px]">
+                            <div class="flex flex-col">
+                                <span>{{ subject.code|default:subject.name|slice:":3" }}</span>
+                            </div>
+                        </th>
+                        {% endfor %}
+                        <th class="py-3 px-3 border border-border-color dark:border-[#4a5568] text-center font-bold text-text-sub min-w-[80px]">Total</th>
+                        <th class="py-3 px-3 border border-border-color dark:border-[#4a5568] text-center font-bold text-text-sub min-w-[80px]">Avg</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                    {% for row in broadsheet_data %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
+                        <td class="py-2 px-3 border border-border-color dark:border-[#4a5568] text-center">{{ row.position }}</td>
+                        <td class="py-2 px-3 border border-border-color dark:border-[#4a5568] font-medium text-text-main dark:text-white">{{ row.student.get_full_name }}</td>
+                        {% for score_data in row.scores %}
+                        <td class="py-2 px-2 border border-border-color dark:border-[#4a5568] text-center">
+                            <div class="flex flex-col items-center">
+                                <span class="font-bold {% if score_data.score < 40 and score_data.score != '-' %}text-red-500{% endif %}">{{ score_data.score }}</span>
+                                <span class="text-[10px] text-text-sub">{{ score_data.grade }}</span>
+                            </div>
+                        </td>
+                        {% endfor %}
+                        <td class="py-2 px-3 border border-border-color dark:border-[#4a5568] text-center font-bold text-primary">{{ row.total }}</td>
+                        <td class="py-2 px-3 border border-border-color dark:border-[#4a5568] text-center font-bold">{{ row.average }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% elif selected_class_id %}
+    <div class="p-12 bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] text-center">
+        <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">assignment_late</span>
+        <p class="text-text-sub dark:text-gray-400">No results found for the selected criteria.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
