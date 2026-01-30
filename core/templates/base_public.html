@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="relative flex min-h-screen w-full flex-col">
+    <!-- Public Navigation -->
+    {% include 'partials/navbar_public.html' %}
+    
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% include 'partials/footer.html' %}
+</div>
+{% endblock %}

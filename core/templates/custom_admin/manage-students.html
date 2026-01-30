@@ -1,389 +1,275 @@
-<!DOCTYPE html>
+{% extends 'base_dashboard.html' %}
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Student Management Directory - EduAdmin</title>
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<!-- Material Icons -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Tailwind Config -->
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#0d59f2",
-                        "background-light": "#f5f6f8",
-                        "background-dark": "#101622",
-                    },
-                    fontFamily: {
-                        "display": ["Lexend", "sans-serif"],
-                        "body": ["Noto Sans", "sans-serif"],
-                    },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-                },
-            },
-        }
-    </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .icon-fill {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-    </style>
-</head>
-<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display antialiased overflow-hidden">
-<div class="flex h-screen w-full">
-<!-- SideNavBar -->
-<aside class="w-64 bg-white dark:bg-[#1a202c] border-r border-[#e5e7eb] dark:border-[#2d3748] flex flex-col hidden md:flex flex-shrink-0">
-<div class="p-6 flex items-center gap-3">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="School logo gradient in blue and white" style="background-image: linear-gradient(135deg, #0d59f2 0%, #00c6ff 100%);"></div>
-<div class="flex flex-col">
-<h1 class="text-[#111318] dark:text-white text-lg font-bold leading-normal">EduAdmin</h1>
-<p class="text-[#606e8a] dark:text-[#a0aec0] text-xs font-normal leading-normal">School Management</p>
-</div>
-</div>
-<div class="flex-1 overflow-y-auto px-4 py-2 flex flex-col gap-2">
-<!-- Navigation Items -->
-<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group transition-colors" href="#">
-<span class="material-symbols-outlined text-[#606e8a] dark:text-[#a0aec0] group-hover:text-primary transition-colors">dashboard</span>
-<p class="text-[#111318] dark:text-[#e2e8f0] text-sm font-medium leading-normal">Dashboard</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 text-primary group transition-colors" href="#">
-<span class="material-symbols-outlined icon-fill">school</span>
-<p class="text-primary text-sm font-bold leading-normal">Students</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group transition-colors" href="#">
-<span class="material-symbols-outlined text-[#606e8a] dark:text-[#a0aec0] group-hover:text-primary transition-colors">person_apron</span>
-<p class="text-[#111318] dark:text-[#e2e8f0] text-sm font-medium leading-normal">Teachers</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group transition-colors" href="#">
-<span class="material-symbols-outlined text-[#606e8a] dark:text-[#a0aec0] group-hover:text-primary transition-colors">menu_book</span>
-<p class="text-[#111318] dark:text-[#e2e8f0] text-sm font-medium leading-normal">Classes</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group transition-colors" href="#">
-<span class="material-symbols-outlined text-[#606e8a] dark:text-[#a0aec0] group-hover:text-primary transition-colors">payments</span>
-<p class="text-[#111318] dark:text-[#e2e8f0] text-sm font-medium leading-normal">Fees</p>
-</a>
-<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 group transition-colors" href="#">
-<span class="material-symbols-outlined text-[#606e8a] dark:text-[#a0aec0] group-hover:text-primary transition-colors">settings</span>
-<p class="text-[#111318] dark:text-[#e2e8f0] text-sm font-medium leading-normal">Settings</p>
-</a>
-</div>
-<div class="p-4 border-t border-[#e5e7eb] dark:border-[#2d3748]">
-<div class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg text-red-600 dark:text-red-400 transition-colors">
-<span class="material-symbols-outlined">logout</span>
-<p class="text-sm font-medium leading-normal">Log Out</p>
-</div>
-</div>
-</aside>
-<!-- Main Content -->
-<main class="flex-1 flex flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative">
-<!-- Top Header Area -->
-<header class="bg-white dark:bg-[#1a202c] border-b border-[#e5e7eb] dark:border-[#2d3748] px-6 py-4 flex items-center justify-between z-10">
-<!-- Breadcrumbs -->
-<div class="flex items-center gap-2">
-<button aria-label="Menu" class="md:hidden p-2 -ml-2 text-[#606e8a]">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<div class="flex flex-wrap items-center gap-2 text-sm">
-<a class="text-[#606e8a] dark:text-[#a0aec0] font-medium hover:text-primary transition-colors" href="#">Home</a>
-<span class="text-[#606e8a] dark:text-[#a0aec0] material-symbols-outlined text-base">chevron_right</span>
-<a class="text-[#606e8a] dark:text-[#a0aec0] font-medium hover:text-primary transition-colors" href="#">Students</a>
-<span class="text-[#606e8a] dark:text-[#a0aec0] material-symbols-outlined text-base">chevron_right</span>
-<span class="text-[#111318] dark:text-white font-semibold">Directory</span>
-</div>
-</div>
-<!-- Profile/Notifs -->
-<div class="flex items-center gap-4">
-<button class="relative text-[#606e8a] hover:text-[#111318] dark:text-[#a0aec0] dark:hover:text-white transition-colors">
-<span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1a202c]"></span>
-</button>
-<div class="size-8 rounded-full bg-cover bg-center border border-[#e5e7eb]" data-alt="User profile picture of administrator" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAH2VLDllY8FWVQ_HX8cq7zXJCrEHmOzeQytcNYjOjUD3cFfbNr43PSqiKjNoK0E1CRBJv_fi-8XHqlx6_I0qsxnn89kWJx5elZK0qbildYTcnehpgUVoqlHlD_UeLLON5_rAduIGL9_tbSRaJbEVnNB3ws6w5M6ytQZPm_E1VDs5l8DOsHXOy59Dy0BcRcfJ9SqqKYjJ3E8Ou4xNYRlr6fz-08276N5s91BXlfVXXd7_ALp8gg2GPbyyD5M2D8QL40dS-hejehPw');"></div>
-</div>
-</header>
-<!-- Scrollable Content -->
-<div class="flex-1 overflow-y-auto p-4 md:p-8 scroll-smooth">
-<div class="max-w-[1400px] mx-auto flex flex-col gap-6">
-<!-- Page Heading & Main Actions -->
+{% block title %}Student Directory - Onitsha City School{% endblock %}
+
+{% block page_title_mobile %}Students{% endblock %}
+
+{% block content %}
+<!-- Page Heading & Actions -->
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-<div class="flex flex-col gap-1">
-<h1 class="text-[#111318] dark:text-white text-3xl font-black leading-tight tracking-tight">Student Directory</h1>
-<p class="text-[#606e8a] dark:text-[#a0aec0] text-base font-normal">Manage student records, enrollment status, and academic progress.</p>
+    <div class="flex flex-col gap-1">
+        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Student Directory</h1>
+        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Manage student records, enrollment status, and academic progress.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
+            <span class="material-symbols-outlined text-lg">upload</span>
+            <span class="truncate">Bulk Upload</span>
+        </button>
+        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
+            <span class="material-symbols-outlined text-lg">trending_up</span>
+            <span class="truncate">Promote</span>
+        </button>
+        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
+            <span class="material-symbols-outlined text-lg">add</span>
+            <span class="truncate">Add Student</span>
+        </button>
+    </div>
 </div>
-<div class="flex flex-wrap items-center gap-3">
-<button class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-[#d1d5db] dark:border-[#4a5568] text-[#111318] dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
-<span class="material-symbols-outlined text-lg">upload</span>
-<span class="truncate">Bulk Upload</span>
-</button>
-<button class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-[#d1d5db] dark:border-[#4a5568] text-[#111318] dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
-<span class="material-symbols-outlined text-lg">trending_up</span>
-<span class="truncate">Promote</span>
-</button>
-<button class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-blue-700 transition-colors">
-<span class="material-symbols-outlined text-lg">add</span>
-<span class="truncate">Add Student</span>
-</button>
-</div>
-</div>
+
 <!-- Search & Filter Bar -->
-<div class="bg-white dark:bg-[#1a202c] p-4 rounded-xl shadow-sm border border-[#e5e7eb] dark:border-[#2d3748] flex flex-col md:flex-row gap-4 justify-between items-center">
-<div class="relative w-full md:w-96 group">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] group-focus-within:text-primary transition-colors">search</span>
-<input class="w-full h-11 pl-10 pr-4 rounded-lg bg-[#f9fafb] dark:bg-[#2d3748] border border-[#e5e7eb] dark:border-[#4a5568] text-[#111318] dark:text-white placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm" placeholder="Search by name, ID, or parent..." type="text"/>
+<div class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4 justify-between items-center">
+    <div class="relative w-full md:w-96 group">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] group-focus-within:text-primary transition-colors">search</span>
+        <input class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm" placeholder="Search by name, ID, or parent..." type="text"/>
+    </div>
+    <div class="flex w-full md:w-auto items-center gap-3 overflow-x-auto pb-1 md:pb-0">
+        <div class="relative min-w-[140px]">
+            <select class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
+                <option value="">All Classes</option>
+                <option value="JSS1">JSS 1</option>
+                <option value="JSS2">JSS 2</option>
+                <option value="JSS3">JSS 3</option>
+                <option value="SS1">SS 1</option>
+                <option value="SS2">SS 2</option>
+                <option value="SS3">SS 3</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
+        </div>
+        <div class="relative min-w-[140px]">
+            <select class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
+                <option value="">All Genders</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
+        </div>
+        <div class="relative min-w-[140px]">
+            <select class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+                <option value="Graduated">Graduated</option>
+            </select>
+            <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
+        </div>
+    </div>
 </div>
-<div class="flex w-full md:w-auto items-center gap-3 overflow-x-auto pb-1 md:pb-0">
-<div class="relative min-w-[140px]">
-<select class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-[#f9fafb] dark:bg-[#2d3748] border border-[#e5e7eb] dark:border-[#4a5568] text-[#111318] dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
-<option value="">All Classes</option>
-<option value="JSS1">JSS 1</option>
-<option value="JSS2">JSS 2</option>
-<option value="JSS3">JSS 3</option>
-<option value="SS1">SS 1</option>
-<option value="SS2">SS 2</option>
-<option value="SS3">SS 3</option>
-</select>
-<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
-</div>
-<div class="relative min-w-[140px]">
-<select class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-[#f9fafb] dark:bg-[#2d3748] border border-[#e5e7eb] dark:border-[#4a5568] text-[#111318] dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
-<option value="">All Genders</option>
-<option value="Male">Male</option>
-<option value="Female">Female</option>
-</select>
-<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
-</div>
-<div class="relative min-w-[140px]">
-<select class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-[#f9fafb] dark:bg-[#2d3748] border border-[#e5e7eb] dark:border-[#4a5568] text-[#111318] dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
-<option value="">All Statuses</option>
-<option value="Active">Active</option>
-<option value="Suspended">Suspended</option>
-<option value="Graduated">Graduated</option>
-</select>
-<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
-</div>
-</div>
-</div>
+
 <!-- Data Table -->
-<div class="bg-white dark:bg-[#1a202c] rounded-xl shadow-sm border border-[#e5e7eb] dark:border-[#2d3748] overflow-hidden flex flex-col">
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead class="bg-[#f9fafb] dark:bg-[#2d3748] border-b border-[#e5e7eb] dark:border-[#4a5568]">
-<tr>
-<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-[#a0aec0]">
-<div class="flex items-center gap-1 cursor-pointer hover:text-primary">
-                                                Student ID <span class="material-symbols-outlined text-sm">unfold_more</span>
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden flex flex-col">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-background-light dark:bg-[#2d3748] border-b border-border-color dark:border-[#4a5568]">
+                <tr>
+                    <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">
+                        <div class="flex items-center gap-1 cursor-pointer hover:text-primary">
+                            Student ID <span class="material-symbols-outlined text-sm">unfold_more</span>
+                        </div>
+                    </th>
+                    <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Student Name</th>
+                    <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Class</th>
+                    <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Gender</th>
+                    <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Status</th>
+                    <th class="py-4 px-6 text-right text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                <!-- Row 1 -->
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-6 text-sm font-medium text-primary">#STD-23-001</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            <div class="size-9 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold">CA</div>
+                            <div>
+                                <p class="text-sm font-semibold text-text-main dark:text-white">Chioma Adebayo</p>
+                                <p class="text-xs text-text-sub dark:text-gray-400">chioma.a@school.ng</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">JSS 1</td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">Female</td>
+                    <td class="py-4 px-6">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            <span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span> Active
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 transition-colors" title="View Profile">
+                                <span class="material-symbols-outlined text-lg">visibility</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors" title="Edit">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors" title="Delete">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Row 2 -->
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-6 text-sm font-medium text-primary">#STD-23-042</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            <div class="size-9 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 text-sm font-bold">EO</div>
+                            <div>
+                                <p class="text-sm font-semibold text-text-main dark:text-white">Emeka Okonkwo</p>
+                                <p class="text-xs text-text-sub dark:text-gray-400">emeka.o@school.ng</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">SS 2</td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">Male</td>
+                    <td class="py-4 px-6">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            <span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span> Active
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">visibility</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Row 3 -->
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-6 text-sm font-medium text-primary">#STD-22-105</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            <div class="size-9 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 text-sm font-bold">FY</div>
+                            <div>
+                                <p class="text-sm font-semibold text-text-main dark:text-white">Fatima Yusuf</p>
+                                <p class="text-xs text-text-sub dark:text-gray-400">fatima.y@school.ng</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">Primary 5</td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">Female</td>
+                    <td class="py-4 px-6">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                            <span class="size-1.5 rounded-full bg-red-600 dark:bg-red-400"></span> Suspended
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">visibility</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Row 4 -->
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-6 text-sm font-medium text-primary">#STD-23-089</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            <div class="size-9 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 text-sm font-bold">TB</div>
+                            <div>
+                                <p class="text-sm font-semibold text-text-main dark:text-white">Tunde Bakare</p>
+                                <p class="text-xs text-text-sub dark:text-gray-400">tunde.b@school.ng</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">JSS 3</td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">Male</td>
+                    <td class="py-4 px-6">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                            <span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span> Active
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">visibility</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Row 5 -->
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-6 text-sm font-medium text-primary">#STD-20-002</td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            <div class="size-9 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 text-sm font-bold">NE</div>
+                            <div>
+                                <p class="text-sm font-semibold text-text-main dark:text-white">Ngozi Eze</p>
+                                <p class="text-xs text-text-sub dark:text-gray-400">ngozi.e@school.ng</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">SS 3</td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">Female</td>
+                    <td class="py-4 px-6">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                            <span class="size-1.5 rounded-full bg-gray-500 dark:bg-gray-400"></span> Graduated
+                        </span>
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">visibility</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </button>
+                            <button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="bg-background-light dark:bg-[#2d3748] px-6 py-4 border-t border-border-color dark:border-[#4a5568] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-text-sub dark:text-gray-400">Showing <span class="font-bold text-text-main dark:text-white">1</span> to <span class="font-bold text-text-main dark:text-white">5</span> of <span class="font-bold text-text-main dark:text-white">500</span> students</p>
+        <div class="flex items-center gap-2">
+            <button class="p-2 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-surface-dark text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#4a5568] disabled:opacity-50">
+                <span class="material-symbols-outlined text-lg">chevron_left</span>
+            </button>
+            <button class="size-8 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-bold">1</button>
+            <button class="size-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 text-sm font-medium">2</button>
+            <button class="size-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 text-sm font-medium">3</button>
+            <span class="text-text-sub dark:text-gray-400">...</span>
+            <button class="size-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a5568] text-text-sub dark:text-gray-400 text-sm font-medium">10</button>
+            <button class="p-2 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-surface-dark text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#4a5568]">
+                <span class="material-symbols-outlined text-lg">chevron_right</span>
+            </button>
+        </div>
+    </div>
 </div>
-</th>
-<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-[#a0aec0]">Student Name</th>
-<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-[#a0aec0]">Class</th>
-<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-[#a0aec0]">Gender</th>
-<th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-[#a0aec0]">Status</th>
-<th class="py-4 px-6 text-right text-xs font-bold uppercase tracking-wider text-[#606e8a] dark:text-[#a0aec0]">Actions</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-[#e5e7eb] dark:divide-[#4a5568]">
-<!-- Row 1 -->
-<tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-<td class="py-4 px-6 text-sm font-medium text-primary">#STD-23-001</td>
-<td class="py-4 px-6">
-<div class="flex items-center gap-3">
-<div class="size-9 rounded-full bg-cover bg-center" data-alt="Portrait of Chioma Adebayo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB4UEoLudWsr85-Bu-vRqiq_VOxxGkmPZeYTWOJq_BNBnhYSUWJiHubHIsfGS0l5WOfsCM92Zc3H4UuiIgXGiYRBX8HpStDka6v_iDDdW96ZVDT5rSsdtOQQ6kBmq4nGDkGUjaoc8NAXU1jPhK0QO7ypYnpl-CZ8j4BrtfGfO0rhQFdcsHFPI9pkgZ-01UssHoLF42zMgOXjk0QhY-5cT4PMzbdhaD59RuiY036Z96XgrM0WQwrltpkCNlZkvrGeovE9mLm_5msAw');"></div>
-<div>
-<p class="text-sm font-semibold text-[#111318] dark:text-white">Chioma Adebayo</p>
-<p class="text-xs text-[#606e8a] dark:text-[#a0aec0]">chioma.a@eduadmin.ng</p>
-</div>
-</div>
-</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">JSS 1</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">Female</td>
-<td class="py-4 px-6">
-<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-<span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span> Active
-                                            </span>
-</td>
-<td class="py-4 px-6 text-right">
-<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] transition-colors" title="View Profile">
-<span class="material-symbols-outlined text-lg">visibility</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors" title="Edit">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors" title="Delete">
-<span class="material-symbols-outlined text-lg">delete</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Row 2 -->
-<tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-<td class="py-4 px-6 text-sm font-medium text-primary">#STD-23-042</td>
-<td class="py-4 px-6">
-<div class="flex items-center gap-3">
-<div class="size-9 rounded-full bg-cover bg-center" data-alt="Portrait of Emeka Okonkwo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAvwwmMLamHiEouTU3YZOosWJv2ApsySFTIvm3mzG7hPyV-g-N5Yurkfmq43M2Og-VHzKPQH3xHCGELU2MP-9sTSQCK-9GEEedDwplhlbI1MX38g9Jy4AYpIlFwT_ECbp-lJXuDykkuiW6tFF6Fcx8_pBb0bRUfbxUDgrd4TPLeWHAA4T9abjak-ff7mkzBlQIFIc6CpxiAoGkVBnsQeP7jaQqX8MxXNNBDm1i3X1FFxq1dUmCetXBdXhj-tLpi2adJBo01tp9QMA');"></div>
-<div>
-<p class="text-sm font-semibold text-[#111318] dark:text-white">Emeka Okonkwo</p>
-<p class="text-xs text-[#606e8a] dark:text-[#a0aec0]">emeka.o@eduadmin.ng</p>
-</div>
-</div>
-</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">SS 2</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">Male</td>
-<td class="py-4 px-6">
-<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-<span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span> Active
-                                            </span>
-</td>
-<td class="py-4 px-6 text-right">
-<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] transition-colors">
-<span class="material-symbols-outlined text-lg">visibility</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
-<span class="material-symbols-outlined text-lg">delete</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Row 3 -->
-<tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-<td class="py-4 px-6 text-sm font-medium text-primary">#STD-22-105</td>
-<td class="py-4 px-6">
-<div class="flex items-center gap-3">
-<div class="size-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">
-                                                    FY
-                                                </div>
-<div>
-<p class="text-sm font-semibold text-[#111318] dark:text-white">Fatima Yusuf</p>
-<p class="text-xs text-[#606e8a] dark:text-[#a0aec0]">fatima.y@eduadmin.ng</p>
-</div>
-</div>
-</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">Primary 5</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">Female</td>
-<td class="py-4 px-6">
-<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-<span class="size-1.5 rounded-full bg-red-600 dark:bg-red-400"></span> Suspended
-                                            </span>
-</td>
-<td class="py-4 px-6 text-right">
-<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] transition-colors">
-<span class="material-symbols-outlined text-lg">visibility</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
-<span class="material-symbols-outlined text-lg">delete</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Row 4 -->
-<tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-<td class="py-4 px-6 text-sm font-medium text-primary">#STD-23-089</td>
-<td class="py-4 px-6">
-<div class="flex items-center gap-3">
-<div class="size-9 rounded-full bg-cover bg-center" data-alt="Portrait of Tunde Bakare" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPKG0OEqhGjl5q4G5OZ6ZNBwTwx6FD968_wbhJdVssyWeE0vYr8epsuwmVLwAwVELgNFrLiwhU03dnIRZBVymQmAjqHaaKA1axTi95EsiA_RGMpYEl9NuGm31l0y-e135DZSYUOtcBWgXHr6memRJNW-HhnDAJ6umg8T97vV3hdMegRwOZlRApcFpZs9fFcGlwzyTgbxGkND4JiLIgftk1IqzOWMvxd8-v_19OpR5p5Ykbok5CBtGmjJ97L4QsmOLGTmLSpcd9hQ');"></div>
-<div>
-<p class="text-sm font-semibold text-[#111318] dark:text-white">Tunde Bakare</p>
-<p class="text-xs text-[#606e8a] dark:text-[#a0aec0]">tunde.b@eduadmin.ng</p>
-</div>
-</div>
-</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">JSS 3</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">Male</td>
-<td class="py-4 px-6">
-<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-<span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span> Active
-                                            </span>
-</td>
-<td class="py-4 px-6 text-right">
-<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] transition-colors">
-<span class="material-symbols-outlined text-lg">visibility</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
-<span class="material-symbols-outlined text-lg">delete</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Row 5 -->
-<tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-<td class="py-4 px-6 text-sm font-medium text-primary">#STD-20-002</td>
-<td class="py-4 px-6">
-<div class="flex items-center gap-3">
-<div class="size-9 rounded-full bg-cover bg-center" data-alt="Portrait of Ngozi Eze" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCvF67G8SXilRUzbbK-vDjJvKm1GDfrtkY1Zk8acIhZURnKzAlNhLM-qcZ6Vmcln6GlVOAg-WH0EewhA0nrhXb11vawndnQzC9Vz1TsM2RR5YKfx6hC9bzgzvRDRhfDqoGkBqxQvKYIoKKHpJaS3g4lQRzHOYRQ-WybelXWn7xmJFT7KMhfTL6NxVK74XATv-eSeiuUV8cUPu4H8ZLHD9ieWOMWipYYggcOU7DK49fuU8MTwW-bvcB2qhcITdjXAIyPzQcc22hV5g');"></div>
-<div>
-<p class="text-sm font-semibold text-[#111318] dark:text-white">Ngozi Eze</p>
-<p class="text-xs text-[#606e8a] dark:text-[#a0aec0]">ngozi.e@eduadmin.ng</p>
-</div>
-</div>
-</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">SS 3</td>
-<td class="py-4 px-6 text-sm text-[#111318] dark:text-white">Female</td>
-<td class="py-4 px-6">
-<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-<span class="size-1.5 rounded-full bg-gray-500 dark:bg-gray-400"></span> Graduated
-                                            </span>
-</td>
-<td class="py-4 px-6 text-right">
-<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-<button class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] transition-colors">
-<span class="material-symbols-outlined text-lg">visibility</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors">
-<span class="material-symbols-outlined text-lg">edit</span>
-</button>
-<button class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors">
-<span class="material-symbols-outlined text-lg">delete</span>
-</button>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Pagination -->
-<div class="bg-[#f9fafb] dark:bg-[#2d3748] px-6 py-4 border-t border-[#e5e7eb] dark:border-[#4a5568] flex items-center justify-between">
-<p class="text-sm text-[#606e8a] dark:text-[#a0aec0]">Showing <span class="font-bold text-[#111318] dark:text-white">1</span> to <span class="font-bold text-[#111318] dark:text-white">5</span> of <span class="font-bold text-[#111318] dark:text-white">500</span> students</p>
-<div class="flex items-center gap-2">
-<button class="p-2 rounded-lg border border-[#e5e7eb] dark:border-[#4a5568] bg-white dark:bg-[#1a202c] text-[#606e8a] dark:text-[#a0aec0] hover:bg-gray-50 dark:hover:bg-[#4a5568] disabled:opacity-50">
-<span class="material-symbols-outlined text-lg">chevron_left</span>
-</button>
-<button class="size-8 flex items-center justify-center rounded-lg bg-primary text-white text-sm font-bold">1</button>
-<button class="size-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] text-sm font-medium">2</button>
-<button class="size-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] text-sm font-medium">3</button>
-<span class="text-[#606e8a] dark:text-[#a0aec0]">...</span>
-<button class="size-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-[#4a5568] text-[#606e8a] dark:text-[#a0aec0] text-sm font-medium">10</button>
-<button class="p-2 rounded-lg border border-[#e5e7eb] dark:border-[#4a5568] bg-white dark:bg-[#1a202c] text-[#606e8a] dark:text-[#a0aec0] hover:bg-gray-50 dark:hover:bg-[#4a5568]">
-<span class="material-symbols-outlined text-lg">chevron_right</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-</div>
-</body></html>
+{% endblock %}

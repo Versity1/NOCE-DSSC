@@ -1,0 +1,139 @@
+<!-- Dashboard Sidebar Navigation -->
+<aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-surface-dark border-r border-border-color dark:border-[#2d3748] flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+    <div class="flex flex-col min-h-screen justify-between">
+        <div class="flex flex-col">
+            <!-- Logo / Brand -->
+            <div class="flex items-center gap-3 p-6 border-b border-border-color dark:border-[#2d3748]">
+                <div class="size-10 flex items-center justify-center text-white bg-primary rounded-full shadow-md">
+                    <span class="material-symbols-outlined !text-xl">school</span>
+                </div>
+                <div class="flex flex-col">
+                    <h1 class="text-text-main dark:text-white text-base font-bold leading-normal">Onitsha City</h1>
+                    <p class="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal">
+                        {% if user_role == 'admin' %}Admin Portal{% elif user_role == 'teacher' %}Teacher Portal{% elif user_role == 'staff' %}Staff Portal{% else %}Student Portal{% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Navigation Links -->
+            <nav class="flex flex-col gap-1 p-4 overflow-y-auto no-scrollbar">
+                <!-- Dashboard - All Roles -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'dashboard' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% if user_role == 'admin' %}{% url 'admin_dashboard' %}{% elif user_role == 'student' %}{% url 'student_dashboard' %}{% else %}#{% endif %}">
+                    <span class="material-symbols-outlined {% if active_page == 'dashboard' %}icon-fill{% endif %}">dashboard</span>
+                    <span class="text-sm font-medium leading-normal">Dashboard</span>
+                </a>
+                
+                {% if user_role == 'admin' %}
+                <!-- Admin Only: Student Management -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'students' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'manage_students' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'students' %}icon-fill{% endif %}">school</span>
+                    <span class="text-sm font-medium leading-normal">Students</span>
+                </a>
+                
+                <!-- Admin Only: Staff Management -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'staff' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="#">
+                    <span class="material-symbols-outlined {% if active_page == 'staff' %}icon-fill{% endif %}">group</span>
+                    <span class="text-sm font-medium leading-normal">Staff</span>
+                </a>
+                {% endif %}
+                
+                {% if user_role == 'admin' or user_role == 'teacher' %}
+                <!-- Academic Section -->
+                <div class="mt-4 mb-2 px-3">
+                    <span class="text-xs font-bold text-text-sub dark:text-gray-500 uppercase tracking-wider">Academic</span>
+                </div>
+                
+                <!-- Enter Marks -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'marks' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'enter_marks' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'marks' %}icon-fill{% endif %}">edit_note</span>
+                    <span class="text-sm font-medium leading-normal">Enter Marks</span>
+                </a>
+                
+                <!-- Attendance -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'attendance' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'attendance' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'attendance' %}icon-fill{% endif %}">fact_check</span>
+                    <span class="text-sm font-medium leading-normal">Attendance</span>
+                </a>
+                {% endif %}
+                
+                {% if user_role == 'student' %}
+                <!-- Student: View Results -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'results' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'student_result' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'results' %}icon-fill{% endif %}">assignment</span>
+                    <span class="text-sm font-medium leading-normal">My Results</span>
+                </a>
+                {% endif %}
+                
+                {% if user_role == 'admin' %}
+                <!-- Finance Section -->
+                <div class="mt-4 mb-2 px-3">
+                    <span class="text-xs font-bold text-text-sub dark:text-gray-500 uppercase tracking-wider">Finance</span>
+                </div>
+                
+                <!-- Fees & Payments -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'fees' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'fees_payments' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'fees' %}icon-fill{% endif %}">payments</span>
+                    <span class="text-sm font-medium leading-normal">Fees & Payments</span>
+                </a>
+                {% endif %}
+                
+                {% if user_role == 'admin' or user_role == 'staff' %}
+                <!-- Resources Section -->
+                <div class="mt-4 mb-2 px-3">
+                    <span class="text-xs font-bold text-text-sub dark:text-gray-500 uppercase tracking-wider">Resources</span>
+                </div>
+                
+                <!-- Library -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'library' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'library' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'library' %}icon-fill{% endif %}">local_library</span>
+                    <span class="text-sm font-medium leading-normal">Library</span>
+                </a>
+                
+                <!-- Transport -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'transport' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'transport' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'transport' %}icon-fill{% endif %}">directions_bus</span>
+                    <span class="text-sm font-medium leading-normal">Transport</span>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        
+        <!-- Bottom Section -->
+        <div class="flex flex-col gap-2 p-4 border-t border-border-color dark:border-[#2d3748]">
+            <!-- Settings -->
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white transition-colors" href="#">
+                <span class="material-symbols-outlined">settings</span>
+                <span class="text-sm font-medium leading-normal">Settings</span>
+            </a>
+            
+            <!-- User Profile -->
+            <div class="flex items-center gap-3 px-3 py-3 mt-2 border-t border-border-color dark:border-[#2d3748]">
+                <div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-bold">
+                    {{ user_initials|default:"U" }}
+                </div>
+                <div class="flex flex-col flex-1 min-w-0">
+                    <p class="text-text-main dark:text-white text-sm font-medium leading-none truncate">{{ user_name|default:"User" }}</p>
+                    <p class="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal mt-1 capitalize">{{ user_role|default:"User" }}</p>
+                </div>
+            </div>
+            
+            <!-- Logout -->
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors" href="{% url 'login' %}">
+                <span class="material-symbols-outlined">logout</span>
+                <span class="text-sm font-medium leading-normal">Log Out</span>
+            </a>
+        </div>
+    </div>
+</aside>
+
+<!-- Sidebar Overlay for Mobile -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+    }
+</script>

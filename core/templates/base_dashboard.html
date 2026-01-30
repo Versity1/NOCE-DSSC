@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block body_class %}bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display overflow-hidden{% endblock %}
+
+{% block body %}
+<div class="flex h-screen w-full overflow-hidden">
+    <!-- Sidebar Navigation -->
+    {% include 'partials/sidebar_dashboard.html' %}
+    
+    <!-- Main Content Area -->
+    <main class="flex flex-1 flex-col h-full overflow-hidden bg-background-light dark:bg-background-dark relative lg:ml-0">
+        <!-- Top Header -->
+        <header class="flex items-center justify-between whitespace-nowrap border-b border-border-color dark:border-[#2d3748] bg-white dark:bg-surface-dark px-4 lg:px-8 py-4 shrink-0">
+            <!-- Left: Mobile Menu + Breadcrumbs -->
+            <div class="flex items-center gap-4">
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-text-sub hover:text-text-main dark:text-gray-400 dark:hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                
+                <!-- Breadcrumbs -->
+                <div class="hidden sm:flex items-center gap-2 text-sm">
+                    <a class="text-text-sub dark:text-gray-400 font-medium hover:text-primary transition-colors" href="{% if user_role == 'admin' %}{% url 'admin_dashboard' %}{% elif user_role == 'student' %}{% url 'student_dashboard' %}{% else %}#{% endif %}">Home</a>
+                    {% if breadcrumb_parent %}
+                    <span class="text-text-sub dark:text-gray-400 material-symbols-outlined text-base">chevron_right</span>
+                    <a class="text-text-sub dark:text-gray-400 font-medium hover:text-primary transition-colors" href="#">{{ breadcrumb_parent }}</a>
+                    {% endif %}
+                    {% if breadcrumb_current %}
+                    <span class="text-text-sub dark:text-gray-400 material-symbols-outlined text-base">chevron_right</span>
+                    <span class="text-text-main dark:text-white font-semibold">{{ breadcrumb_current }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile Title -->
+                <h2 class="sm:hidden text-text-main dark:text-white text-lg font-bold leading-tight">{% block page_title_mobile %}Dashboard{% endblock %}</h2>
+            </div>
+            
+            <!-- Right: Search + Notifications + Profile -->
+            <div class="flex items-center gap-2 lg:gap-4">
+                <!-- Desktop Search -->
+                <div class="hidden lg:flex relative w-64">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <span class="material-symbols-outlined text-text-sub">search</span>
+                    </div>
+                    <input class="block w-full rounded-lg border-none bg-background-light dark:bg-[#2d3748] dark:text-white py-2.5 pl-10 pr-3 text-sm placeholder:text-text-sub focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-[#2d3748] transition-all" placeholder="Search..." type="text"/>
+                </div>
+                
+                <!-- Mobile Search Button -->
+                <button class="lg:hidden flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d3748] text-text-sub dark:text-gray-400 transition-colors">
+                    <span class="material-symbols-outlined">search</span>
+                </button>
+                
+                <!-- Notifications -->
+                <button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-[#2d3748] text-text-sub dark:text-gray-400 transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark"></span>
+                </button>
+                
+                <!-- Profile Avatar (Desktop) -->
+                <div class="hidden sm:flex size-10 rounded-full bg-primary/20 items-center justify-center text-primary text-sm font-bold border-2 border-white dark:border-surface-dark shadow-sm">
+                    {{ user_initials|default:"U" }}
+                </div>
+            </div>
+        </header>
+        
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8">
+            <div class="mx-auto max-w-7xl flex flex-col gap-6">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

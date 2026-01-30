@@ -1,0 +1,54 @@
+<!-- Public Navigation Bar -->
+<div class="w-full bg-white/95 backdrop-blur-sm dark:bg-background-dark/95 border-b border-[#f0f1f5] dark:border-[#2a2e3b] sticky top-0 z-50">
+    <div class="w-full px-4 lg:px-12 py-3 md:py-4 flex items-center justify-between">
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="flex items-center gap-3 text-text-main dark:text-white">
+            <div class="size-10 flex items-center justify-center text-primary bg-primary/10 rounded-full">
+                <span class="material-symbols-outlined !text-2xl">school</span>
+            </div>
+            <h2 class="text-text-main dark:text-white text-xl md:text-2xl font-black tracking-tight">Onitsha City School</h2>
+        </a>
+        
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:flex items-center gap-8">
+            <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'home' %}text-primary{% endif %}" href="{% url 'home' %}">Home</a>
+            <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'about' %}text-primary{% endif %}" href="#">About Us</a>
+            <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'admissions' %}text-primary{% endif %}" href="#">Admissions</a>
+            <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'academics' %}text-primary{% endif %}" href="#">Academics</a>
+            <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'contact' %}text-primary{% endif %}" href="#">Contact</a>
+        </nav>
+        
+        <!-- Actions -->
+        <div class="flex items-center gap-4">
+            <a href="{% url 'login' %}" class="hidden md:flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-6 bg-primary hover:bg-primary-dark transition-all transform hover:scale-105 shadow-lg shadow-primary/25 text-white text-sm font-bold">
+                <span>Portal Login</span>
+            </a>
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="lg:hidden text-text-main dark:text-white p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-menu" class="lg:hidden hidden border-t border-[#f0f1f5] dark:border-[#2a2e3b] bg-white dark:bg-background-dark">
+        <nav class="flex flex-col p-4 gap-2">
+            <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="{% url 'home' %}">Home</a>
+            <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">About Us</a>
+            <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">Admissions</a>
+            <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">Academics</a>
+            <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">Contact</a>
+            <a href="{% url 'login' %}" class="mt-2 flex items-center justify-center rounded-lg h-12 px-6 bg-primary hover:bg-primary-dark text-white font-bold transition-colors">
+                Portal Login
+            </a>
+        </nav>
+    </div>
+</div>
+
+<script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    });
+</script>

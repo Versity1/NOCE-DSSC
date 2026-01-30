@@ -1,447 +1,117 @@
-<!DOCTYPE html>
+{% extends 'base_dashboard.html' %}
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Transport &amp; Route Management - EduAdmin</title>
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#0d59f2",
-                        "background-light": "#f5f6f8",
-                        "background-dark": "#101622",
-                    },
-                    fontFamily: {
-                        "display": ["Lexend", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
-</head>
-<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden">
-<div class="flex h-screen w-full">
-<!-- Side Navigation -->
-<aside class="flex flex-col w-64 h-full bg-white dark:bg-[#1a202c] border-r border-[#e5e7eb] dark:border-[#2d3748] flex-shrink-0">
-<div class="flex items-center gap-3 px-6 py-5 border-b border-[#f0f1f5] dark:border-[#2d3748]">
-<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 flex-shrink-0" data-alt="School Logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuChO7sNUNmBfyor8ZdGbn0CApJ0qDTrgxXQE8d4_U6lZMxGLanZMC2xKCwnPGpDUI2CsIzbKbwYngotFsYvajrvNRiIq_6mWQOyvfjL8EBeEObF6dBrAMZboeBprAq9m4AhrSA0uN8MleyconAYUUL6QvWRvdk3VWM8vawUHrHEKRsXZJ_uV78wASIJIx_XvifQeL2t4SkS0iTNGH9skB6zn2AeEhxuit270tL5373ujRz2V7ua2__E1yFoJgAkWDkkjw4qoz_S6A");'></div>
-<div class="flex flex-col">
-<h1 class="text-base font-bold leading-normal text-gray-900 dark:text-white">EduAdmin</h1>
-<p class="text-gray-500 text-xs font-normal dark:text-gray-400">Greenwood High</p>
-</div>
-</div>
-<nav class="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-1">
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="#">
-<span class="material-symbols-outlined text-gray-500 dark:text-gray-400" style="font-size: 20px;">dashboard</span>
-<span class="text-sm font-medium">Dashboard</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="#">
-<span class="material-symbols-outlined text-gray-500 dark:text-gray-400" style="font-size: 20px;">school</span>
-<span class="text-sm font-medium">Students</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="#">
-<span class="material-symbols-outlined text-gray-500 dark:text-gray-400" style="font-size: 20px;">menu_book</span>
-<span class="text-sm font-medium">Academics</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary" href="#">
-<span class="material-symbols-outlined text-primary fill-1" style="font-size: 20px;">directions_bus</span>
-<span class="text-sm font-medium">Transport</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="#">
-<span class="material-symbols-outlined text-gray-500 dark:text-gray-400" style="font-size: 20px;">payments</span>
-<span class="text-sm font-medium">Finance</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="#">
-<span class="material-symbols-outlined text-gray-500 dark:text-gray-400" style="font-size: 20px;">settings</span>
-<span class="text-sm font-medium">Settings</span>
-</a>
-</nav>
-<div class="p-4 border-t border-[#f0f1f5] dark:border-[#2d3748]">
-<div class="flex items-center gap-3">
-<div class="bg-center bg-no-repeat bg-cover rounded-full size-8" data-alt="Admin User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCNtJwRw2IOA4AXNDNoJxI3YM84LEjffp383tdS6GoTDTGyVw-ZwTyNHWewZ_SN7SDPF1ikZ26zRJlOGizCUhkxHDA2WcAdunJMUO9h6HvMEZyEaCm_aYoYf5d5Mql_3c4myDetO36Y4vOP469lCcYUeF-W_r2nYsP7H4YuKf32bJlztUFD0KwsVm7zXDJbYFX-85QPrkbbK9zS8OpRorrBXeW36-nY_b_tCqlfPigO4lSddr0wzVwhu0dYSknvXh4aYiwJDdFjIQ");'></div>
-<div class="flex flex-col">
-<p class="text-sm font-medium text-gray-900 dark:text-white">Admin User</p>
-<p class="text-xs text-gray-500 dark:text-gray-400">admin@greenwood.ng</p>
-</div>
-</div>
-</div>
-</aside>
-<!-- Main Content Area -->
-<main class="flex-1 flex flex-col h-full overflow-hidden relative">
-<!-- Top Header -->
-<header class="h-16 bg-white dark:bg-[#1a202c] border-b border-[#e5e7eb] dark:border-[#2d3748] flex items-center justify-between px-6 flex-shrink-0">
-<div class="flex items-center gap-4">
-<!-- Mobile Toggle (Hidden on Desktop) -->
-<button class="md:hidden text-gray-500">
-<span class="material-symbols-outlined">menu</span>
-</button>
-<!-- Breadcrumbs -->
-<div class="flex items-center gap-2 text-sm">
-<span class="text-gray-500 dark:text-gray-400">Home</span>
-<span class="text-gray-300 dark:text-gray-600">/</span>
-<span class="text-gray-900 dark:text-white font-medium">Transport Management</span>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<div class="relative hidden sm:block">
-<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined" style="font-size: 20px;">search</span>
-<input class="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary w-64 md:w-80" placeholder="Search buses, routes, drivers..." type="text"/>
-</div>
-<button class="relative p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-<span class="material-symbols-outlined" style="font-size: 24px;">notifications</span>
-<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1a202c]"></span>
-</button>
-</div>
-</header>
-<!-- Scrollable Content -->
-<div class="flex-1 overflow-y-auto p-6 md:p-8 bg-background-light dark:bg-background-dark">
-<div class="max-w-[1400px] mx-auto flex flex-col gap-6">
-<!-- Page Header & Actions -->
+{% block title %}Transport Management - Onitsha City School{% endblock %}
+
+{% block page_title_mobile %}Transport{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-<div>
-<h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">Transport &amp; Route Management</h1>
-<p class="text-gray-500 dark:text-gray-400">Manage fleet, drivers, routes, and student assignments.</p>
-</div>
-<div class="flex gap-3">
-<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a202c] border border-gray-200 dark:border-[#2d3748] rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm text-gray-700 dark:text-gray-200">
-<span class="material-symbols-outlined" style="font-size: 20px;">file_download</span>
-                                Export Report
-                            </button>
-<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20">
-<span class="material-symbols-outlined" style="font-size: 20px;">add</span>
-                                Add New Bus
-                            </button>
-</div>
-</div>
-<!-- Stats Cards -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-<div class="bg-white dark:bg-[#1a202c] p-5 rounded-xl border border-gray-200 dark:border-[#2d3748] shadow-sm flex items-start justify-between">
-<div>
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Buses</p>
-<h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">14</h3>
-</div>
-<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-primary">
-<span class="material-symbols-outlined">directions_bus</span>
-</div>
-</div>
-<div class="bg-white dark:bg-[#1a202c] p-5 rounded-xl border border-gray-200 dark:border-[#2d3748] shadow-sm flex items-start justify-between">
-<div>
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Routes</p>
-<h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">8</h3>
-</div>
-<div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600">
-<span class="material-symbols-outlined">alt_route</span>
-</div>
-</div>
-<div class="bg-white dark:bg-[#1a202c] p-5 rounded-xl border border-gray-200 dark:border-[#2d3748] shadow-sm flex items-start justify-between">
-<div>
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Students Transported</p>
-<h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">345</h3>
-</div>
-<div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600">
-<span class="material-symbols-outlined">groups</span>
-</div>
-</div>
-<div class="bg-white dark:bg-[#1a202c] p-5 rounded-xl border border-gray-200 dark:border-[#2d3748] shadow-sm flex items-start justify-between">
-<div>
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">In Maintenance</p>
-<h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">2</h3>
-</div>
-<div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600">
-<span class="material-symbols-outlined">build</span>
-</div>
-</div>
-</div>
-<!-- Tabs & Main Content -->
-<div class="flex flex-col gap-0">
-<!-- Tabs Navigation -->
-<div class="border-b border-gray-200 dark:border-[#2d3748] mb-6">
-<div class="flex gap-6">
-<button class="pb-3 px-1 border-b-2 border-primary text-primary font-medium text-sm">Fleet Management</button>
-<button class="pb-3 px-1 border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium text-sm transition-colors">Route Planning</button>
-<button class="pb-3 px-1 border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium text-sm transition-colors">Maintenance Logs</button>
-</div>
-</div>
-<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-<!-- Left Column: Fleet List (Takes up 2 cols on large screens) -->
-<div class="xl:col-span-2 flex flex-col gap-6">
-<div class="bg-white dark:bg-[#1a202c] border border-gray-200 dark:border-[#2d3748] rounded-xl shadow-sm overflow-hidden">
-<div class="p-4 border-b border-gray-200 dark:border-[#2d3748] flex items-center justify-between">
-<h3 class="text-lg font-bold text-gray-900 dark:text-white">Fleet List</h3>
-<div class="flex gap-2">
-<button class="p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-<span class="material-symbols-outlined text-sm">filter_list</span>
-</button>
-</div>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead class="bg-gray-50 dark:bg-gray-800/50">
-<tr>
-<th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Bus Info</th>
-<th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Driver</th>
-<th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Route</th>
-<th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Capacity</th>
-<th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-<th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-gray-200 dark:divide-[#2d3748]">
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-<td class="px-5 py-4">
-<div class="flex flex-col">
-<span class="text-sm font-medium text-gray-900 dark:text-white">Bus 001</span>
-<span class="text-xs text-gray-500">Toyota Coaster (LND-453-XY)</span>
-</div>
-</td>
-<td class="px-5 py-4">
-<div class="flex items-center gap-2">
-<div class="size-6 rounded-full bg-cover bg-center" data-alt="Driver Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDs7XT5avU73Y8je88zWKYg9I9QAY9Lo3FwIMWW7IqCn7Jw3hR0DtOeTPI55a8ubo8ZYgP4u7dH9PSjzBW96MRah7jsMYrY8lHVNV9RBnxKbc6Yxf7M4Rb0Gkm09y9k60Q6DlktFdfp6hpvN8zEcHHGDBBp9tlLKIDBBi00R1e3SM6HK6eQNntcCaoZrm9Cqo3VTgG8HQhUYeHMmAZjZwhA4FqeFMyhwZ700nN9OxM4i8aC5Mc6kk6fFePSwbfsHOodEz5JL0ISBg");'></div>
-<span class="text-sm text-gray-700 dark:text-gray-200">Mr. Okafor</span>
-</div>
-</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">Route A - Lekki Ph1</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-<span class="font-medium text-gray-900 dark:text-white">18</span>/25
-                                                    </td>
-<td class="px-5 py-4">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                            Active
-                                                        </span>
-</td>
-<td class="px-5 py-4 text-right">
-<button class="text-gray-400 hover:text-primary transition-colors">
-<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
-</button>
-</td>
-</tr>
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-<td class="px-5 py-4">
-<div class="flex flex-col">
-<span class="text-sm font-medium text-gray-900 dark:text-white">Bus 004</span>
-<span class="text-xs text-gray-500">Toyota Hiace (EPE-102-JK)</span>
-</div>
-</td>
-<td class="px-5 py-4">
-<div class="flex items-center gap-2">
-<div class="size-6 rounded-full bg-cover bg-center" data-alt="Driver Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAmH7di_CeK5Pf14Ht2wVMLMTatnFIeM1S4b_fMvdWqI9xxJ8F6yYPFhM6ScB77B3LB_qndfQ-RLHO1T3cl5x-hMPq7Aeum6X0yQQkbhlThefWgek2lfwDcbtUVlT2nsf5IBTWro3nUcciYpP4_-i2cU9vF8RdZO0c4kt9BcxxICRpfclsaRwTmxzMbo6nctvF0tWDUz4IazJVID-Q9LtAXrUFqGywayXP3dlgF-RR2tDrDzpbbxaer_pbeSMunGSlSywjTID_uKg");'></div>
-<span class="text-sm text-gray-700 dark:text-gray-200">Mr. Adebayo</span>
-</div>
-</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">--</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-<span class="font-medium text-gray-900 dark:text-white">0</span>/18
-                                                    </td>
-<td class="px-5 py-4">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
-                                                            Maintenance
-                                                        </span>
-</td>
-<td class="px-5 py-4 text-right">
-<button class="text-gray-400 hover:text-primary transition-colors">
-<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
-</button>
-</td>
-</tr>
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-<td class="px-5 py-4">
-<div class="flex flex-col">
-<span class="text-sm font-medium text-gray-900 dark:text-white">Bus 007</span>
-<span class="text-xs text-gray-500">Mercedes Sprinter (IKE-888-AB)</span>
-</div>
-</td>
-<td class="px-5 py-4">
-<div class="flex items-center gap-2">
-<div class="size-6 rounded-full bg-cover bg-center" data-alt="Driver Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCZYozhS3vGngS1yhps3xB9BuyeOIcR03PJHmecspTdi1jO0psy2xTNgJaK50bb5JSyYuVmERHk-Dw1oG70mh2UvqI19K4gZM0Ra2M_JtwexBPJCbiC9qpo7V_gQ3dSxhr-07_poIMIDwaNxELVJI3GSyfAGky_j3yPlh9GwNXg7UUfqPV3E8MrH076yTQXk8MU1uUhcQosK-NSBsSuAvpF1rscQvuXHPxQg4RKKJJGSYl9hJQh8ewHeGNfuwX4shiVPf8_SuKMaw");'></div>
-<span class="text-sm text-gray-700 dark:text-gray-200">Mr. Hassan</span>
-</div>
-</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">Route C - Ikeja GRA</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-<span class="font-medium text-gray-900 dark:text-white">20</span>/20
-                                                    </td>
-<td class="px-5 py-4">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                                                            Full
-                                                        </span>
-</td>
-<td class="px-5 py-4 text-right">
-<button class="text-gray-400 hover:text-primary transition-colors">
-<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
-</button>
-</td>
-</tr>
-<tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-<td class="px-5 py-4">
-<div class="flex flex-col">
-<span class="text-sm font-medium text-gray-900 dark:text-white">Bus 012</span>
-<span class="text-xs text-gray-500">Toyota Coaster (VIS-200-XZ)</span>
-</div>
-</td>
-<td class="px-5 py-4">
-<div class="flex items-center gap-2">
-<div class="size-6 rounded-full bg-cover bg-center" data-alt="Driver Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBwLSOgrklSC2gjK1zUY97sCh_HWaX9i1PLvElejY0128t8rO0BBNw1MU321cFY8amCKnl7XOlBzrH9JIDKRClwVnOZxtpMc336iF8KrGL918n3om9l7QR-Wjqf30K3b-byVwWMel8rGjy1mneqEnGM1Ljldn20g1cWquxHffWIpceUnKP_NBzBTVu-pIG5h1I5j7mnTklqyYW3XfeH3IeKere3wVATgE37c6YbbXt5BDFFD3-Fu2NRqDo3v-mTSMAKN2V4Hkkc4A");'></div>
-<span class="text-sm text-gray-700 dark:text-gray-200">Mr. Tunde</span>
-</div>
-</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">Route B - Victoria Island</td>
-<td class="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
-<span class="font-medium text-gray-900 dark:text-white">12</span>/25
-                                                    </td>
-<td class="px-5 py-4">
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                                                            Active
-                                                        </span>
-</td>
-<td class="px-5 py-4 text-right">
-<button class="text-gray-400 hover:text-primary transition-colors">
-<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
-</button>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="px-5 py-3 border-t border-gray-200 dark:border-[#2d3748] flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
-<p class="text-xs text-gray-500">Showing 1-4 of 14 buses</p>
-<div class="flex gap-1">
-<button class="size-8 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
-<span class="material-symbols-outlined text-sm">chevron_left</span>
-</button>
-<button class="size-8 flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700">
-<span class="material-symbols-outlined text-sm">chevron_right</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Maintenance Schedule (Condensed) -->
-<div class="bg-white dark:bg-[#1a202c] border border-gray-200 dark:border-[#2d3748] rounded-xl shadow-sm p-4">
-<h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Upcoming Maintenance</h3>
-<div class="flex gap-4 overflow-x-auto pb-2">
-<div class="min-w-[200px] p-3 rounded-lg bg-orange-50 border border-orange-100 dark:bg-orange-900/10 dark:border-orange-900/30">
-<div class="flex items-start justify-between mb-2">
-<span class="text-xs font-bold text-orange-700 dark:text-orange-400">Bus 001</span>
-<span class="text-xs text-gray-500">Tomorrow</span>
-</div>
-<p class="text-sm text-gray-800 dark:text-gray-200 font-medium">Oil Change &amp; Filter</p>
-</div>
-<div class="min-w-[200px] p-3 rounded-lg bg-gray-50 border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
-<div class="flex items-start justify-between mb-2">
-<span class="text-xs font-bold text-gray-700 dark:text-gray-300">Bus 012</span>
-<span class="text-xs text-gray-500">Dec 15</span>
-</div>
-<p class="text-sm text-gray-800 dark:text-gray-200 font-medium">Tire Rotation</p>
-</div>
-<div class="min-w-[200px] p-3 rounded-lg bg-gray-50 border border-gray-100 dark:bg-gray-800/50 dark:border-gray-700">
-<div class="flex items-start justify-between mb-2">
-<span class="text-xs font-bold text-gray-700 dark:text-gray-300">Bus 007</span>
-<span class="text-xs text-gray-500">Dec 22</span>
-</div>
-<p class="text-sm text-gray-800 dark:text-gray-200 font-medium">Brake Inspection</p>
-</div>
-</div>
-</div>
-</div>
-<!-- Right Column: Route Details & Map -->
-<div class="xl:col-span-1 flex flex-col gap-6">
-<!-- Map Preview -->
-<div class="bg-white dark:bg-[#1a202c] border border-gray-200 dark:border-[#2d3748] rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
-<div class="p-4 border-b border-gray-200 dark:border-[#2d3748] flex items-center justify-between">
-<h3 class="text-lg font-bold text-gray-900 dark:text-white">Active Route: Route A</h3>
-<button class="text-primary text-sm font-medium hover:underline">View All</button>
-</div>
-<div class="relative h-48 w-full bg-gray-200 dark:bg-gray-700">
-<!-- Placeholder Map Image -->
-<div class="absolute inset-0 bg-cover bg-center opacity-80" data-alt="Map of Lekki Phase 1 bus route" data-location="Lagos, Nigeria" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCDQP6sREEdXkfgwmKA3pZpb_Fiq-yZccnop5_SbqR6aSsa8lHt-BtKzdrhXcTRk99gaozLWaZTJ8S7TVpXxO8WbPv4ydUCUJyZ3Gh0P3C10xTEsLrDz4Jguu3V3ynkfeLAl0or_Ib4fVezIO-OBeYw7jeGQOFAZSa-Q9GKJwFu-NTMcA8U8n4te22Em5wKojwo1j1oFFwhd834hbF5b_JLcTgT8ji2SCc0VfsuG-Rp5O7fSINwHeuWKuMMLMr1DsUak0QMe1rMEg");'></div>
-<!-- Map Overlays (Simulated) -->
-<div class="absolute inset-0 bg-black/10"></div>
-<div class="absolute top-1/2 left-1/4 size-3 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
-<div class="absolute top-1/3 left-1/2 size-3 bg-white rounded-full border-2 border-blue-500 shadow-lg"></div>
-<div class="absolute bottom-1/3 right-1/4 size-3 bg-white rounded-full border-2 border-blue-500 shadow-lg"></div>
-<!-- Route Line (SVG Overlay) -->
-<svg class="absolute inset-0 pointer-events-none w-full h-full" xmlns="http://www.w3.org/2000/svg">
-<path d="M 100 100 Q 200 50 300 150" fill="none" stroke="#3b82f6" stroke-dasharray="5,5" stroke-width="3"></path>
-</svg>
-</div>
-<div class="p-4 flex flex-col gap-4 flex-1">
-<div>
-<div class="flex justify-between text-sm mb-1">
-<span class="text-gray-500 dark:text-gray-400">Route Status</span>
-<span class="text-green-600 dark:text-green-400 font-medium">On Schedule</span>
-</div>
-<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-<div class="bg-primary h-2 rounded-full" style="width: 65%"></div>
-</div>
-</div>
-<div class="space-y-4">
-<div class="flex gap-3 relative">
-<div class="flex flex-col items-center">
-<div class="size-2.5 rounded-full bg-primary mt-1.5"></div>
-<div class="w-0.5 bg-gray-200 dark:bg-gray-700 h-full"></div>
-</div>
-<div class="pb-4">
-<p class="text-sm font-medium text-gray-900 dark:text-white">Admiralty Way</p>
-<p class="text-xs text-gray-500">07:00 AM - Pick up</p>
-</div>
-</div>
-<div class="flex gap-3 relative">
-<div class="flex flex-col items-center">
-<div class="size-2.5 rounded-full bg-primary mt-1.5"></div>
-<div class="w-0.5 bg-gray-200 dark:bg-gray-700 h-full"></div>
-</div>
-<div class="pb-4">
-<p class="text-sm font-medium text-gray-900 dark:text-white">Freedom Way</p>
-<p class="text-xs text-gray-500">07:15 AM - Pick up</p>
-</div>
-</div>
-<div class="flex gap-3 relative">
-<div class="flex flex-col items-center">
-<div class="size-2.5 rounded-full border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-800 mt-1.5"></div>
-</div>
-<div>
-<p class="text-sm font-medium text-gray-500 dark:text-gray-400">School Campus</p>
-<p class="text-xs text-gray-500">07:45 AM - Drop off</p>
-</div>
-</div>
-</div>
-</div>
-<div class="p-4 border-t border-gray-200 dark:border-[#2d3748] bg-gray-50 dark:bg-gray-800/50">
-<h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Assigned Students (Partial)</h4>
-<div class="flex flex-col gap-2">
-<div class="flex items-center justify-between p-2 rounded bg-white dark:bg-[#1a202c] border border-gray-200 dark:border-[#2d3748]">
-<div class="flex items-center gap-2">
-<div class="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">C</div>
-<span class="text-sm text-gray-700 dark:text-gray-200">Chinedu I. (Grade 4)</span>
-</div>
-<input checked="" class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-</div>
-<div class="flex items-center justify-between p-2 rounded bg-white dark:bg-[#1a202c] border border-gray-200 dark:border-[#2d3748]">
-<div class="flex items-center gap-2">
-<div class="size-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">A</div>
-<span class="text-sm text-gray-700 dark:text-gray-200">Amara O. (JSS 1)</span>
-</div>
-<input checked="" class="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
-</div>
-</div>
-<button class="w-full mt-3 py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-500 hover:text-primary hover:border-primary transition-colors flex items-center justify-center gap-2">
-<span class="material-symbols-outlined" style="font-size: 18px;">person_add</span>
-                                            Assign Student
-                                        </button>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-</div>
-</body></html>
+    <div class="flex flex-col gap-1">
+        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Transport Management</h1>
+        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Manage school buses, routes, and student allocations.</p>
+    </div>
+    <div class="flex gap-3">
+        <button class="flex items-center gap-2 h-10 px-4 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark">
+            <span class="material-symbols-outlined">add</span> Add Route
+        </button>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-primary/10 rounded-lg text-primary"><span class="material-symbols-outlined">directions_bus</span></div>
+            <div>
+                <p class="text-text-sub text-sm">Total Buses</p>
+                <p class="text-xl font-bold text-text-main dark:text-white">12</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600"><span class="material-symbols-outlined">route</span></div>
+            <div>
+                <p class="text-text-sub text-sm">Active Routes</p>
+                <p class="text-xl font-bold text-text-main dark:text-white">8</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600"><span class="material-symbols-outlined">people</span></div>
+            <div>
+                <p class="text-text-sub text-sm">Students Using</p>
+                <p class="text-xl font-bold text-text-main dark:text-white">456</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600"><span class="material-symbols-outlined">badge</span></div>
+            <div>
+                <p class="text-text-sub text-sm">Drivers</p>
+                <p class="text-xl font-bold text-text-main dark:text-white">15</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Routes Table -->
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+    <div class="p-4 border-b border-border-color dark:border-[#2d3748]">
+        <h3 class="text-lg font-bold text-text-main dark:text-white">Bus Routes</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-background-light dark:bg-[#2d3748]">
+                <tr>
+                    <th class="py-3 px-4 text-left font-bold text-text-sub">Route</th>
+                    <th class="py-3 px-4 text-left font-bold text-text-sub">Bus No.</th>
+                    <th class="py-3 px-4 text-left font-bold text-text-sub">Driver</th>
+                    <th class="py-3 px-4 text-center font-bold text-text-sub">Capacity</th>
+                    <th class="py-3 px-4 text-center font-bold text-text-sub">Students</th>
+                    <th class="py-3 px-4 text-center font-bold text-text-sub">Status</th>
+                    <th class="py-3 px-4 text-right font-bold text-text-sub">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
+                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">GRA - School</td>
+                    <td class="py-3 px-4">BUS-001</td>
+                    <td class="py-3 px-4">Mr. Ibrahim</td>
+                    <td class="py-3 px-4 text-center">45</td>
+                    <td class="py-3 px-4 text-center font-bold">38</td>
+                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span></td>
+                    <td class="py-3 px-4 text-right">
+                        <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#4a5568] rounded text-primary"><span class="material-symbols-outlined text-lg">edit</span></button>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
+                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Fegge - School</td>
+                    <td class="py-3 px-4">BUS-002</td>
+                    <td class="py-3 px-4">Mr. Chukwu</td>
+                    <td class="py-3 px-4 text-center">45</td>
+                    <td class="py-3 px-4 text-center font-bold">42</td>
+                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span></td>
+                    <td class="py-3 px-4 text-right">
+                        <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#4a5568] rounded text-primary"><span class="material-symbols-outlined text-lg">edit</span></button>
+                    </td>
+                </tr>
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
+                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Inland Town - School</td>
+                    <td class="py-3 px-4">BUS-003</td>
+                    <td class="py-3 px-4">Mr. Eze</td>
+                    <td class="py-3 px-4 text-center">45</td>
+                    <td class="py-3 px-4 text-center font-bold">35</td>
+                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span></td>
+                    <td class="py-3 px-4 text-right">
+                        <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#4a5568] rounded text-primary"><span class="material-symbols-outlined text-lg">edit</span></button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
