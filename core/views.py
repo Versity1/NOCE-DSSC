@@ -248,6 +248,9 @@ def enter_marks(request):
         # For now, let's filter by student profile class_level matching the selected class name/level
         try:
              selected_class = ClassInfo.objects.get(id=selected_class_id)
+             # Filter subjects assigned to this class
+             subjects = selected_class.subjects.all()
+             
              students = CustomUser.objects.filter(
                  role='student', 
                  student_profile__class_level=selected_class.level
@@ -500,7 +503,64 @@ def broadsheet(request):
         
         'broadsheet_data': broadsheet_data,
     }
+
     return render(request, 'custom_admin/broadsheet.html', context)
+
+
+@login_required
+def manage_subjects(request):
+    from .models import ClassInfo, Subject
+    
+    user = request.user
+    classes = ClassInfo.objects.all()
+    subjects = Subject.objects.all()
+    
+    selected_class_id = request.GET.get('class_id')
+    selected_class = None
+    assigned_subject_ids = []
+    
+    if selected_class_id:
+        try:
+            selected_class = ClassInfo.objects.get(id=selected_class_id)
+            assigned_subject_ids = list(selected_class.subjects.values_list('id', flat=True))
+        except ClassInfo.DoesNotExist:
+             messages.error(request, "Selected class not found.")
+    
+    if request.method == 'POST':
+        try:
+            class_id = request.POST.get('class_id')
+            if not class_id:
+                raise ValueError("No class selected.")
+                
+            selected_class = ClassInfo.objects.get(id=class_id)
+            
+            # Get list of selected subject IDs
+            subject_ids = request.POST.getlist('subject_ids')
+            
+            # Update ManyToMany relationship
+            selected_class.subjects.set(subject_ids)
+            selected_class.save()
+            
+            messages.success(request, f"Subjects updated for {selected_class.name} successfully!")
+            return redirect(f"{reverse('manage_subjects')}?class_id={class_id}")
+            
+        except Exception as e:
+            messages.error(request, f"Error updating subjects: {str(e)}")
+            
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'manage_subjects',
+        'breadcrumb_parent': 'Academic',
+        'breadcrumb_current': 'Manage Subjects',
+        
+        'classes': classes,
+        'subjects': subjects,
+        'selected_class_id': int(selected_class_id) if selected_class_id else None,
+        'assigned_subject_ids': assigned_subject_ids,
+    }
+    return render(request, 'custom_admin/manage_subjects.html', context)
 
 
 @login_required

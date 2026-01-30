@@ -21,6 +21,7 @@ urlpatterns = [
     path('admin-portal/students/', views.manage_students, name='manage_students'),
     path('admin-portal/marks/', views.enter_marks, name='enter_marks'),
     path('admin-portal/marks/upload/', views.upload_marks_csv, name='upload_marks_csv'),
+    path('manage-subjects/', views.manage_subjects, name='manage_subjects'),
     path('admin-portal/broadsheet/', views.broadsheet, name='broadsheet'),
     path('admin-portal/fees/', views.fees_payments, name='fees_payments'),
     path('admin-portal/attendance/', views.attendance, name='attendance'),

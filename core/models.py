@@ -166,6 +166,7 @@ class ClassInfo(models.Model):
     ]
     name = models.CharField(max_length=50, unique=True, help_text="e.g. JSS 1A")
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
+    subjects = models.ManyToManyField('Subject', related_name='classes', blank=True)
     
     class Meta:
         verbose_name_plural = "Classes"

@@ -64,6 +64,7 @@ class TermAdmin(admin.ModelAdmin):
 class ClassInfoAdmin(admin.ModelAdmin):
     list_display = ('name', 'level')
     list_filter = ('level',)
+    filter_horizontal = ('subjects',)
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):

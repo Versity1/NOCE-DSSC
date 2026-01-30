@@ -60,6 +60,10 @@
                     <span class="material-symbols-outlined {% if active_page == 'broadsheet' %}icon-fill{% endif %}">table_view</span>
                     <span class="text-sm font-medium leading-normal">Broadsheet</span>
                 </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'broadsheet' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'manage_subjects' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'broadsheet' %}icon-fill{% endif %}">book</span>
+                    <span class="text-sm font-medium leading-normal">Assign Subject</span>
+                </a>
                 {% endif %}
                 
                 {% if user_role == 'student' %}

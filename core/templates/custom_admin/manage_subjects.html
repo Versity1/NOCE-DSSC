@@ -1,0 +1,91 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Manage Class Subjects - NOCE DSSC{% endblock %}
+
+{% block page_title_mobile %}Manage Subjects{% endblock %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div class="flex flex-col gap-1">
+        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Manage Subjects</h1>
+        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Assign subjects to classes.</p>
+    </div>
+</div>
+
+<!-- Class Selection -->
+<div class="bg-white dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] mb-6">
+    <form method="get" class="flex flex-col md:flex-row gap-4 items-end">
+        <div class="flex-1 w-full">
+            <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Select Class</label>
+            <select name="class_id" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" onchange="this.form.submit()">
+                <option value="">-- Select Class to Edit --</option>
+                {% for class_obj in classes %}
+                <option value="{{ class_obj.id }}" {% if selected_class_id == class_obj.id %}selected{% endif %}>{{ class_obj.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="hidden md:block">
+            <button type="submit" class="h-11 px-6 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors">Load Subjects</button>
+        </div>
+    </form>
+</div>
+
+{% if selected_class_id %}
+<!-- Subjects List -->
+<form method="post" action="{% url 'manage_subjects' %}">
+    {% csrf_token %}
+    <input type="hidden" name="class_id" value="{{ selected_class_id }}">
+    
+    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+        <div class="p-6 border-b border-border-color dark:border-[#2d3748] flex justify-between items-center">
+            <h2 class="text-lg font-bold text-text-main dark:text-white">Assign Subjects</h2>
+            
+            <div class="flex gap-2">
+                <button type="button" onclick="toggleAll(true)" class="text-sm text-primary hover:underline">Select All</button>
+                <span class="text-gray-300">|</span>
+                <button type="button" onclick="toggleAll(false)" class="text-sm text-text-sub hover:underline">Deselect All</button>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for subject in subjects %}
+                <label class="flex items-center p-3 rounded-lg border border-border-color dark:border-[#4a5568] hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors">
+                    <input type="checkbox" name="subject_ids" value="{{ subject.id }}" 
+                        {% if subject.id in assigned_subject_ids %}checked{% endif %}
+                        class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary dark:bg-[#2d3748] dark:border-gray-600 checkbox-item">
+                    <span class="ml-3 text-text-main dark:text-white font-medium">{{ subject.name }}</span>
+                    {% if subject.code %}
+                    <span class="ml-auto text-xs text-text-sub dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ subject.code }}</span>
+                    {% endif %}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 border-t border-border-color dark:border-[#2d3748] flex justify-end">
+             <button type="submit" class="flex items-center justify-center rounded-lg h-10 px-6 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
+                <span class="material-symbols-outlined text-lg">save</span>
+                <span>Save Changes</span>
+            </button>
+        </div>
+    </div>
+</form>
+
+<script>
+    function toggleAll(checked) {
+        document.querySelectorAll('.checkbox-item').forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+    }
+</script>
+
+{% else %}
+<div class="flex flex-col items-center justify-center p-12 bg-white dark:bg-surface-dark rounded-xl border border-dashed border-border-color dark:border-[#2d3748] text-center">
+    <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600 mb-2">class</span>
+    <p class="text-text-sub dark:text-gray-400">Please select a class above to manage its subjects.</p>
+</div>
+{% endif %}
+
+{% endblock %}
