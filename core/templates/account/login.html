@@ -32,9 +32,32 @@
             </div>
         </div>
         
+        <!-- Messages Section -->
+        {% if messages %}
+        <div class="px-8 space-y-2">
+            {% for message in messages %}
+            <div class="flex items-center gap-2 p-3 rounded-lg text-sm font-medium
+                {% if message.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800
+                {% elif message.tags == 'success' %}bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800
+                {% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800{% endif %}">
+                <span class="material-symbols-outlined text-[18px]">
+                    {% if message.tags == 'error' %}error
+                    {% elif message.tags == 'success' %}check_circle
+                    {% else %}info{% endif %}
+                </span>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
         <!-- Form Section -->
-        <form class="px-8 py-6 space-y-5" method="post" action="">
+        <form class="px-8 py-6 space-y-5" method="post" action="{% url 'login' %}">
             {% csrf_token %}
+            {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+            
             <!-- Username Field -->
             <div class="flex flex-col gap-1.5">
                 <label class="text-text-main dark:text-gray-200 text-sm font-semibold" for="username">Username or Email</label>
@@ -42,7 +65,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-sub dark:text-gray-400 group-focus-within:text-primary transition-colors">
                         <span class="material-symbols-outlined text-[20px]">person</span>
                     </div>
-                    <input class="form-input w-full rounded-lg border border-border-color dark:border-gray-600 bg-white dark:bg-gray-800/50 text-text-main dark:text-white h-12 pl-10 pr-4 placeholder:text-text-sub/70 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" id="username" name="username" placeholder="Enter your ID" type="text" required/>
+                    <input class="form-input w-full rounded-lg border border-border-color dark:border-gray-600 bg-white dark:bg-gray-800/50 text-text-main dark:text-white h-12 pl-10 pr-4 placeholder:text-text-sub/70 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200" id="username" name="username" placeholder="Enter your ID or email" type="text" required/>
                 </div>
             </div>
             
@@ -50,7 +73,7 @@
             <div class="flex flex-col gap-1.5">
                 <div class="flex justify-between items-center">
                     <label class="text-text-main dark:text-gray-200 text-sm font-semibold" for="password">Password</label>
-                    <a class="text-primary hover:text-primary-dark text-xs font-medium hover:underline transition-colors" href="#">Forgot Password?</a>
+                    <a class="text-primary hover:text-primary-dark text-xs font-medium hover:underline transition-colors" href="{% url 'password_reset' %}">Forgot Password?</a>
                 </div>
                 <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-sub dark:text-gray-400 group-focus-within:text-primary transition-colors">
