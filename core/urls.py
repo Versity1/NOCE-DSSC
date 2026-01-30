@@ -19,4 +19,6 @@ urlpatterns = [
     path('admin-portal/attendance/', views.attendance, name='attendance'),
     path('admin-portal/library/', views.library, name='library'),
     path('admin-portal/transport/', views.transport, name='transport'),
+
+    # Teacher pages
 ]
