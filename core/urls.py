@@ -19,6 +19,10 @@ urlpatterns = [
     # Admin/Staff pages
     path('admin-portal/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-portal/students/', views.manage_students, name='manage_students'),
+    path('admin-portal/students/add/', views.add_student, name='add_student'),
+    path('admin-portal/students/edit/<int:student_id>/', views.edit_student, name='edit_student'),
+    path('admin-portal/students/delete/<int:student_id>/', views.delete_student, name='delete_student'),
+    path('admin-portal/students/promote/', views.promote_students, name='promote_students'),
     path('admin-portal/marks/', views.enter_marks, name='enter_marks'),
     path('admin-portal/marks/upload/', views.upload_marks_csv, name='upload_marks_csv'),
     path('manage-subjects/', views.manage_subjects, name='manage_subjects'),

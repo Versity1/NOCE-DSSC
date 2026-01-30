@@ -208,7 +208,37 @@ def admin_dashboard(request):
 
 @login_required
 def manage_students(request):
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    from .models import CustomUser, ClassInfo
+    
     user = request.user
+    
+    # Base Query
+    students_list = CustomUser.objects.filter(role='student').order_by('last_name')
+    classes = ClassInfo.objects.all()
+    
+    # Search
+    search_query = request.GET.get('search', '')
+    if search_query:
+        students_list = students_list.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(student_profile__admission_number__icontains=search_query) |
+            Q(student_profile__parent_name__icontains=search_query)
+        )
+    
+    # Filters
+    selected_class = request.GET.get('class_level')
+    if selected_class:
+        students_list = students_list.filter(student_profile__class_level=selected_class)
+        
+    # Pagination
+    paginator = Paginator(students_list, 20) # 20 students per page
+    page_number = request.GET.get('page')
+    students = paginator.get_page(page_number)
+    
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
@@ -216,8 +246,137 @@ def manage_students(request):
         'active_page': 'students',
         'breadcrumb_parent': 'Students',
         'breadcrumb_current': 'Directory',
+        
+        'students': students,
+        'classes': classes,
+        'search_query': search_query,
+        'selected_class': selected_class,
     }
     return render(request, 'custom_admin/manage-students.html', context)
+
+
+@login_required
+def add_student(request):
+    from .models import CustomUser, StudentProfile, ClassInfo
+    
+    if request.method == 'POST':
+        try:
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            username = request.POST.get('username') or f"STD{CustomUser.objects.count() + 1000}"
+            email = request.POST.get('email', '')
+            class_level = request.POST.get('class_level')
+            parent_name = request.POST.get('parent_name')
+            parent_phone = request.POST.get('parent_phone')
+            
+            # Simple validation
+            if not (first_name and last_name):
+                 raise ValueError("First Name and Last Name are required.")
+                 
+            # Create User
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password='password123', # Default password
+                first_name=first_name,
+                last_name=last_name,
+                role='student'
+            )
+            
+            # Create Profile
+            StudentProfile.objects.create(
+                user=user,
+                class_level=class_level,
+                parent_name=parent_name,
+                parent_phone=parent_phone
+            )
+            
+            messages.success(request, f"Student {first_name} {last_name} added successfully.")
+            return redirect('manage_students')
+            
+        except Exception as e:
+            messages.error(request, f"Error adding student: {str(e)}")
+            
+    return redirect('manage_students')
+
+
+@login_required
+def edit_student(request, student_id):
+    from .models import CustomUser
+    
+    try:
+        student = CustomUser.objects.get(id=student_id, role='student')
+        
+        if request.method == 'POST':
+            student.first_name = request.POST.get('first_name')
+            student.last_name = request.POST.get('last_name')
+            student.email = request.POST.get('email')
+            student.save()
+            
+            profile = student.student_profile
+            profile.class_level = request.POST.get('class_level')
+            profile.parent_name = request.POST.get('parent_name')
+            profile.parent_phone = request.POST.get('parent_phone')
+            profile.save()
+            
+            messages.success(request, "Student details updated.")
+            return redirect('manage_students')
+            
+    except CustomUser.DoesNotExist:
+        messages.error(request, "Student not found.")
+        
+    return redirect('manage_students')
+
+
+@login_required
+def delete_student(request, student_id):
+    from .models import CustomUser
+    
+    if request.method == 'POST':
+        try:
+            student = CustomUser.objects.get(id=student_id, role='student')
+            student.delete()
+            messages.success(request, "Student deleted successfully.")
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Student not found.")
+            
+    return redirect('manage_students')
+
+
+@login_required
+def promote_students(request):
+    from .models import CustomUser, ClassInfo
+    
+    if request.method == 'POST':
+        try:
+            current_class = request.POST.get('current_class')
+            target_class = request.POST.get('target_class')
+            
+            if not (current_class and target_class):
+                raise ValueError("Please select both current and target classes.")
+                
+            if current_class == target_class:
+                 raise ValueError("Target class cannot be the same as current class.")
+            
+            # Update students
+            updated_count = CustomUser.objects.filter(
+                role='student', 
+                student_profile__class_level=current_class
+            ).update(
+                # We can't update related fields directly in update() for some DBs/Django versions cleanly directly on OneToOne in bulk easily in one go for fields on related model efficiently without filtering on related model directly
+                # However, for simplicity let's do it via the Profile model directly
+            )
+            
+            # Correct approach for related model bulk update
+            from .models import StudentProfile
+            updated_count = StudentProfile.objects.filter(class_level=current_class).update(class_level=target_class)
+            
+            messages.success(request, f"Successfully promoted {updated_count} students from {current_class} to {target_class}.")
+            
+        except Exception as e:
+            messages.error(request, f"Error promoting students: {str(e)}")
+            
+    return redirect('manage_students')
 
 
 @login_required
