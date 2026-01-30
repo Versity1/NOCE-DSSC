@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.utils import timezone
 
 # Role choices for user groups
 ROLE_CHOICES = [
@@ -249,3 +249,30 @@ class StudentResult(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.subject} ({self.term})"
+
+
+class Attendance(models.Model):
+    """Tracks daily student attendance."""
+    STATUS_CHOICES = [
+        ('Present', 'Present'),
+        ('Absent', 'Absent'),
+        ('Late', 'Late'),
+        ('Excused', 'Excused'),
+    ]
+    
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, limit_choices_to={'role': 'student'}, related_name='attendance_records')
+    class_info = models.ForeignKey(ClassInfo, on_delete=models.CASCADE, related_name='attendance_records')
+    date = models.DateField(default=timezone.now)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Present')
+    remark = models.CharField(max_length=200, blank=True)
+    
+    marked_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='marked_attendance')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['student', 'date']
+        ordering = ['-date', 'student__last_name']
+
+    def __str__(self):
+        return f"{self.student} - {self.date} ({self.status})"

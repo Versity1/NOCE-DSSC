@@ -166,26 +166,95 @@ def buy_pin(request):
 
 @login_required
 def student_dashboard(request):
+    from django.db.models import Avg, Count
+    from .models import StudentResult, Attendance, Term
+    
     user = request.user
+    if user.role != 'student':
+        messages.warning(request, "Access restricted to students.")
+        return redirect('home')
+        
+    # Student Profile data
+    profile = getattr(user, 'student_profile', None)
+    student_class = profile.class_level if profile else "N/A"
+    
+    # 1. Attendance Stats
+    attendance_qs = Attendance.objects.filter(student=user)
+    total_days = attendance_qs.count()
+    present_days = attendance_qs.filter(status='Present').count()
+    attendance_rate = int((present_days / total_days) * 100) if total_days > 0 else 0
+    
+    # 2. Academic Stats (Current Session/Term ideally, currently global for simplicity or latest)
+    # Let's get stats for the current session/term if available, or just all time
+    # For dashboard, maybe an overall average is good
+    results = StudentResult.objects.filter(student=user)
+    avg_score = results.aggregate(Avg('total'))['total__avg'] or 0
+    total_subjects = results.values('subject').distinct().count()
+    
+    # Position (Simple ranking based on average of totals - heavy query for production but fine for MVP)
+    # For now, let's keep position static or "-" if too complex to calculate efficiently on every load
+    position = "-" 
+
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
         'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'active_page': 'dashboard',
-        'student_name': user.first_name or user.username,
+        'student_name': user.first_name,
+        
+        'student_class': student_class,
+        'current_term': "2nd Term", # Placeholder or fetch from Global Config
+        'attendance_rate': attendance_rate,
+        'avg_score': int(avg_score),
+        'total_subjects': total_subjects,
+        'position': position,
     }
     return render(request, 'account/student-dashboard.html', context)
 
 
 @login_required
 def student_result(request):
+    from .models import StudentResult, AcademicSession, Term
+    
     user = request.user
+    if user.role != 'student':
+        return redirect('home')
+
+    # Filters
+    sessions = AcademicSession.objects.all()
+    terms = Term.objects.all() # Or filter by selected session
+    
+    selected_term_id = request.GET.get('term_id')
+    
+    results = []
+    stats = {}
+    
+    if selected_term_id:
+        results = StudentResult.objects.filter(student=user, term_id=selected_term_id)
+        
+        if results.exists():
+            total_score = sum(r.total for r in results)
+            count = results.count()
+            stats = {
+                'total_score': total_score,
+                'average': round(total_score / count, 1),
+                'count': count,
+                'grade': 'A' if (total_score/count) >= 70 else 'B' # Simple logic
+            }
+            
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
         'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'active_page': 'results',
         'breadcrumb_current': 'Results',
+        
+        'sessions': sessions,
+        'terms': terms,
+        'results': results,
+        'stats': stats,
+        'selected_term_id': int(selected_term_id) if selected_term_id else None,
+        'student_profile': getattr(user, 'student_profile', None),
     }
     return render(request, 'account/student-result.html', context)
 
@@ -737,16 +806,117 @@ def fees_payments(request):
 
 @login_required
 def attendance(request):
+    from datetime import date
+    from .models import ClassInfo, CustomUser, Attendance
+    
     user = request.user
+    today = date.today()
+    
+    # Get filters
+    class_filter = request.GET.get('class_name') # Changed from class_level
+    date_filter = request.GET.get('date', str(today))
+    
+    classes = ClassInfo.objects.all()
+    students = []
+    attendance_records = {} # Map student_id to status
+    
+    stats = {
+        'present': 0,
+        'absent': 0,
+        'late': 0,
+        'rate': 0
+    }
+    
+    selected_class_obj = None
+    if class_filter:
+        try:
+             selected_class_obj = ClassInfo.objects.get(name=class_filter) # Filter by unique Name (JSS 1A)
+             
+             # Fetch students in that class. 
+             # Since StudentProfile only has 'class_level' (e.g. JSS 1), we fetch all students in that Level.
+             # Ideally we should match exact class but Profile doesn't support it yet.
+             students = CustomUser.objects.filter(role='student', student_profile__class_level=selected_class_obj.level).order_by('last_name')
+             
+             # Fetch existing attendance for this specific ClassInfo object
+             records = Attendance.objects.filter(class_info=selected_class_obj, date=date_filter)
+             for record in records:
+                 attendance_records[record.student.id] = {
+                     'status': record.status, 
+                     'remark': record.remark
+                 }
+                 
+             # Compute stats
+             total_marked = records.count()
+             if total_marked > 0:
+                 stats['present'] = records.filter(status='Present').count()
+                 stats['absent'] = records.filter(status='Absent').count()
+                 stats['late'] = records.filter(status='Late').count()
+                 stats['rate'] = int((stats['present'] / total_marked) * 100)
+                 
+        except ClassInfo.DoesNotExist:
+            pass
+
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
         'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'active_page': 'attendance',
         'breadcrumb_parent': 'Academic',
-        'breadcrumb_current': 'Attendance',
+        'breadcrumb_current': 'Attendance Register',
+        
+        'classes': classes,
+        'students': students,
+        'attendance_records': attendance_records,
+        'selected_class': class_filter, # This is now the Name (e.g. JSS 1A)
+        'selected_date': date_filter,
+        'stats': stats,
     }
     return render(request, 'custom_admin/attendance-register.html', context)
+
+
+@login_required
+def save_attendance(request):
+    from .models import ClassInfo, CustomUser, Attendance
+    
+    if request.method == 'POST':
+        try:
+            class_name = request.POST.get('class_name') # Changed from class_level
+            date_str = request.POST.get('date')
+            
+            if not class_name:
+                messages.error(request, "Class not specified.")
+                return redirect('attendance')
+
+            selected_class_obj = ClassInfo.objects.get(name=class_name)
+            # Fetch same students as GET view
+            students = CustomUser.objects.filter(role='student', student_profile__class_level=selected_class_obj.level)
+            
+            for student in students:
+                status_key = f"status_{student.id}"
+                remark_key = f"remark_{student.id}"
+                
+                status = request.POST.get(status_key)
+                remark = request.POST.get(remark_key, '')
+                
+                if status:
+                    Attendance.objects.update_or_create(
+                        student=student,
+                        date=date_str,
+                        defaults={
+                            'class_info': selected_class_obj,
+                            'status': status,
+                            'remark': remark,
+                            'marked_by': request.user
+                        }
+                    )
+            
+            messages.success(request, "Attendance saved successfully.")
+            return redirect(f"{reverse('attendance')}?class_name={class_name}&date={date_str}")
+            
+        except Exception as e:
+            messages.error(request, f"Error saving attendance: {str(e)}")
+            
+    return redirect('attendance')
 
 
 @login_required

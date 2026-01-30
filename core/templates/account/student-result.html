@@ -5,8 +5,47 @@
 {% block page_title_mobile %}Results{% endblock %}
 
 {% block content %}
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #result-sheet, #result-sheet * {
+            visibility: visible;
+        }
+        #result-sheet {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 20px;
+            border: none;
+            box-shadow: none;
+            background: white !important;
+            color: black !important;
+        }
+        
+        /* Ensure background colors print */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Hide specific elements inside the result sheet if needed */
+        .no-print {
+            display: none !important;
+        }
+        
+        /* Hide Base Dashboard elements specifically just in case */
+        nav, aside, header, footer, .sidebar {
+            display: none !important;
+        }
+    }
+</style>
+
 <!-- Page Header -->
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 no-print">
     <div class="flex flex-col gap-1">
         <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">My Results</h1>
         <p class="text-text-sub dark:text-gray-400 text-base font-normal">View and download your academic results.</p>
@@ -14,29 +53,29 @@
 </div>
 
 <!-- PIN Entry Form (if needed) -->
-<div class="bg-white dark:bg-surface-dark rounded-xl p-6 border border-border-color dark:border-[#2d3748] shadow-sm">
-    <h3 class="text-lg font-bold text-text-main dark:text-white mb-4">Enter Result PIN</h3>
-    <form class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
+<div class="bg-white dark:bg-surface-dark rounded-xl p-6 border border-border-color dark:border-[#2d3748] shadow-sm mb-6 no-print">
+    <h3 class="text-lg font-bold text-text-main dark:text-white mb-4">Check Results</h3>
+    <form method="get" class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1 hidden">
             <input type="text" placeholder="Enter your result PIN" class="w-full h-12 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
         </div>
-        <div class="flex gap-3">
-            <select class="h-12 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
+        <div class="flex gap-3 w-full md:w-auto">
+            <select name="term_id" class="h-12 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white w-full md:w-64">
                 <option value="">Select Term</option>
-                <option value="1">First Term</option>
-                <option value="2">Second Term</option>
-                <option value="3">Third Term</option>
+                {% for term in terms %}
+                <option value="{{ term.id }}" {% if selected_term_id == term.id %}selected{% endif %}>{{ term.name|default:term }}</option>
+                {% endfor %}
             </select>
-            <button type="submit" class="h-12 px-6 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-colors">
+            <button type="submit" class="h-12 px-6 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-colors whitespace-nowrap">
                 Check Result
             </button>
         </div>
     </form>
-    <p class="text-sm text-text-sub mt-3">Don't have a PIN? <a href="{% url 'buy_pin' %}" class="text-primary font-medium hover:underline">Purchase one here</a></p>
 </div>
 
+{% if selected_term_id and results %}
 <!-- Result Display -->
-<div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] overflow-hidden">
+<div id="result-sheet" class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] overflow-hidden relative">
     <!-- Result Header -->
     <div class="bg-primary text-white p-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -50,8 +89,8 @@
                 </div>
             </div>
             <div class="text-right">
-                <p class="font-bold">2023/2024 Session</p>
-                <p class="text-white/80">Second Term</p>
+                <p class="font-bold">2023/2024 Session</p> 
+                <!-- Note: Session should ideally come from the Term's session -->
             </div>
         </div>
     </div>
@@ -61,19 +100,19 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
                 <p class="text-text-sub">Student Name</p>
-                <p class="font-semibold text-text-main dark:text-white">John Abiodun Doe</p>
+                <p class="font-semibold text-text-main dark:text-white">{{ student_profile.user.get_full_name }}</p>
             </div>
             <div>
                 <p class="text-text-sub">Admission No.</p>
-                <p class="font-semibold text-text-main dark:text-white">OCS/2023/001</p>
+                <p class="font-semibold text-text-main dark:text-white">{{ student_profile.admission_number|default:"-" }}</p>
             </div>
             <div>
                 <p class="text-text-sub">Class</p>
-                <p class="font-semibold text-text-main dark:text-white">JSS 2A</p>
+                <p class="font-semibold text-text-main dark:text-white">{{ student_profile.class_level }}</p>
             </div>
             <div>
                 <p class="text-text-sub">Position</p>
-                <p class="font-semibold text-text-main dark:text-white">5th out of 45</p>
+                <p class="font-semibold text-text-main dark:text-white">{{ stats.position|default:"-" }}</p>
             </div>
         </div>
     </div>
@@ -92,46 +131,20 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                {% for result in results %}
                 <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Mathematics</td>
-                    <td class="py-3 px-4 text-center">35</td>
-                    <td class="py-3 px-4 text-center">52</td>
-                    <td class="py-3 px-4 text-center font-bold">87</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded font-bold">A</span></td>
-                    <td class="py-3 px-4 text-green-600 font-medium">Excellent</td>
+                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">{{ result.subject.name }}</td>
+                    <td class="py-3 px-4 text-center">{{ result.ca1|add:result.ca2|add:result.ca3|add:result.ca4 }}</td>
+                    <td class="py-3 px-4 text-center">{{ result.exam }}</td>
+                    <td class="py-3 px-4 text-center font-bold">{{ result.total }}</td>
+                    <td class="py-3 px-4 text-center">
+                        <span class="px-2 py-1 {% if result.total >= 70 %}bg-green-100 text-green-700{% elif result.total >= 50 %}bg-blue-100 text-blue-700{% else %}bg-red-100 text-red-700{% endif %} rounded font-bold">
+                            {{ result.grade }}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 font-medium {% if result.total >= 50 %}text-green-600{% else %}text-red-600{% endif %}">{{ result.remark }}</td>
                 </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">English Language</td>
-                    <td class="py-3 px-4 text-center">32</td>
-                    <td class="py-3 px-4 text-center">48</td>
-                    <td class="py-3 px-4 text-center font-bold">80</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded font-bold">A</span></td>
-                    <td class="py-3 px-4 text-green-600 font-medium">Excellent</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Basic Science</td>
-                    <td class="py-3 px-4 text-center">30</td>
-                    <td class="py-3 px-4 text-center">45</td>
-                    <td class="py-3 px-4 text-center font-bold">75</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded font-bold">B</span></td>
-                    <td class="py-3 px-4 text-blue-600 font-medium">Very Good</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Social Studies</td>
-                    <td class="py-3 px-4 text-center">28</td>
-                    <td class="py-3 px-4 text-center">40</td>
-                    <td class="py-3 px-4 text-center font-bold">68</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded font-bold">B</span></td>
-                    <td class="py-3 px-4 text-blue-600 font-medium">Very Good</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Computer Studies</td>
-                    <td class="py-3 px-4 text-center">36</td>
-                    <td class="py-3 px-4 text-center">55</td>
-                    <td class="py-3 px-4 text-center font-bold">91</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded font-bold">A</span></td>
-                    <td class="py-3 px-4 text-green-600 font-medium">Excellent</td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -141,33 +154,84 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
                 <p class="text-text-sub text-sm">Total Score</p>
-                <p class="text-2xl font-bold text-text-main dark:text-white">401/500</p>
+                <p class="text-2xl font-bold text-text-main dark:text-white">{{ stats.total_score }}</p>
             </div>
             <div>
                 <p class="text-text-sub text-sm">Average</p>
-                <p class="text-2xl font-bold text-primary">80.2%</p>
+                <p class="text-2xl font-bold text-primary">{{ stats.average }}%</p>
             </div>
             <div>
-                <p class="text-text-sub text-sm">Class Position</p>
-                <p class="text-2xl font-bold text-text-main dark:text-white">5th / 45</p>
+                <p class="text-text-sub text-sm">No. of Subjects</p>
+                <p class="text-2xl font-bold text-text-main dark:text-white">{{ stats.count }}</p>
             </div>
             <div>
                 <p class="text-text-sub text-sm">Overall Grade</p>
-                <p class="text-2xl font-bold text-green-600">A</p>
+                <p class="text-2xl font-bold text-green-600">{{ stats.grade }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Principal's Remarks & Signature -->
+    <div class="p-8 border-t border-border-color dark:border-[#2d3748] mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+             <!-- Remarks -->
+            <div>
+                <h4 class="text-sm font-bold text-text-sub uppercase mb-2">Principal's Remark</h4>
+                <div class="text-text-main dark:text-white font-medium italic">
+                    {% if stats.average >= 75 %}
+                        "An excellent performance. Keep up the good work!"
+                    {% elif stats.average >= 60 %}
+                        "A good result. You can do better with more effort."
+                    {% elif stats.average >= 50 %}
+                        "Fair performance. You need to sit up."
+                    {% else %}
+                        "Poor result. Hard work is required."
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Signature -->
+            <div>
+                 <h4 class="text-sm font-bold text-text-sub uppercase mb-8">Principal's Signature</h4>
+                 <div class="border-b-2 border-dashed border-gray-400 w-3/4"></div>
+                 <p class="text-xs text-text-sub mt-2">Signed & Stamped</p>
             </div>
         </div>
     </div>
     
     <!-- Actions -->
-    <div class="p-6 flex flex-col sm:flex-row gap-3 justify-end">
-        <button class="flex items-center justify-center gap-2 px-6 py-3 border border-border-color dark:border-[#4a5568] rounded-lg font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-colors">
+    <div class="p-6 flex flex-col sm:flex-row gap-3 justify-end no-print">
+        <button onclick="window.print()" class="flex items-center justify-center gap-2 px-6 py-3 border border-border-color dark:border-[#4a5568] rounded-lg font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-colors">
             <span class="material-symbols-outlined">print</span>
             Print Result
         </button>
-        <button class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold transition-colors">
+        <button id="download-pdf-btn" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold transition-colors">
             <span class="material-symbols-outlined">download</span>
             Download PDF
         </button>
     </div>
 </div>
+{% elif selected_term_id %}
+<div class="bg-white dark:bg-surface-dark rounded-xl p-8 text-center text-text-sub">
+    <p>No results found for the selected term.</p>
+</div>
+{% endif %}
+
+<!-- PDF Generation Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    document.getElementById('download-pdf-btn')?.addEventListener('click', function() {
+        const element = document.getElementById('result-sheet');
+        const opt = {
+            margin:       0.5,
+            filename:     '{{ student_profile.user.first_name }}_result_{{ selected_term_id }}.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        
+        // Use html2pdf to download
+        html2pdf().set(opt).from(element).save();
+    });
+</script>
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends 'base_dashboard.html' %}
-
+{% load custom_filters %}
 {% block title %}Attendance Register - NOCE DSSC{% endblock %}
 
 {% block page_title_mobile %}Attendance{% endblock %}
@@ -14,87 +14,105 @@
 </div>
 
 <!-- Filters -->
-<div class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4 items-end">
-    <div class="flex-1">
+<form method="get" class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4 items-end mt-6">
+    <div class="flex-1 w-full">
         <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Class</label>
-        <select class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
-            <option>JSS 2A</option>
-            <option>JSS 1A</option>
-            <option>SS 1A</option>
+        <select name="class_name" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
+            <option value="">Select Class</option>
+            {% for cls in classes %}
+            <option value="{{ cls.name }}" {% if selected_class == cls.name %}selected{% endif %}>{{ cls.name }}</option>
+            {% endfor %}
         </select>
     </div>
-    <div class="flex-1">
+    <div class="flex-1 w-full">
         <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Date</label>
-        <input type="date" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="2024-01-30">
+        <input type="date" name="date" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="{{ selected_date }}">
     </div>
-    <button class="h-11 px-6 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors">Load Register</button>
-</div>
+    <button type="submit" class="h-11 px-6 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors w-full md:w-auto">Load Register</button>
+</form>
 
+{% if selected_class %}
 <!-- Summary Stats -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
     <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
-        <p class="text-3xl font-bold text-green-600">38</p>
+        <p class="text-3xl font-bold text-green-600">{{ stats.present }}</p>
         <p class="text-sm text-green-700 dark:text-green-400">Present</p>
     </div>
     <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
-        <p class="text-3xl font-bold text-red-600">5</p>
+        <p class="text-3xl font-bold text-red-600">{{ stats.absent }}</p>
         <p class="text-sm text-red-700 dark:text-red-400">Absent</p>
     </div>
     <div class="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 text-center">
-        <p class="text-3xl font-bold text-orange-600">2</p>
+        <p class="text-3xl font-bold text-orange-600">{{ stats.late }}</p>
         <p class="text-sm text-orange-700 dark:text-orange-400">Late</p>
     </div>
     <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
-        <p class="text-3xl font-bold text-primary">84%</p>
+        <p class="text-3xl font-bold text-primary">{{ stats.rate }}%</p>
         <p class="text-sm text-blue-700 dark:text-blue-400">Attendance Rate</p>
     </div>
 </div>
 
 <!-- Attendance Table -->
-<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-background-light dark:bg-[#2d3748]">
-                <tr>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">S/N</th>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Student Name</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">Present</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">Absent</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">Late</th>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Remarks</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4">1</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Adebayo Chioma</td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att1" checked class="w-5 h-5 text-green-600"></td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att1" class="w-5 h-5 text-red-600"></td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att1" class="w-5 h-5 text-orange-600"></td>
-                    <td class="py-3 px-4"><input type="text" placeholder="Optional remarks" class="w-full h-8 px-2 rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-xs"></td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4">2</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Bakare Tunde</td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att2" checked class="w-5 h-5 text-green-600"></td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att2" class="w-5 h-5 text-red-600"></td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att2" class="w-5 h-5 text-orange-600"></td>
-                    <td class="py-3 px-4"><input type="text" placeholder="Optional remarks" class="w-full h-8 px-2 rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-xs"></td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 bg-red-50 dark:bg-red-900/10">
-                    <td class="py-3 px-4">3</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Eze Ngozi</td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att3" class="w-5 h-5 text-green-600"></td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att3" checked class="w-5 h-5 text-red-600"></td>
-                    <td class="py-3 px-4 text-center"><input type="radio" name="att3" class="w-5 h-5 text-orange-600"></td>
-                    <td class="py-3 px-4"><input type="text" value="Sick" class="w-full h-8 px-2 rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-xs"></td>
-                </tr>
-            </tbody>
-        </table>
+<form method="post" action="{% url 'save_attendance' %}">
+    {% csrf_token %}
+    <input type="hidden" name="class_name" value="{{ selected_class }}">
+    <input type="hidden" name="date" value="{{ selected_date }}">
+    
+    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden mt-6">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-background-light dark:bg-[#2d3748]">
+                    <tr>
+                        <th class="py-3 px-4 text-left font-bold text-text-sub">S/N</th>
+                        <th class="py-3 px-4 text-left font-bold text-text-sub">Student Name</th>
+                        <th class="py-3 px-4 text-center font-bold text-text-sub">Present</th>
+                        <th class="py-3 px-4 text-center font-bold text-text-sub">Absent</th>
+                        <th class="py-3 px-4 text-center font-bold text-text-sub">Late</th>
+                        <th class="py-3 px-4 text-center font-bold text-text-sub">Excused</th>
+                        <th class="py-3 px-4 text-left font-bold text-text-sub">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                    {% for student in students %}
+                        {% with record=attendance_records|get_item:student.id %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
+                            <td class="py-3 px-4">{{ forloop.counter }}</td>
+                            <td class="py-3 px-4 font-medium text-text-main dark:text-white">
+                                {{ student.get_full_name }} <br>
+                                <span class="text-xs text-text-sub">{{ student.username }}</span>
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <input type="radio" name="status_{{ student.id }}" value="Present" class="w-5 h-5 text-green-600" {% if not record or record.status == 'Present' %}checked{% endif %}>
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <input type="radio" name="status_{{ student.id }}" value="Absent" class="w-5 h-5 text-red-600" {% if record.status == 'Absent' %}checked{% endif %}>
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <input type="radio" name="status_{{ student.id }}" value="Late" class="w-5 h-5 text-orange-600" {% if record.status == 'Late' %}checked{% endif %}>
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <input type="radio" name="status_{{ student.id }}" value="Excused" class="w-5 h-5 text-blue-600" {% if record.status == 'Excused' %}checked{% endif %}>
+                            </td>
+                            <td class="py-3 px-4">
+                                <input type="text" name="remark_{{ student.id }}" value="{{ record.remark|default:'' }}" placeholder="Optional remarks" class="w-full h-8 px-2 rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-xs">
+                            </td>
+                        </tr>
+                        {% endwith %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="py-8 text-center text-text-sub">No students found in this class.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if students %}
+        <div class="p-4 border-t border-border-color dark:border-[#2d3748] flex justify-end gap-3">
+             <a href="{% url 'admin_dashboard' %}" class="px-6 py-2 border border-border-color dark:border-[#4a5568] rounded-lg font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#2d3748] flex items-center justify-center">Cancel</a>
+            <button type="submit" class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark">Save Attendance</button>
+        </div>
+        {% endif %}
     </div>
-    <div class="p-4 border-t border-border-color dark:border-[#2d3748] flex justify-end gap-3">
-        <button class="px-6 py-2 border border-border-color dark:border-[#4a5568] rounded-lg font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#2d3748]">Cancel</button>
-        <button class="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark">Save Attendance</button>
-    </div>
-</div>
+</form>
+{% endif %}
 {% endblock %}
