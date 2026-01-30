@@ -20,9 +20,16 @@
         
         <!-- Actions -->
         <div class="flex items-center gap-4">
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="hidden md:flex min-w-[140px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full h-11 px-6 bg-red-500 hover:bg-red-600 transition-all transform hover:scale-105 shadow-lg shadow-red-500/25 text-white text-sm font-bold">
+                <span class="material-symbols-outlined !text-lg">logout</span>
+                <span>Logout</span>
+            </a>
+            {% else %}
             <a href="{% url 'login' %}" class="hidden md:flex min-w-[140px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-6 bg-primary hover:bg-primary-dark transition-all transform hover:scale-105 shadow-lg shadow-primary/25 text-white text-sm font-bold">
                 <span>Portal Login</span>
             </a>
+            {% endif %}
             <!-- Mobile Menu Button -->
             <button id="mobile-menu-btn" class="lg:hidden text-text-main dark:text-white p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
                 <span class="material-symbols-outlined">menu</span>
@@ -38,9 +45,16 @@
             <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">Admissions</a>
             <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">Academics</a>
             <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">Contact</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="mt-2 flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-red-500 hover:bg-red-600 text-white font-bold transition-colors">
+                <span class="material-symbols-outlined !text-lg">logout</span>
+                Logout
+            </a>
+            {% else %}
             <a href="{% url 'login' %}" class="mt-2 flex items-center justify-center rounded-lg h-12 px-6 bg-primary hover:bg-primary-dark text-white font-bold transition-colors">
                 Portal Login
             </a>
+            {% endif %}
         </nav>
     </div>
 </div>
