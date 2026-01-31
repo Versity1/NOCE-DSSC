@@ -214,7 +214,7 @@ def student_dashboard(request):
 
 @login_required
 def student_result(request):
-    from .models import StudentResult, AcademicSession, Term
+    from .models import StudentResult, AcademicSession, Term, Pin
     
     user = request.user
     if user.role != 'student':
@@ -230,6 +230,13 @@ def student_result(request):
     stats = {}
     
     if selected_term_id:
+        # Check for Valid Pin for this term
+        has_pin = Pin.objects.filter(student=user, term_id=selected_term_id).exists()
+        
+        if not has_pin:
+             messages.warning(request, "You need to purchase a result checker pin to view results for this term.")
+             return redirect('buy_pin_page')
+
         results = StudentResult.objects.filter(student=user, term_id=selected_term_id)
         
         if results.exists():
@@ -793,6 +800,7 @@ def manage_subjects(request):
 
 @login_required
 def fees_payments(request):
+    user = request.user
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
@@ -945,3 +953,366 @@ def transport(request):
         'breadcrumb_current': 'Transport',
     }
     return render(request, 'custom_admin/transport-mgt.html', context)
+
+
+# ============================================
+# PAYMENT & PIN VIEWS
+# ============================================
+
+@login_required
+def buy_pin_page(request):
+    """View to show payment options for buying a pin."""
+    from .models import AcademicSession, Term, Pin, SchoolConfiguration
+    
+    user = request.user
+    if not user.is_student:
+        messages.error(request, "Only students can purchase pins.")
+        return redirect('home')
+        
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    # Get user's existing pins
+    pins = Pin.objects.filter(student=user).order_by('-created_at')
+    
+    # Get configuration
+    config = SchoolConfiguration.load()
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'payments',
+        'terms': terms,
+        'pins': pins,
+        'price': config.pin_price,
+        'config': config,
+        'paystack_public_key': settings.PAYSTACK_PUBLIC_KEY if hasattr(settings, 'PAYSTACK_PUBLIC_KEY') else '',
+    }
+    return render(request, 'account/buy_pin.html', context)
+
+
+@login_required
+def manage_configuration(request):
+    """Admin view to manage school configuration."""
+    from .models import SchoolConfiguration
+    
+    user = request.user
+    if not user.is_admin_user:
+        messages.error(request, "Access denied.")
+        return redirect('home')
+        
+    config = SchoolConfiguration.load()
+    
+    if request.method == 'POST':
+        try:
+            config.pin_price = request.POST.get('pin_price')
+            config.bank_name = request.POST.get('bank_name')
+            config.account_number = request.POST.get('account_number')
+            config.account_name = request.POST.get('account_name')
+            config.save()
+            
+            messages.success(request, "Settings updated successfully.")
+        except Exception as e:
+            messages.error(request, f"Error updating settings: {str(e)}")
+            
+        return redirect('manage_configuration')
+        
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name(),
+        'active_page': 'settings',
+        'config': config,
+    }
+    return render(request, 'custom_admin/school_settings.html', context)
+
+
+@login_required
+def initiate_payment(request):
+    """Handle payment initiation (Manual or Paystack intent)."""
+    from .models import Payment, Term, AcademicSession
+    import uuid
+
+    if request.method == 'POST':
+        user = request.user
+        amount = request.POST.get('amount')
+        method = request.POST.get('method')
+        term_id = request.POST.get('term_id')
+        
+        try:
+            term = Term.objects.get(id=term_id)
+            session = term.academic_session
+            
+            # Create Payment Record
+            payment = Payment(
+                student=user,
+                amount=amount,
+                method=method,
+                term=term,
+                academic_session=session,
+                status='pending'
+            )
+            
+            if method == 'manual':
+                proof = request.FILES.get('proof')
+                if not proof:
+                    messages.error(request, "Please upload proof of payment.")
+                    return redirect('buy_pin_page')
+                payment.proof_of_payment = proof
+                payment.save()
+                messages.success(request, "Payment submitted for approval. You will be notified once approved.")
+                
+            elif method == 'paystack':
+                # Generate reference
+                ref = request.POST.get('reference') or str(uuid.uuid4()).replace('-', '')[:12].upper()
+                payment.reference = ref 
+                payment.save()
+                
+                # Initialize Paystack Transaction (Standard Flow)
+                import requests
+                headers = {
+                    "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+                    "Content-Type": "application/json",
+                }
+                # Ensure amount is in kobo
+                amount_kobo = int(float(amount) * 100)
+                
+                data = {
+                    "email": user.email,
+                    "amount": amount_kobo,
+                    "reference": payment.reference,
+                    "callback_url": request.build_absolute_uri(reverse('verify_payment')),
+                }
+                
+                try:
+                    response = requests.post('https://api.paystack.co/transaction/initialize', json=data, headers=headers)
+                    
+                    if response.status_code == 200:
+                        res_data = response.json()
+                        return redirect(res_data['data']['authorization_url'])
+                    else:
+                         messages.error(request, "Error initializing Paystack payment.")
+                         return redirect('buy_pin_page')
+                except Exception as ex:
+                    messages.error(request, f"Connection error: {str(ex)}")
+                    return redirect('buy_pin_page')
+
+        except Exception as e:
+            messages.error(request, f"Error initiating payment: {str(e)}")
+            
+    return redirect('buy_pin_page')
+
+
+@login_required
+def verify_payment(request):
+    """Verify Paystack payment callback."""
+    from .models import Payment, Pin
+    import requests
+    
+    reference = request.GET.get('reference') or request.GET.get('trxref')
+    
+    if not reference:
+        messages.error(request, "No transaction reference provided.")
+        return redirect('buy_pin_page')
+        
+    try:
+        payment = Payment.objects.get(reference=reference)
+        
+        if payment.status == 'approved':
+             messages.info(request, "Payment already processed.")
+             return redirect('buy_pin_page')
+             
+        # Verify with Paystack API
+        headers = {
+            "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        }
+        response = requests.get(f"https://api.paystack.co/transaction/verify/{reference}", headers=headers)
+        
+        if response.status_code == 200:
+            res_data = response.json()
+            if res_data['data']['status'] == 'success':
+                # Approve Payment
+                payment.status = 'approved'
+                payment.paystack_ref = str(res_data['data']['id'])
+                payment.save()
+                
+                # Check if pin already exists for this term/session just in case?
+                # Prompt says: "this pin can only be used per term". 
+                # Assuming one pin per term is enough.
+                
+                # Generate Pin
+                Pin.objects.create(
+                    student=payment.student,
+                    term=payment.term,
+                    academic_session=payment.academic_session,
+                    status='active'
+                )
+                
+                messages.success(request, "Payment successful! Your pin has been generated.")
+            else:
+                payment.status = 'declined'
+                payment.save()
+                messages.error(request, "Payment verification failed.")
+        else:
+             messages.error(request, "Unable to verify payment with Paystack.")
+             
+    except Payment.DoesNotExist:
+        messages.error(request, "Payment record not found.")
+    except Exception as e:
+        messages.error(request, f"Error verifying payment: {str(e)}")
+        
+    return redirect('buy_pin_page')
+
+
+@login_required
+def admin_payments(request):
+    """Admin view to manage manual payments."""
+    from .models import Payment
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member): # Allow staff/bursar
+        return redirect('home')
+        
+    pending_payments = Payment.objects.filter(status='pending', method='manual').order_by('-created_at')
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'payments',
+        'breadcrumb_current': 'Payment Approvals',
+        'pending_payments': pending_payments,
+    }
+    return render(request, 'admin/payment_approval.html', context)
+
+
+@login_required
+def approve_payment(request, payment_id):
+    """Admin action to approve/decline payment."""
+    from .models import Payment, Pin
+    
+    if request.method == 'POST':
+        user = request.user
+        if not (user.is_admin_user or user.is_staff_member):
+             return redirect('home')
+             
+        action = request.POST.get('action')
+        
+        try:
+            payment = Payment.objects.get(id=payment_id)
+            
+            if action == 'approve':
+                payment.status = 'approved'
+                payment.admin_note = f"Approved by {user.username}"
+                payment.save()
+                
+                # Generate Pin
+                Pin.objects.create(
+                    student=payment.student,
+                    term=payment.term,
+                    academic_session=payment.academic_session,
+                    status='active'
+                )
+                messages.success(request, f"Payment approved for {payment.student.username}. Pin generated.")
+                
+            elif action == 'decline':
+                payment.status = 'declined'
+                payment.admin_note = f"Declined by {user.username}"
+                payment.save()
+                messages.warning(request, f"Payment declined for {payment.student.username}.")
+                
+        except Payment.DoesNotExist:
+            messages.error(request, "Payment not found.")
+            
+    return redirect('admin_payments')
+
+
+@login_required
+def admin_sales_report(request):
+    """Admin view for detailed sales analytics and reporting."""
+    from .models import Payment, Pin, AcademicSession, Term
+    from django.db.models import Sum, Count, Q
+    from django.utils import timezone
+    from datetime import timedelta
+    from django.db.models.functions import TruncMonth, TruncDate
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        return redirect('home')
+        
+    # Time periods
+    now = timezone.now()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    month_start = today_start.replace(day=1)
+    year_start = today_start.replace(month=1, day=1)
+    
+    # Base Querysets
+    sales_qs = Payment.objects.filter(status='approved')
+    pins_qs = Pin.objects.all()
+    
+    # 1. Headline Stats
+    total_sales_all_time = sales_qs.aggregate(Sum('amount'))['amount__sum'] or 0
+    total_sales_today = sales_qs.filter(created_at__gte=today_start).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_sales_month = sales_qs.filter(created_at__gte=month_start).aggregate(Sum('amount'))['amount__sum'] or 0
+    total_sales_year = sales_qs.filter(created_at__gte=year_start).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    total_pins_issued = pins_qs.count()
+    active_pins = pins_qs.filter(status='active').count()
+    used_pins = pins_qs.filter(status='used').count()
+    
+    # 2. Payment Method Breakdown
+    method_data = sales_qs.values('method').annotate(
+        count=Count('id'),
+        total_amount=Sum('amount')
+    )
+    
+    # 3. Term-wise Breakdown
+    term_sales = sales_qs.values('term__name', 'academic_session__name').annotate(
+        total=Sum('amount'),
+        count=Count('id')
+    ).order_by('-academic_session__name', 'term__name')
+    
+    # 4. Trend Data (Last 6 Months)
+    six_months_ago = now - timedelta(days=180)
+    monthly_trends = sales_qs.filter(created_at__gte=six_months_ago)\
+        .annotate(month=TruncMonth('created_at'))\
+        .values('month')\
+        .annotate(total=Sum('amount'))\
+        .order_by('month')
+        
+    # 5. Recent Transactions (with search/filter)
+    search_q = request.GET.get('q', '')
+    recent_sales = sales_qs
+    if search_q:
+        recent_sales = recent_sales.filter(
+            Q(student__username__icontains=search_q) |
+            Q(student__first_name__icontains=search_q) |
+            Q(student__last_name__icontains=search_q) |
+            Q(reference__icontains=search_q)
+        )
+    
+    recent_sales = recent_sales.order_by('-created_at')[:50]
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'sales',
+        'breadcrumb_current': 'Sales Analytics',
+        
+        'stats': {
+            'today': total_sales_today,
+            'month': total_sales_month,
+            'year': total_sales_year,
+            'all_time': total_sales_all_time,
+            'pins_issued': total_pins_issued,
+            'active_pins': active_pins,
+            'used_pins': used_pins,
+        },
+        'method_data': method_data,
+        'term_sales': term_sales,
+        'monthly_trends': monthly_trends,
+        'sales': recent_sales,
+        'search_q': search_q,
+    }
+    return render(request, 'admin/sales_report.html', context)

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
+import uuid
+import random
 
 # Role choices for user groups
 ROLE_CHOICES = [
@@ -276,3 +278,92 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.student} - {self.date} ({self.status})"
+
+class Pin(models.Model):
+    """Result checker pin for students."""
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('used', 'Used'),
+    ]
+    code = models.CharField(max_length=20, unique=True, editable=False)
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='pins', limit_choices_to={'role': 'student'})
+    term = models.ForeignKey(Term, on_delete=models.CASCADE)
+    academic_session = models.ForeignKey(AcademicSession, on_delete=models.CASCADE)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    usage_count = models.IntegerField(default=0, help_text="Number of times this pin has been used")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+             # Generate a 12 digit pin
+             self.code = ''.join([str(random.randint(0, 9)) for _ in range(12)])
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Pin: {self.code} ({self.student})"
+
+
+class Payment(models.Model):
+    """Payment records for pins."""
+    METHOD_CHOICES = [
+        ('paystack', 'Paystack'),
+        ('manual', 'Manual Deposit'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('declined', 'Declined'),
+    ]
+    
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payments', limit_choices_to={'role': 'student'})
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reference = models.CharField(max_length=100, unique=True)
+    paystack_ref = models.CharField(max_length=100, blank=True, null=True)
+    method = models.CharField(max_length=10, choices=METHOD_CHOICES)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    proof_of_payment = models.ImageField(upload_to='payment_proofs/', blank=True, null=True)
+    term = models.ForeignKey(Term, on_delete=models.SET_NULL, null=True)    
+    academic_session = models.ForeignKey(AcademicSession, on_delete=models.SET_NULL, null=True)
+    admin_note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.reference:
+            # Generate a unique reference
+            self.reference = str(uuid.uuid4()).replace('-', '')[:12].upper()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.student} - {self.amount} ({self.status})"
+
+
+# ============================================
+# CONFIGURATION MODEL
+# ============================================
+
+class SchoolConfiguration(models.Model):
+    """Stores global school configuration settings."""
+    pin_price = models.DecimalField(max_digits=10, decimal_places=2, default=2000.00)
+    bank_name = models.CharField(max_length=100, default='First Bank')
+    account_number = models.CharField(max_length=20, default='1234567890')
+    account_name = models.CharField(max_length=100, default='NOCE DSSC')
+    term_duration_weeks = models.IntegerField(default=12)
+    
+    class Meta:
+        verbose_name = "School Configuration"
+        verbose_name_plural = "School Configurations"
+
+    def __str__(self):
+        return "School Settings"
+
+    def save(self, *args, **kwargs):
+        # Singleton pattern: verify if there is only one instance
+        if not self.pk and SchoolConfiguration.objects.exists():
+            return
+        return super(SchoolConfiguration, self).save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj

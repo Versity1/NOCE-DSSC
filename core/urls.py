@@ -33,4 +33,15 @@ urlpatterns = [
     path('admin-portal/attendance/', views.attendance, name='attendance'),
     path('admin-portal/library/', views.library, name='library'),
     path('admin-portal/transport/', views.transport, name='transport'),
+    
+    # Payments & Pins
+    path('buy-pin/', views.buy_pin_page, name='buy_pin_page'),
+    path('payment/initiate/', views.initiate_payment, name='initiate_payment'),
+    path('payment/verify/', views.verify_payment, name='verify_payment'),
+    path('admin-portal/payments/', views.admin_payments, name='admin_payments'),
+    path('admin-portal/payments/approve/<int:payment_id>/', views.approve_payment, name='approve_payment'),
+    path('admin-portal/sales-report/', views.admin_sales_report, name='admin_sales_report'),
+    
+    # Configuration
+    path('admin-portal/settings/', views.manage_configuration, name='manage_configuration'),
 ]

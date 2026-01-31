@@ -1,0 +1,243 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Sales Analytics - NOCE DSSC{% endblock %}
+
+{% block page_title_mobile %}Sales{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+    <!-- Header with Search -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-col gap-1">
+            <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Sales Analytics</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base font-normal">Track revenue and pin distribution performance.</p>
+        </div>
+        
+        <form method="GET" class="relative group">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-sub group-focus-within:text-primary transition-colors">
+                <span class="material-symbols-outlined">search</span>
+            </div>
+            <input type="text" name="q" value="{{ search_q }}" placeholder="Search transactions..." 
+                class="block w-full md:w-80 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-surface-dark py-2.5 pl-10 pr-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all dark:text-white">
+        </form>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Revenue Today -->
+        <div class="bg-white dark:bg-surface-dark p-5 rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+                <span class="text-xs font-bold text-text-sub uppercase">Today</span>
+            </div>
+            <p class="text-2xl font-black text-text-main dark:text-white">₦{{ stats.today|floatformat:2 }}</p>
+            <p class="text-xs text-text-sub mt-1">Revenue collected today</p>
+        </div>
+
+        <!-- Total Revenue -->
+        <div class="bg-white dark:bg-surface-dark p-5 rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-primary/10 rounded-lg text-primary">
+                    <span class="material-symbols-outlined">account_balance_wallet</span>
+                </div>
+                <span class="text-xs font-bold text-text-sub uppercase">All Time</span>
+            </div>
+            <p class="text-2xl font-black text-text-main dark:text-white">₦{{ stats.all_time|floatformat:2 }}</p>
+            <p class="text-xs text-text-sub mt-1">Overall revenue generated</p>
+        </div>
+
+        <!-- Pins Issued -->
+        <div class="bg-white dark:bg-surface-dark p-5 rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600">
+                    <span class="material-symbols-outlined">vpn_key</span>
+                </div>
+                <span class="text-xs font-bold text-text-sub uppercase">Pins</span>
+            </div>
+            <p class="text-2xl font-black text-text-main dark:text-white">{{ stats.pins_issued }}</p>
+            <p class="text-xs text-text-sub mt-1">{{ stats.active_pins }} Active / {{ stats.used_pins }} Used</p>
+        </div>
+
+        <!-- Conversion Rate -->
+        <div class="bg-white dark:bg-surface-dark p-5 rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600">
+                    <span class="material-symbols-outlined">analytics</span>
+                </div>
+                <span class="text-xs font-bold text-text-sub uppercase">Yearly</span>
+            </div>
+            <p class="text-2xl font-black text-text-main dark:text-white">₦{{ stats.year|floatformat:2 }}</p>
+            <p class="text-xs text-text-sub mt-1">Current year total</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- main chart -->
+        <div class="lg:col-span-2 bg-white dark:bg-surface-dark p-6 rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm">
+            <h3 class="text-lg font-bold text-text-main dark:text-white mb-6">Revenue Trend (Last 6 Months)</h3>
+            <div class="h-[300px] w-full">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- method pie chart -->
+        <div class="bg-white dark:bg-surface-dark p-6 rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm">
+            <h3 class="text-lg font-bold text-text-main dark:text-white mb-6">Payment Methods</h3>
+            <div class="h-[300px] w-full flex items-center justify-center">
+                <canvas id="methodChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Section -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <!-- Term Wise Sales -->
+        <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden h-fit">
+            <div class="p-5 border-b border-border-color dark:border-[#2d3748]">
+                <h3 class="text-lg font-bold text-text-main dark:text-white">Sales by Term</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 dark:bg-[#1a202c] border-b border-border-color dark:border-[#2d3748]">
+                        <tr>
+                            <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Term/Session</th>
+                            <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase text-right">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-color dark:divide-[#2d3748]">
+                        {% for item in term_sales %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <td class="px-5 py-3">
+                                <p class="text-sm font-bold text-text-main dark:text-white">{{ item.term__name }}</p>
+                                <p class="text-xs text-text-sub">{{ item.academic_session__name }}</p>
+                            </td>
+                            <td class="px-5 py-3 text-right">
+                                <p class="text-sm font-black text-primary">₦{{ item.total|floatformat:2 }}</p>
+                                <p class="text-xs text-text-sub">{{ item.count }} pins</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="xl:col-span-2 bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-border-color dark:border-[#2d3748] flex items-center justify-between">
+                <h3 class="text-lg font-bold text-text-main dark:text-white">Recent Transactions</h3>
+                <a href="#" class="text-sm font-bold text-primary hover:underline">Export CSV</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 dark:bg-[#1a202c] border-b border-border-color dark:border-[#2d3748]">
+                        <tr>
+                            <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Student</th>
+                            <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Method</th>
+                            <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Ref</th>
+                            <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Amount</th>
+                            <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase text-right">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-color dark:divide-[#2d3748]">
+                        {% for sale in sales %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-sm">
+                            <td class="px-5 py-4">
+                                <p class="font-bold text-text-main dark:text-white">{{ sale.student.get_full_name }}</p>
+                                <p class="text-xs text-text-sub">{{ sale.student.username }}</p>
+                            </td>
+                            <td class="px-5 py-4">
+                                <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase
+                                    {% if sale.method == 'paystack' %}bg-blue-100 text-blue-700{% else %}bg-orange-100 text-orange-700{% endif %}">
+                                    {{ sale.method }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-4 font-mono text-xs text-text-sub">{{ sale.reference }}</td>
+                            <td class="px-5 py-4 font-black text-text-main dark:text-white">₦{{ sale.amount }}</td>
+                            <td class="px-5 py-4 text-right text-text-sub">{{ sale.created_at|date:"M d, H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-5 py-10 text-center text-text-sub italic">No records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Revenue Trend Chart
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for item in monthly_trends %}'{{ item.month|date:"M Y" }}',{% endfor %}],
+            datasets: [{
+                label: 'Revenue',
+                data: [{% for item in monthly_trends %}{{ item.total }},{% endfor %}],
+                borderColor: '#FF6B35',
+                backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointBackgroundColor: '#FF6B35',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // Payment Methods Chart
+    const mCtx = document.getElementById('methodChart').getContext('2d');
+    new Chart(mCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for item in method_data %}'{{ item.method|title }}',{% endfor %}],
+            datasets: [{
+                data: [{% for item in method_data %}{{ item.count }},{% endfor %}],
+                backgroundColor: ['#FF6B35', '#1A1A2E', '#4C51BF', '#48BB78'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { size: 12, weight: 'bold' }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+</script>
+{% endblock %}

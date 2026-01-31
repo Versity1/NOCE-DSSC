@@ -1,0 +1,234 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Buy Result Pin - NOCE DSSC{% endblock %}
+
+{% block page_title_mobile %}Buy Pin{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8">
+    <!-- Header Section -->
+    <div class="flex flex-col gap-1">
+        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Purchase Result Pin</h1>
+        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Select a payment method below to get your result checker pin.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Payment Options & Selection -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            <!-- Method Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="showForm('paystack')" class="flex flex-col items-start gap-4 p-6 bg-white dark:bg-surface-dark rounded-2xl border-2 border-transparent hover:border-primary/50 shadow-sm transition-all group focus:border-primary active:scale-[0.98]">
+                    <div class="size-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-3xl">credit_card</span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-text-main dark:text-white">Instant Payment</h3>
+                        <p class="text-sm text-text-sub">Pay via Paystack (Card, Transfer, USSD). Pin is released immediately.</p>
+                    </div>
+                </button>
+
+                <button onclick="showForm('manual')" class="flex flex-col items-start gap-4 p-6 bg-white dark:bg-surface-dark rounded-2xl border-2 border-transparent hover:border-primary/50 shadow-sm transition-all group focus:border-primary active:scale-[0.98]">
+                    <div class="size-12 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-3xl">account_balance</span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-lg font-bold text-text-main dark:text-white">Bank Transfer</h3>
+                        <p class="text-sm text-text-sub">Pay to school account and upload proof. Pin is released after approval.</p>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Paystack Form (Hidden by default) -->
+            <div id="paystack-form" class="hidden animate-in fade-in slide-in-from-top-4 duration-300">
+                <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-blue-50/30 dark:bg-blue-900/10">
+                        <h3 class="text-lg font-bold text-blue-700 dark:text-blue-400">Paystack Checkout</h3>
+                    </div>
+                    <form method="POST" action="{% url 'initiate_payment' %}" class="p-6 space-y-6">
+                        {% csrf_token %}
+                        <input type="hidden" name="method" value="paystack">
+                        <input type="hidden" name="amount" value="{{ price }}">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-text-main dark:text-white mb-2">Select Term</label>
+                                <select name="term_id" class="w-full px-4 py-3 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white" required>
+                                    <option value="" disabled selected>Choose term...</option>
+                                    {% for term in terms %}
+                                        <option value="{{ term.id }}">{{ term.name }} - {{ term.academic_session.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-text-main dark:text-white mb-2">Amount Due</label>
+                                <div class="px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a202c] border border-border-color dark:border-[#2d3748] font-black text-xl text-text-main dark:text-white">
+                                    ₦{{ price }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all active:scale-[0.99] flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">bolt</span>
+                            Pay Now with Paystack
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Manual Form (Hidden by default) -->
+            <div id="manual-form" class="hidden animate-in fade-in slide-in-from-top-4 duration-300">
+                <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
+                    <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-orange-50/30 dark:bg-orange-900/10">
+                        <h3 class="text-lg font-bold text-orange-700 dark:text-orange-400">Manual Transfer Details</h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="bg-orange-50 dark:bg-orange-900/10 border-l-4 border-orange-500 p-4 rounded-lg">
+                            <p class="text-sm font-bold text-orange-800 dark:text-orange-300 mb-2">Account Information</p>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p class="text-text-sub">Bank Name</p>
+                                    <p class="font-bold text-text-main dark:text-white">{{ config.bank_name }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-text-sub">Account Number</p>
+                                    <p class="font-black text-lg text-primary">{{ config.account_number }}</p>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <p class="text-text-sub">Account Name</p>
+                                    <p class="font-bold text-text-main dark:text-white">{{ config.account_name }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{% url 'initiate_payment' %}" enctype="multipart/form-data" class="space-y-6">
+                            {% csrf_token %}
+                            <input type="hidden" name="method" value="manual">
+                            <input type="hidden" name="amount" value="{{ price }}">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-text-main dark:text-white mb-2">Select Term</label>
+                                    <select name="term_id" class="w-full px-4 py-3 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] focus:ring-2 focus:ring-primary outline-none transition-all dark:text-white" required>
+                                        <option value="" disabled selected>Choose term...</option>
+                                        {% for term in terms %}
+                                            <option value="{{ term.id }}">{{ term.name }} - {{ term.academic_session.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-text-main dark:text-white mb-2">Upload Receipt</label>
+                                    <input type="file" name="proof" class="w-full text-sm text-text-sub file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-black file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full bg-text-main dark:bg-white dark:text-text-main text-white font-bold py-4 rounded-xl hover:opacity-90 transition-all active:scale-[0.99]">
+                                Submit Proof for Approval
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Instructions & History -->
+        <div class="flex flex-col gap-6">
+            <div class="bg-primary text-white p-6 rounded-2xl shadow-lg shadow-primary/20">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined">info</span>
+                    <h3 class="font-bold">Instructions</h3>
+                </div>
+                <ul class="text-sm space-y-3 opacity-90">
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold">•</span>
+                        <span>Pins are generated per term.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold">•</span>
+                        <span>Used pins cannot be reassigned.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="font-bold">•</span>
+                        <span>Verify your term before paying.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Recent Pins (Brief List) -->
+            <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-border-color dark:border-[#2d3748]">
+                    <h4 class="font-bold text-text-main dark:text-white">Active Pins</h4>
+                </div>
+                <div class="divide-y divide-border-color dark:divide-[#2d3748]">
+                    {% for pin in pins|slice:":3" %}
+                    <div class="p-4 bg-green-50/30 dark:bg-green-900/10">
+                        <p class="text-xs text-text-sub mb-1">{{ pin.term.name }}</p>
+                        <p class="font-mono font-black text-lg text-green-600">{{ pin.code }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="p-4 text-sm text-text-sub italic">No active pins found.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full History Table -->
+    <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-border-color dark:border-[#2d3748]">
+            <h3 class="text-lg font-bold text-text-main dark:text-white">Pin Purchase History</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 dark:bg-[#1a202c] border-b border-border-color dark:border-[#2d3748]">
+                    <tr>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Pin Code</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Term</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Status</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Usage</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase text-right">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-color dark:divide-[#2d3748]">
+                    {% for pin in pins %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <td class="px-5 py-4 font-mono font-black text-gray-700 dark:text-gray-300">{{ pin.code }}</td>
+                        <td class="px-5 py-4">
+                            <p class="text-sm font-bold text-text-main dark:text-white">{{ pin.term.name }}</p>
+                            <p class="text-[10px] text-text-sub">{{ pin.academic_session.name }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase
+                                {% if pin.status == 'active' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %}">
+                                {{ pin.status }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-sm text-text-sub">{{ pin.usage_count }} times</td>
+                        <td class="px-5 py-4 text-right text-text-sub text-xs">{{ pin.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-5 py-10 text-center text-text-sub italic">No pin history available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showForm(type) {
+        const paystackForm = document.getElementById('paystack-form');
+        const manualForm = document.getElementById('manual-form');
+        
+        if (type === 'paystack') {
+            paystackForm.classList.remove('hidden');
+            manualForm.classList.add('hidden');
+        } else {
+            manualForm.classList.remove('hidden');
+            paystackForm.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

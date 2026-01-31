@@ -72,6 +72,12 @@
                     <span class="material-symbols-outlined {% if active_page == 'results' %}icon-fill{% endif %}">assignment</span>
                     <span class="text-sm font-medium leading-normal">My Results</span>
                 </a>
+                
+                <!-- Student: Buy Pin -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'payments' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'buy_pin_page' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'payments' %}icon-fill{% endif %}">vpn_key</span>
+                    <span class="text-sm font-medium leading-normal">Buy Result Pin</span>
+                </a>
                 {% endif %}
                 
                 {% if user_role == 'admin' %}
@@ -84,6 +90,18 @@
                 <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'fees' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'fees_payments' %}">
                     <span class="material-symbols-outlined {% if active_page == 'fees' %}icon-fill{% endif %}">payments</span>
                     <span class="text-sm font-medium leading-normal">Fees & Payments</span>
+                </a>
+                
+                <!-- Payment Approvals -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'payments' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'admin_payments' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'payments' %}icon-fill{% endif %}">verified_user</span>
+                    <span class="text-sm font-medium leading-normal">Approve Payments</span>
+                </a>
+                
+                <!-- Sales Report -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'sales' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'admin_sales_report' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'sales' %}icon-fill{% endif %}">monitoring</span>
+                    <span class="text-sm font-medium leading-normal">Sales Report</span>
                 </a>
                 {% endif %}
                 
@@ -111,10 +129,12 @@
         <!-- Bottom Section (Fixed at bottom) -->
         <div class="flex flex-col gap-2 p-4 border-t border-border-color dark:border-[#2d3748] flex-shrink-0">
             <!-- Settings -->
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white transition-colors" href="#">
+            {% if user_role == 'admin' %}
+            <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white transition-colors" href="{% url 'manage_configuration' %}">
                 <span class="material-symbols-outlined">settings</span>
-                <span class="text-sm font-medium leading-normal">Settings</span>
+                <span class="text-sm font-medium leading-normal">School Settings</span>
             </a>
+            {% endif %}
             
             <!-- User Profile -->
             <div class="flex items-center gap-3 px-3 py-3 mt-2 border-t border-border-color dark:border-[#2d3748]">
