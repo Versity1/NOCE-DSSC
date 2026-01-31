@@ -347,7 +347,7 @@ class SchoolConfiguration(models.Model):
     pin_price = models.DecimalField(max_digits=10, decimal_places=2, default=2000.00)
     bank_name = models.CharField(max_length=100, default='First Bank')
     account_number = models.CharField(max_length=20, default='1234567890')
-    account_name = models.CharField(max_length=100, default='NOCE DSSC')
+    account_name = models.CharField(max_length=100, default='NOCEN DSSN')
     term_duration_weeks = models.IntegerField(default=12)
     
     class Meta:

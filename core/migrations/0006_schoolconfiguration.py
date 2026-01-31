@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('pin_price', models.DecimalField(decimal_places=2, default=2000.0, max_digits=10)),
                 ('bank_name', models.CharField(default='First Bank', max_length=100)),
                 ('account_number', models.CharField(default='1234567890', max_length=20)),
-                ('account_name', models.CharField(default='NOCE DSSC', max_length=100)),
+                ('account_name', models.CharField(default='NOCEN DSSN', max_length=100)),
                 ('term_duration_weeks', models.IntegerField(default=12)),
             ],
             options={

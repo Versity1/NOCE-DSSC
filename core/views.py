@@ -79,7 +79,7 @@ def password_reset_request(request):
             )
             
             # Send email
-            subject = 'Password Reset Request - NOCE DSSC'
+            subject = 'Password Reset Request - NOCEN DSSN'
             message = render_to_string('account/password_reset_email.html', {
                 'user': user,
                 'reset_url': reset_url,
@@ -88,7 +88,7 @@ def password_reset_request(request):
             send_mail(
                 subject,
                 message,
-                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@nocedss.edu.ng',
+                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'support@nocendssn.com',
                 [email],
                 fail_silently=False,
             )
