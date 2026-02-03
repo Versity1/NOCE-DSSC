@@ -1,0 +1,136 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Payment Status - NOCEN DSSN{% endblock %}
+
+{% block page_title_mobile %}Payment Status{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6 max-w-3xl mx-auto">
+    <!-- Page Header -->
+    <div class="flex flex-col gap-1 text-center">
+        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Payment Under Review</h1>
+        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Your payment is being processed by the school administration.</p>
+    </div>
+
+    <!-- Status Timeline Card -->
+    <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-xl overflow-hidden">
+        <div class="p-6 md:p-8">
+            <!-- Timeline Progress -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <!-- Step 1: Submitted -->
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="size-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow-lg shadow-green-500/30 mb-2">
+                            <span class="material-symbols-outlined text-2xl">check_circle</span>
+                        </div>
+                        <span class="text-xs font-bold text-green-600 dark:text-green-400 text-center">Submitted</span>
+                        <span class="text-[10px] text-text-sub">{{ payment.created_at|date:"M d, H:i" }}</span>
+                    </div>
+                    
+                    <!-- Connector -->
+                    <div class="flex-1 h-1 bg-amber-400 dark:bg-amber-500 rounded-full mx-2"></div>
+                    
+                    <!-- Step 2: In Review -->
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="size-14 rounded-full bg-amber-400 text-white flex items-center justify-center shadow-lg shadow-amber-400/30 mb-2 animate-pulse">
+                            <span class="material-symbols-outlined text-2xl">hourglass_top</span>
+                        </div>
+                        <span class="text-xs font-bold text-amber-600 dark:text-amber-400 text-center">In Review</span>
+                        <span class="text-[10px] text-text-sub">Processing...</span>
+                    </div>
+                    
+                    <!-- Connector -->
+                    <div class="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mx-2"></div>
+                    
+                    <!-- Step 3: Approved -->
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="size-14 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 flex items-center justify-center mb-2">
+                            <span class="material-symbols-outlined text-2xl">verified</span>
+                        </div>
+                        <span class="text-xs font-bold text-gray-400 text-center">Approved</span>
+                        <span class="text-[10px] text-text-sub">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#1a202c] dark:to-[#232b38] rounded-xl p-6 mb-6">
+                <h3 class="text-sm font-bold text-text-main dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-lg">receipt_long</span>
+                    Payment Details
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-xs text-text-sub">Amount</span>
+                        <p class="text-lg font-black text-text-main dark:text-white">₦{{ payment.amount }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-text-sub">Reference</span>
+                        <p class="text-sm font-mono font-bold text-text-main dark:text-white">{{ payment.reference }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-text-sub">Term</span>
+                        <p class="text-sm font-bold text-text-main dark:text-white">{{ payment.term.name }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-text-sub">Session</span>
+                        <p class="text-sm font-bold text-text-main dark:text-white">{{ payment.academic_session.name }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proof of Payment Preview -->
+            {% if payment.proof_of_payment %}
+            <div class="mb-6">
+                <h4 class="text-sm font-bold text-text-main dark:text-white mb-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-lg">image</span>
+                    Proof of Payment
+                </h4>
+                <div class="relative group">
+                    <img src="{{ payment.proof_of_payment.url }}" alt="Payment Proof" class="w-full max-h-64 object-contain rounded-xl border border-border-color dark:border-[#2d3748]">
+                    <a href="{{ payment.proof_of_payment.url }}" target="_blank" class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                        <span class="text-white font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                            View Full Size
+                        </span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Info Message -->
+            <div class="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800/30 flex items-start gap-3 mb-6">
+                <span class="material-symbols-outlined text-blue-500 shrink-0">info</span>
+                <div class="text-sm">
+                    <p class="font-bold text-blue-800 dark:text-blue-400 mb-1">What happens next?</p>
+                    <p class="text-blue-600 dark:text-blue-300/80">Our admin team will verify your payment proof. Once approved, your Result PIN will be generated automatically and you'll be redirected to the success page.</p>
+                </div>
+            </div>
+
+            <!-- Estimated Time -->
+            <div class="flex items-center justify-center gap-2 text-sm text-text-sub">
+                <span class="material-symbols-outlined text-lg">schedule</span>
+                <span>Estimated processing time: <strong class="text-text-main dark:text-white">1-24 hours</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4">
+        <a href="{% url 'payment_pending' %}" class="flex-1 h-12 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+            <span class="material-symbols-outlined">refresh</span>
+            Check Status
+        </a>
+        <a href="{% url 'student_dashboard' %}" class="flex-1 h-12 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-text-main dark:text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Contact Support -->
+    <div class="text-center text-sm text-text-sub">
+        <p>Taking too long? Contact the school bursar's office or <a href="#" class="text-primary font-bold hover:underline">send a support message</a>.</p>
+    </div>
+</div>
+{% endblock %}

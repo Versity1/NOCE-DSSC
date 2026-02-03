@@ -157,7 +157,27 @@ def home(request):
 
 
 def buy_pin(request):
-    return render(request, 'account/buy-pin.html', {'active_page': 'payments'})
+    from .models import SchoolConfiguration, AcademicSession, Term, Pin
+    
+    config = SchoolConfiguration.load()
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    # Get last purchased pin if student is logged in
+    last_pin = None
+    if request.user.is_authenticated and request.user.role == 'student':
+        last_pin = Pin.objects.filter(student=request.user).order_by('-created_at').first()
+
+    context = {
+        'active_page': 'payments',
+        'config': config,
+        'sessions': AcademicSession.objects.all(),
+        'terms': terms,
+        'current_session': current_session,
+        'last_pin': last_pin,
+        'pin_price_formatted': f"{config.pin_price:,.2f}",
+    }
+    return render(request, 'account/buy-pin.html', context)
 
 
 # ============================================
@@ -167,7 +187,7 @@ def buy_pin(request):
 @login_required
 def student_dashboard(request):
     from django.db.models import Avg, Count
-    from .models import StudentResult, Attendance, Term
+    from .models import StudentResult, Attendance, Term, Pin, Payment
     
     user = request.user
     if user.role != 'student':
@@ -194,6 +214,12 @@ def student_dashboard(request):
     # Position (Simple ranking based on average of totals - heavy query for production but fine for MVP)
     # For now, let's keep position static or "-" if too complex to calculate efficiently on every load
     position = "-" 
+    
+    # 3. Get all purchased PINs for this student
+    pins = Pin.objects.filter(student=user).order_by('-created_at')
+    
+    # 4. Get pending payments
+    pending_payments = Payment.objects.filter(student=user, status='pending').order_by('-created_at')
 
     context = {
         'user_role': user.role,
@@ -208,60 +234,110 @@ def student_dashboard(request):
         'avg_score': int(avg_score),
         'total_subjects': total_subjects,
         'position': position,
+        
+        # New: PINs and Payments
+        'pins': pins,
+        'pending_payments': pending_payments,
     }
     return render(request, 'account/student-dashboard.html', context)
 
 
 @login_required
 def student_result(request):
-    from .models import StudentResult, AcademicSession, Term, Pin
+    """
+    View for students to check their results.
+    Requires a valid PIN for the selected term.
+    """
+    from .models import Term, Pin, StudentResult, ClassInfo, StudentProfile, AcademicSession
+    from django.db.models import Sum, Avg, Count, F
     
     user = request.user
-    if user.role != 'student':
+    if not user.role == 'student':
+        messages.error(request, "Access denied. Student only.")
         return redirect('home')
 
-    # Filters
-    sessions = AcademicSession.objects.all()
-    terms = Term.objects.all() # Or filter by selected session
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
     
     selected_term_id = request.GET.get('term_id')
+    manual_pin_code = request.GET.get('pin_code', '').strip()
     
     results = []
     stats = {}
     
     if selected_term_id:
-        # Check for Valid Pin for this term
-        has_pin = Pin.objects.filter(student=user, term_id=selected_term_id).exists()
-        
-        if not has_pin:
-             messages.warning(request, "You need to purchase a result checker pin to view results for this term.")
-             return redirect('buy_pin_page')
+        try:
+            term = Term.objects.get(id=selected_term_id)
+            
+            # 1. Check if student already has a valid active PIN for this term
+            # OR if they provided a valid manual PIN
+            has_access = False
+            
+            # Check existing owned pins
+            existing_pin = Pin.objects.filter(student=user, term=term, status='active').first()
+            if existing_pin:
+                has_access = True
+            
+            # If no existing pin, check valid manual pin entry
+            if not has_access and manual_pin_code:
+                # Find a pin with this code that is either unused (no student) or belongs to this student
+                # Use flexible matching for formatted vs unformatted
+                # If generated as XXXX-XXXX-XXXX, user might enter XXXXXXXXXXXX or vice versa
+                # Let's clean the input and db value for comparison
+                
+                # Simple exact match for now based on improved format
+                pin_candidate = Pin.objects.filter(code=manual_pin_code, term=term, status='active').first()
+                
+                if pin_candidate:
+                    if pin_candidate.student and pin_candidate.student != user:
+                        messages.error(request, "This PIN has already been used by another student.")
+                    else:
+                        # Valid PIN. If not assigned, assign to student
+                        if not pin_candidate.student:
+                            pin_candidate.student = user
+                            pin_candidate.save()
+                        has_access = True
+                        messages.success(request, "PIN accepted!")
+                else:
+                     messages.error(request, "Invalid PIN code for this term.")
 
-        results = StudentResult.objects.filter(student=user, term_id=selected_term_id)
-        
-        if results.exists():
-            total_score = sum(r.total for r in results)
-            count = results.count()
-            stats = {
-                'total_score': total_score,
-                'average': round(total_score / count, 1),
-                'count': count,
-                'grade': 'A' if (total_score/count) >= 70 else 'B' # Simple logic
-            }
+            if has_access:
+                results = StudentResult.objects.filter(student=user, term=term)
+                
+                # Calculate stats
+                total_score = results.aggregate(Sum('total'))['total__sum'] or 0
+                count = results.count()
+                average = round(total_score / count, 2) if count > 0 else 0
+                
+                # Determine grade
+                if average >= 75: grade = 'A'
+                elif average >= 60: grade = 'B'
+                elif average >= 50: grade = 'C'
+                elif average >= 40: grade = 'D'
+                else: grade = 'F'
+                
+                stats = {
+                    'total_score': total_score,
+                    'average': average,
+                    'count': count,
+                    'grade': grade,
+                    # Position is complex, requires aggregation across all students in class
+                    'position': '-' 
+                }
+            elif not manual_pin_code and not existing_pin:
+                 messages.warning(request, "You need a valid PIN to view results for this term.")
+                 # return redirect('buy_pin_page') # Optional: auto-redirect
+                 
+        except Term.DoesNotExist:
+            messages.error(request, "Invalid term selected.")
             
     context = {
-        'user_role': user.role,
-        'user_name': user.get_full_name() or user.username,
-        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'active_page': 'results',
-        'breadcrumb_current': 'Results',
-        
-        'sessions': sessions,
         'terms': terms,
         'results': results,
-        'stats': stats,
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
-        'student_profile': getattr(user, 'student_profile', None),
+        'stats': stats,
+        'student_profile': user.student_profile,
     }
     return render(request, 'account/student-result.html', context)
 
@@ -272,12 +348,47 @@ def student_result(request):
 
 @login_required
 def admin_dashboard(request):
+    from .models import CustomUser, Payment, Pin, Attendance, FeePayment
+    from django.db.models import Sum, Count
+    from django.utils import timezone
+    from datetime import timedelta
+    
     user = request.user
+    
+    # Get real stats
+    total_students = CustomUser.objects.filter(role='student').count()
+    total_staff = CustomUser.objects.filter(role__in=['teacher', 'staff', 'admin']).count()
+    
+    # Attendance today
+    today = timezone.now().date()
+    today_attendance = Attendance.objects.filter(date=today)
+    total_today = today_attendance.count()
+    present_today = today_attendance.filter(status='Present').count()
+    attendance_rate = round((present_today / total_today * 100) if total_today > 0 else 0)
+    
+    # Fees collected - from approved payments
+    total_collected = Payment.objects.filter(status='approved').aggregate(total=Sum('amount'))['total'] or 0
+    fee_payments = FeePayment.objects.filter(status='approved').aggregate(total=Sum('amount_paid'))['total'] or 0
+    total_collected += float(fee_payments) if fee_payments else 0
+    
+    # Pending approvals
+    pending_payments = Payment.objects.filter(status='pending').count()
+    pending_fee_payments = FeePayment.objects.filter(status='pending').count()
+    
+    # Recent activity
+    recent_payments = Payment.objects.filter(status='approved').order_by('-created_at')[:3]
+    
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
         'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'active_page': 'dashboard',
+        'total_students': total_students,
+        'total_staff': total_staff,
+        'attendance_rate': attendance_rate,
+        'total_collected': total_collected,
+        'pending_payments': pending_payments + pending_fee_payments,
+        'recent_payments': recent_payments,
     }
     return render(request, 'custom_admin/admin-dashboard.html', context)
 
@@ -800,7 +911,22 @@ def manage_subjects(request):
 
 @login_required
 def fees_payments(request):
+    from .models import FeePayment, CustomUser
+    from django.db.models import Sum, Count
+    
     user = request.user
+    
+    # Get stats
+    total_collected = FeePayment.objects.filter(status='approved').aggregate(total=Sum('amount_paid'))['total'] or 0
+    outstanding = FeePayment.objects.filter(status__in=['pending', 'declined']).aggregate(total=Sum('balance'))['total'] or 0
+    fully_paid = FeePayment.objects.filter(status='approved', balance=0).values('student').distinct().count()
+    defaulters = CustomUser.objects.filter(role='student').exclude(
+        fee_payments__status='approved'
+    ).count()
+    
+    # Recent payments
+    recent_payments = FeePayment.objects.select_related('student', 'fee_structure', 'fee_structure__fee_type').order_by('-created_at')[:20]
+    
     context = {
         'user_role': user.role,
         'user_name': user.get_full_name() or user.username,
@@ -808,6 +934,11 @@ def fees_payments(request):
         'active_page': 'fees',
         'breadcrumb_parent': 'Finance',
         'breadcrumb_current': 'Fees & Payments',
+        'total_collected': total_collected,
+        'outstanding': outstanding,
+        'fully_paid': fully_paid,
+        'defaulters': defaulters,
+        'recent_payments': recent_payments,
     }
     return render(request, 'custom_admin/fees-and-payments.html', context)
 
@@ -1060,7 +1191,8 @@ def initiate_payment(request):
                     return redirect('buy_pin_page')
                 payment.proof_of_payment = proof
                 payment.save()
-                messages.success(request, "Payment submitted for approval. You will be notified once approved.")
+                messages.success(request, "Proof of payment submitted successfully! Your PIN will be issued once approved.")
+                return redirect('payment_pending')
                 
             elif method == 'paystack':
                 # Generate reference
@@ -1104,6 +1236,24 @@ def initiate_payment(request):
 
 
 @login_required
+def payment_success(request, pin_id):
+    """Page to display the successfully purchased PIN."""
+    from .models import Pin
+    try:
+        pin = Pin.objects.get(id=pin_id, student=request.user)
+    except Pin.DoesNotExist:
+        messages.error(request, "PIN not found.")
+        return redirect('student_dashboard')
+        
+    context = {
+        'pin': pin,
+        'user_name': request.user.get_full_name() or request.user.username,
+        'active_page': 'payments',
+    }
+    return render(request, 'account/payment-success.html', context)
+
+
+@login_required
 def verify_payment(request):
     """Verify Paystack payment callback."""
     from .models import Payment, Pin
@@ -1141,7 +1291,7 @@ def verify_payment(request):
                 # Assuming one pin per term is enough.
                 
                 # Generate Pin
-                Pin.objects.create(
+                pin = Pin.objects.create(
                     student=payment.student,
                     term=payment.term,
                     academic_session=payment.academic_session,
@@ -1149,6 +1299,7 @@ def verify_payment(request):
                 )
                 
                 messages.success(request, "Payment successful! Your pin has been generated.")
+                return redirect('payment_success', pin_id=pin.id)
             else:
                 payment.status = 'declined'
                 payment.save()
@@ -1225,6 +1376,147 @@ def approve_payment(request, payment_id):
             messages.error(request, "Payment not found.")
             
     return redirect('admin_payments')
+
+
+@login_required
+def payment_pending(request):
+    """Show student their pending payment status."""
+    from .models import Payment, Pin
+    
+    user = request.user
+    if not user.is_student:
+        return redirect('home')
+    
+    # Get student's most recent pending payment
+    pending_payment = Payment.objects.filter(
+        student=user,
+        status='pending',
+        method='manual'
+    ).order_by('-created_at').first()
+    
+    # Check if any payment was recently approved (for redirect)
+    recent_approved = Payment.objects.filter(
+        student=user,
+        status='approved'
+    ).order_by('-updated_at').first()
+    
+    # If the most recent approved payment was updated in last 5 minutes, check for new PIN
+    if recent_approved:
+        from django.utils import timezone
+        from datetime import timedelta
+        if recent_approved.updated_at > timezone.now() - timedelta(minutes=5):
+            # Find the PIN created for this payment
+            pin = Pin.objects.filter(
+                student=user,
+                term=recent_approved.term,
+                academic_session=recent_approved.academic_session
+            ).order_by('-created_at').first()
+            if pin:
+                return redirect('payment_success', pin_id=pin.id)
+    
+    # If no pending payments, redirect to buy PIN page
+    if not pending_payment:
+        messages.info(request, "You have no pending payments.")
+        return redirect('buy_pin_page')
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'payments',
+        'payment': pending_payment,
+    }
+    return render(request, 'account/payment-pending.html', context)
+
+
+@login_required
+def admin_generate_pin(request):
+    """Admin view to generate PINs on behalf of students."""
+    from .models import CustomUser, AcademicSession, Term, Pin, Payment, SchoolConfiguration
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+    
+    # Get current session and terms
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    sessions = AcademicSession.objects.all()
+    
+    # Get all students for search
+    students = CustomUser.objects.filter(role='student').order_by('last_name', 'first_name')
+    
+    # Get configuration for price
+    config = SchoolConfiguration.load()
+    
+    # Recently generated PINs by admin
+    recent_pins = Pin.objects.filter(
+        created_at__gte=timezone.now() - timedelta(days=7)
+    ).order_by('-created_at')[:10]
+    
+    generated_pin = None
+    
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id')
+        term_id = request.POST.get('term_id')
+        
+        try:
+            student = CustomUser.objects.get(id=student_id, role='student')
+            term = Term.objects.get(id=term_id)
+            session = term.academic_session
+            
+            # Check if PIN already exists for this student/term
+            existing_pin = Pin.objects.filter(student=student, term=term).first()
+            if existing_pin:
+                messages.warning(request, f"PIN already exists for {student.get_full_name()} for {term.name}. Code: {existing_pin.code}")
+            else:
+                # Create payment record (marked as admin_generated)
+                payment = Payment.objects.create(
+                    student=student,
+                    amount=config.pin_price,
+                    method='manual',
+                    term=term,
+                    academic_session=session,
+                    status='approved',
+                    admin_note=f"Generated by admin: {user.username}"
+                )
+                
+                # Generate PIN
+                pin = Pin.objects.create(
+                    student=student,
+                    term=term,
+                    academic_session=session,
+                    status='active'
+                )
+                
+                generated_pin = pin
+                messages.success(request, f"PIN generated successfully for {student.get_full_name()}!")
+                
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Student not found.")
+        except Term.DoesNotExist:
+            messages.error(request, "Term not found.")
+        except Exception as e:
+            messages.error(request, f"Error generating PIN: {str(e)}")
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'pins',
+        'breadcrumb_current': 'Generate PIN',
+        'students': students,
+        'terms': terms,
+        'sessions': sessions,
+        'current_session': current_session,
+        'recent_pins': recent_pins,
+        'generated_pin': generated_pin,
+        'config': config,
+    }
+    return render(request, 'admin/admin_generate_pin.html', context)
 
 
 @login_required
@@ -1316,3 +1608,276 @@ def admin_sales_report(request):
         'search_q': search_q,
     }
     return render(request, 'admin/sales_report.html', context)
+
+
+@login_required
+def export_sales_csv(request):
+    """Export sales data as CSV."""
+    import csv
+    from django.http import HttpResponse
+    from .models import Payment
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+    
+    # Create the HttpResponse object with CSV header
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="sales_report.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Date', 'Student Name', 'Username', 'Amount', 'Method', 'Reference', 'Term', 'Session', 'Status'])
+    
+    # Get all approved payments
+    payments = Payment.objects.filter(status='approved').order_by('-created_at')
+    
+    for payment in payments:
+        writer.writerow([
+            payment.created_at.strftime('%Y-%m-%d %H:%M'),
+            payment.student.get_full_name(),
+            payment.student.username,
+            payment.amount,
+            payment.method,
+            payment.reference,
+            payment.term.name if payment.term else '',
+            payment.academic_session.name if payment.academic_session else '',
+            payment.status,
+        ])
+    
+    return response
+
+
+# ============================================
+# FEE MANAGEMENT VIEWS
+# ============================================
+
+@login_required
+def manage_fee_types(request):
+    """Manage fee types (add/view/delete)."""
+    from .models import FeeType
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        messages.error(request, "Access denied.")
+        return redirect('home')
+    
+    fee_types = FeeType.objects.all()
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'fee_types',
+        'fee_types': fee_types,
+    }
+    return render(request, 'admin/fee_types.html', context)
+
+
+@login_required
+def add_fee_type(request):
+    """Add a new fee type."""
+    from .models import FeeType
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        return redirect('home')
+    
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        is_recurring = request.POST.get('is_recurring') == 'on'
+        
+        if name:
+            FeeType.objects.create(
+                name=name,
+                description=description,
+                is_recurring=is_recurring
+            )
+            messages.success(request, f"Fee type '{name}' created successfully.")
+        else:
+            messages.error(request, "Fee type name is required.")
+    
+    return redirect('manage_fee_types')
+
+
+@login_required
+def delete_fee_type(request, fee_type_id):
+    """Delete a fee type."""
+    from .models import FeeType
+    
+    user = request.user
+    if not user.is_admin_user:
+        return redirect('home')
+    
+    try:
+        fee_type = FeeType.objects.get(id=fee_type_id)
+        name = fee_type.name
+        fee_type.delete()
+        messages.success(request, f"Fee type '{name}' deleted.")
+    except FeeType.DoesNotExist:
+        messages.error(request, "Fee type not found.")
+    
+    return redirect('manage_fee_types')
+
+
+@login_required
+def manage_fee_structures(request):
+    """Manage fee structures (amounts per class/term)."""
+    from .models import FeeStructure, FeeType, Term, AcademicSession, ClassInfo
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        return redirect('home')
+    
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    selected_term_id = request.GET.get('term_id')
+    structures = FeeStructure.objects.all()
+    
+    if selected_term_id:
+        structures = structures.filter(term_id=selected_term_id)
+    elif current_session:
+        structures = structures.filter(term__academic_session=current_session)
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'fee_structures',
+        'structures': structures,
+        'fee_types': FeeType.objects.filter(is_active=True),
+        'terms': terms,
+        'class_levels': ClassInfo.LEVEL_CHOICES,
+        'selected_term_id': int(selected_term_id) if selected_term_id else None,
+    }
+    return render(request, 'admin/fee_structures.html', context)
+
+
+@login_required
+def add_fee_structure(request):
+    """Add a new fee structure."""
+    from .models import FeeStructure, FeeType, Term
+    from decimal import Decimal
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        return redirect('home')
+    
+    if request.method == 'POST':
+        fee_type_id = request.POST.get('fee_type_id')
+        term_id = request.POST.get('term_id')
+        class_level = request.POST.get('class_level')
+        amount = request.POST.get('amount')
+        due_date = request.POST.get('due_date') or None
+        
+        try:
+            fee_type = FeeType.objects.get(id=fee_type_id)
+            term = Term.objects.get(id=term_id)
+            
+            FeeStructure.objects.update_or_create(
+                fee_type=fee_type,
+                term=term,
+                class_level=class_level,
+                defaults={
+                    'amount': Decimal(amount),
+                    'due_date': due_date
+                }
+            )
+            messages.success(request, f"Fee structure for {fee_type.name} - {class_level} saved.")
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+    
+    return redirect('manage_fee_structures')
+
+
+@login_required
+def manage_fee_payments(request):
+    """View and manage student fee payments."""
+    from .models import FeePayment, Term, AcademicSession
+    from django.db.models import Q
+    from django.utils import timezone
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        return redirect('home')
+    
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    # Filters
+    status_filter = request.GET.get('status', '')
+    term_filter = request.GET.get('term_id', '')
+    search_q = request.GET.get('q', '')
+    
+    payments = FeePayment.objects.select_related('student', 'fee_structure', 'fee_structure__fee_type', 'fee_structure__term')
+    
+    if status_filter:
+        payments = payments.filter(status=status_filter)
+    if term_filter:
+        payments = payments.filter(fee_structure__term_id=term_filter)
+    if search_q:
+        payments = payments.filter(
+            Q(student__username__icontains=search_q) |
+            Q(student__first_name__icontains=search_q) |
+            Q(student__last_name__icontains=search_q) |
+            Q(reference__icontains=search_q)
+        )
+    
+    payments = payments.order_by('-created_at')[:100]
+    
+    # Stats
+    pending_count = FeePayment.objects.filter(status='pending').count()
+    approved_today = FeePayment.objects.filter(
+        status='approved',
+        updated_at__date=timezone.now().date()
+    ).count()
+    
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'fee_payments',
+        'payments': payments,
+        'terms': terms,
+        'pending_count': pending_count,
+        'approved_today': approved_today,
+        'status_filter': status_filter,
+        'term_filter': term_filter,
+        'search_q': search_q,
+    }
+    return render(request, 'admin/fee_payments.html', context)
+
+
+@login_required
+def approve_fee_payment(request, payment_id):
+    """Approve or decline a fee payment."""
+    from .models import FeePayment
+    
+    user = request.user
+    if not (user.is_admin_user or user.is_staff_member):
+        return redirect('home')
+    
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        admin_note = request.POST.get('admin_note', '')
+        
+        try:
+            payment = FeePayment.objects.get(id=payment_id)
+            
+            if action == 'approve':
+                payment.status = 'approved'
+                payment.admin_note = f"Approved by {user.username}. {admin_note}"
+                payment.save()
+                messages.success(request, f"Payment approved for {payment.student.get_full_name()}.")
+            elif action == 'decline':
+                payment.status = 'declined'
+                payment.admin_note = f"Declined by {user.username}. {admin_note}"
+                payment.save()
+                messages.warning(request, f"Payment declined for {payment.student.get_full_name()}.")
+        except FeePayment.DoesNotExist:
+            messages.error(request, "Payment not found.")
+    
+    return redirect('manage_fee_payments')
+

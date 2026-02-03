@@ -1,0 +1,157 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Fee Payments - NOCEN DSSN{% endblock %}
+
+{% block page_title_mobile %}Fee Payments{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight">Fee Payments</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base">Review and approve student fee payments.</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-surface-dark p-5 rounded-xl border border-border-color dark:border-[#2d3748]">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600">
+                    <span class="material-symbols-outlined">hourglass_top</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-text-main dark:text-white">{{ pending_count }}</p>
+                    <p class="text-xs text-text-sub">Pending Approvals</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-surface-dark p-5 rounded-xl border border-border-color dark:border-[#2d3748]">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600">
+                    <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-text-main dark:text-white">{{ approved_today }}</p>
+                    <p class="text-xs text-text-sub">Approved Today</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] p-4">
+        <form method="GET" class="flex flex-wrap items-center gap-4">
+            <div class="relative flex-1 min-w-[200px]">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-sub">search</span>
+                <input type="text" name="q" value="{{ search_q }}" placeholder="Search student or reference..."
+                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white text-sm">
+            </div>
+            <select name="status" onchange="this.form.submit()"
+                class="px-4 py-2 rounded-lg border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white text-sm">
+                <option value="">All Status</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="declined" {% if status_filter == 'declined' %}selected{% endif %}>Declined</option>
+            </select>
+            <select name="term_id" onchange="this.form.submit()"
+                class="px-4 py-2 rounded-lg border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white text-sm">
+                <option value="">All Terms</option>
+                {% for term in terms %}
+                <option value="{{ term.id }}" {% if term_filter == term.id|stringformat:"s" %}selected{% endif %}>{{ term.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg font-bold text-sm">Filter</button>
+        </form>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 dark:bg-[#1a202c] border-b border-border-color dark:border-[#2d3748]">
+                    <tr>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Student</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Fee Type</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Amount</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Method</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Status</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Date</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-color dark:divide-[#2d3748]">
+                    {% for payment in payments %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <td class="px-5 py-4">
+                            <p class="font-bold text-text-main dark:text-white">{{ payment.student.get_full_name }}</p>
+                            <p class="text-xs text-text-sub">{{ payment.student.username }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="text-sm font-medium text-text-main dark:text-white">{{ payment.fee_structure.fee_type.name }}</p>
+                            <p class="text-xs text-text-sub">{{ payment.fee_structure.class_level }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <p class="font-bold text-text-main dark:text-white">₦{{ payment.amount_paid|floatformat:2 }}</p>
+                            {% if payment.balance > 0 %}
+                            <p class="text-xs text-red-500">Balance: ₦{{ payment.balance|floatformat:2 }}</p>
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase
+                                {% if payment.method == 'paystack' %}bg-blue-100 text-blue-700{% else %}bg-orange-100 text-orange-700{% endif %}">
+                                {{ payment.method }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase
+                                {% if payment.status == 'approved' %}bg-green-100 text-green-700
+                                {% elif payment.status == 'pending' %}bg-amber-100 text-amber-700
+                                {% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ payment.status }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-sm text-text-sub">{{ payment.created_at|date:"M d, H:i" }}</td>
+                        <td class="px-5 py-4 text-right">
+                            {% if payment.status == 'pending' %}
+                            <div class="flex items-center justify-end gap-2">
+                                <form action="{% url 'approve_fee_payment' payment.id %}" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="submit" class="p-2 bg-green-100 hover:bg-green-200 text-green-600 rounded-lg transition-colors" title="Approve">
+                                        <span class="material-symbols-outlined text-lg">check</span>
+                                    </button>
+                                </form>
+                                <form action="{% url 'approve_fee_payment' payment.id %}" method="POST" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decline">
+                                    <button type="submit" class="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition-colors" title="Decline">
+                                        <span class="material-symbols-outlined text-lg">close</span>
+                                    </button>
+                                </form>
+                                {% if payment.proof_of_payment %}
+                                <a href="{{ payment.proof_of_payment.url }}" target="_blank" class="p-2 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors" title="View Proof">
+                                    <span class="material-symbols-outlined text-lg">image</span>
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <span class="text-xs text-text-sub">{{ payment.admin_note|truncatechars:30 }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-5 py-10 text-center text-text-sub italic">
+                            No fee payments found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

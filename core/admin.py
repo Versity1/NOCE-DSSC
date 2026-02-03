@@ -76,3 +76,74 @@ class StudentResultAdmin(admin.ModelAdmin):
     list_display = ('student', 'subject', 'student_class', 'term', 'total', 'grade')
     list_filter = ('student_class', 'subject', 'term', 'grade')
     search_fields = ('student__username', 'student__first_name', 'student__last_name')
+
+
+# Attendance Model
+from .models import Attendance
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'class_info', 'date', 'status', 'marked_by')
+    list_filter = ('status', 'date', 'class_info')
+    search_fields = ('student__username', 'student__first_name', 'student__last_name')
+    date_hierarchy = 'date'
+
+
+# Pin and Payment Models
+from .models import Pin, Payment
+
+@admin.register(Pin)
+class PinAdmin(admin.ModelAdmin):
+    list_display = ('code', 'student', 'term', 'academic_session', 'status', 'created_at')
+    list_filter = ('status', 'term', 'academic_session')
+    search_fields = ('code', 'student__username', 'student__first_name')
+    readonly_fields = ('code',)
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('student', 'amount', 'method', 'status', 'term', 'created_at')
+    list_filter = ('status', 'method', 'term')
+    search_fields = ('student__username', 'reference')
+    readonly_fields = ('reference',)
+
+
+# School Configuration
+from .models import SchoolConfiguration
+
+@admin.register(SchoolConfiguration)
+class SchoolConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('pin_price', 'bank_name', 'account_number', 'account_name')
+    
+    def has_add_permission(self, request):
+        # Only allow one configuration
+        return not SchoolConfiguration.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+# Fee Models
+from .models import FeeType, FeeStructure, FeePayment
+
+@admin.register(FeeType)
+class FeeTypeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'is_recurring', 'is_active', 'created_at')
+    list_filter = ('is_recurring', 'is_active')
+    search_fields = ('name',)
+
+
+@admin.register(FeeStructure)
+class FeeStructureAdmin(admin.ModelAdmin):
+    list_display = ('fee_type', 'class_level', 'term', 'amount', 'due_date')
+    list_filter = ('class_level', 'term', 'fee_type')
+    search_fields = ('fee_type__name',)
+
+
+@admin.register(FeePayment)
+class FeePaymentAdmin(admin.ModelAdmin):
+    list_display = ('student', 'fee_structure', 'amount_paid', 'status', 'method', 'created_at')
+    list_filter = ('status', 'method', 'fee_structure__term')
+    search_fields = ('student__username', 'student__first_name', 'reference')
+    readonly_fields = ('reference', 'balance')
+

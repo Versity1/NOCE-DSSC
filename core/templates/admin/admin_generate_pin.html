@@ -1,0 +1,207 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Generate PIN - Admin{% endblock %}
+
+{% block page_title_mobile %}Generate PIN{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+            <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Generate Student PIN</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base font-normal">Create result checker PINs on behalf of students.</p>
+        </div>
+        <a href="{% url 'admin_payments' %}" class="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-text-main dark:text-white rounded-lg font-bold transition-colors">
+            <span class="material-symbols-outlined text-lg">payments</span>
+            Payment Approvals
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-lg overflow-hidden">
+                <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-gradient-to-r from-primary/10 to-orange-500/10">
+                    <h2 class="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">add_circle</span>
+                        Generate New PIN
+                    </h2>
+                </div>
+                
+                <form method="POST" class="p-6 flex flex-col gap-6">
+                    {% csrf_token %}
+                    
+                    <!-- Student Search -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-bold text-text-main dark:text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm text-primary">person_search</span>
+                            Select Student
+                        </label>
+                        <div class="relative">
+                            <select name="student_id" id="student-select" class="w-full h-14 px-4 pr-10 rounded-xl border-2 border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none" required>
+                                <option value="">Search or select a student...</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}" data-admission="{{ student.student_profile.admission_number|default:'' }}">
+                                    {{ student.get_full_name }} {% if student.student_profile.admission_number %}({{ student.student_profile.admission_number }}){% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-sub">
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-text-sub flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">info</span>
+                            Start typing to filter students by name or admission number
+                        </p>
+                    </div>
+                    
+                    <!-- Term Selection -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-bold text-text-main dark:text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm text-primary">calendar_month</span>
+                            Select Term
+                        </label>
+                        <div class="relative">
+                            <select name="term_id" class="w-full h-14 px-4 pr-10 rounded-xl border-2 border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none" required>
+                                <option value="">Select Term</option>
+                                {% for term in terms %}
+                                <option value="{{ term.id }}" {% if term.is_current %}selected{% endif %}>{{ term.name }} - {{ term.academic_session.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-sub">
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Price Info -->
+                    <div class="p-4 bg-gray-50 dark:bg-[#1a202c] rounded-xl flex items-center justify-between">
+                        <span class="text-sm text-text-sub">PIN Value</span>
+                        <span class="text-xl font-black text-text-main dark:text-white">₦{{ config.pin_price }}</span>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="h-14 bg-gradient-to-r from-primary to-orange-600 hover:from-primary-dark hover:to-orange-700 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
+                        <span class="material-symbols-outlined">key</span>
+                        Generate PIN
+                    </button>
+                </form>
+                
+                <!-- Generated PIN Result -->
+                {% if generated_pin %}
+                <div class="mx-6 mb-6 p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 rounded-xl border-2 border-green-200 dark:border-green-800/30">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="size-12 rounded-full bg-green-500 text-white flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">check_circle</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-green-800 dark:text-green-400">PIN Generated Successfully!</h3>
+                            <p class="text-sm text-green-600 dark:text-green-400/80">For {{ generated_pin.student.get_full_name }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-[#1a202c] rounded-lg p-4 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-text-sub uppercase font-bold">PIN Code</span>
+                            <p class="text-2xl font-mono font-black text-primary tracking-widest" id="generated-pin-code">{{ generated_pin.code }}</p>
+                        </div>
+                        <button onclick="copyGeneratedPin()" class="size-12 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-colors" title="Copy PIN">
+                            <span class="material-symbols-outlined">content_copy</span>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-xs text-text-sub">Term</span>
+                            <p class="font-bold text-text-main dark:text-white">{{ generated_pin.term.name }}</p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-text-sub">Session</span>
+                            <p class="font-bold text-text-main dark:text-white">{{ generated_pin.academic_session.name }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar: Recent PINs -->
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-lg overflow-hidden sticky top-6">
+                <div class="p-4 border-b border-border-color dark:border-[#2d3748] bg-gray-50 dark:bg-[#232b38]">
+                    <h3 class="text-sm font-bold text-text-main dark:text-white uppercase tracking-wide flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">history</span>
+                        Recently Generated
+                    </h3>
+                </div>
+                
+                <div class="divide-y divide-border-color dark:divide-[#2d3748] max-h-[500px] overflow-y-auto">
+                    {% for pin in recent_pins %}
+                    <div class="p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-mono font-bold text-primary text-sm">{{ pin.code }}</span>
+                            <span class="text-[10px] text-text-sub">{{ pin.created_at|timesince }} ago</span>
+                        </div>
+                        <p class="text-sm font-medium text-text-main dark:text-white truncate">{{ pin.student.get_full_name }}</p>
+                        <p class="text-xs text-text-sub">{{ pin.term.name }}, {{ pin.academic_session.name }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="p-6 text-center text-text-sub">
+                        <span class="material-symbols-outlined text-3xl opacity-20 mb-2">key_off</span>
+                        <p class="text-sm">No PINs generated recently.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span id="toast-message">Copied to clipboard!</span>
+</div>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        toastMessage.textContent = message;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+        }, 3000);
+    }
+    
+    function copyGeneratedPin() {
+        const pinCode = document.getElementById('generated-pin-code')?.textContent.trim();
+        if (pinCode) {
+            navigator.clipboard.writeText(pinCode);
+            showToast('PIN copied to clipboard!');
+        }
+    }
+    
+    // Simple filter for student select
+    const studentSelect = document.getElementById('student-select');
+    if (studentSelect) {
+        // Add search functionality if needed
+        studentSelect.addEventListener('focus', function() {
+            this.size = 8;
+        });
+        studentSelect.addEventListener('blur', function() {
+            this.size = 1;
+        });
+        studentSelect.addEventListener('change', function() {
+            this.size = 1;
+            this.blur();
+        });
+    }
+</script>
+{% endblock %}

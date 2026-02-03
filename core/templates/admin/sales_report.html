@@ -130,7 +130,10 @@
         <div class="xl:col-span-2 bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
             <div class="p-5 border-b border-border-color dark:border-[#2d3748] flex items-center justify-between">
                 <h3 class="text-lg font-bold text-text-main dark:text-white">Recent Transactions</h3>
-                <a href="#" class="text-sm font-bold text-primary hover:underline">Export CSV</a>
+                <a href="{% url 'export_sales_csv' %}" class="text-sm font-bold text-primary hover:underline flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">download</span>
+                    Export CSV
+                </a>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">

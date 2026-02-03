@@ -4,7 +4,6 @@ from . import views
 urlpatterns = [
     # Public pages
     path('', views.home, name='home'),
-    path('buy-pin/', views.buy_pin, name='buy_pin'),
     
     # Authentication
     path('login/', views.login_view, name='login'),
@@ -35,12 +34,25 @@ urlpatterns = [
     path('admin-portal/transport/', views.transport, name='transport'),
     
     # Payments & Pins
-    path('buy-pin/', views.buy_pin_page, name='buy_pin_page'),
+    path('buy-pin/', views.buy_pin, name='buy_pin_page'),
     path('payment/initiate/', views.initiate_payment, name='initiate_payment'),
     path('payment/verify/', views.verify_payment, name='verify_payment'),
+    path('payment/pending/', views.payment_pending, name='payment_pending'),
+    path('payment/success/<int:pin_id>/', views.payment_success, name='payment_success'),
     path('admin-portal/payments/', views.admin_payments, name='admin_payments'),
     path('admin-portal/payments/approve/<int:payment_id>/', views.approve_payment, name='approve_payment'),
+    path('admin-portal/pins/generate/', views.admin_generate_pin, name='admin_generate_pin'),
     path('admin-portal/sales-report/', views.admin_sales_report, name='admin_sales_report'),
+    path('admin-portal/sales-report/export/', views.export_sales_csv, name='export_sales_csv'),
+    
+    # Fee Management
+    path('admin-portal/fee-types/', views.manage_fee_types, name='manage_fee_types'),
+    path('admin-portal/fee-types/add/', views.add_fee_type, name='add_fee_type'),
+    path('admin-portal/fee-types/delete/<int:fee_type_id>/', views.delete_fee_type, name='delete_fee_type'),
+    path('admin-portal/fee-structures/', views.manage_fee_structures, name='manage_fee_structures'),
+    path('admin-portal/fee-structures/add/', views.add_fee_structure, name='add_fee_structure'),
+    path('admin-portal/fee-payments/', views.manage_fee_payments, name='manage_fee_payments'),
+    path('admin-portal/fee-payments/approve/<int:payment_id>/', views.approve_fee_payment, name='approve_fee_payment'),
     
     # Configuration
     path('admin-portal/settings/', views.manage_configuration, name='manage_configuration'),

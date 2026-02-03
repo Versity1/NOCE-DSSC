@@ -6,49 +6,86 @@
 <!-- Main Content -->
 <div class="flex-1 w-full max-w-[1200px] mx-auto px-4 py-8 md:px-8">
     <!-- Page Header -->
-    <div class="mb-10 flex flex-col gap-3">
-        <h1 class="text-text-main dark:text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight">Purchase Result PIN</h1>
-        <p class="text-text-sub dark:text-gray-400 text-base font-normal leading-normal max-w-2xl">
-            Securely purchase an access code to view your termly academic records. The PIN is valid for checking one term's result unlimited times per student.
-        </p>
+    <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-bold rounded-full flex items-center gap-1">
+                    <span class="size-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Quick & Easy
+                </span>
+            </div>
+            <h1 class="text-text-main dark:text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight">Purchase Result PIN</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base font-normal leading-normal max-w-2xl">
+                Securely purchase an access code to view your termly academic records. The PIN is valid for checking one term's result unlimited times per student.
+            </p>
+        </div>
+        {% if user.is_authenticated and user.role == 'student' %}
+        <a href="{% url 'student_dashboard' %}" class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-surface-dark border border-border-color dark:border-gray-700 text-text-main dark:text-white rounded-lg font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-xl">dashboard</span>
+            <span>Back to Dashboard</span>
+        </a>
+        {% endif %}
     </div>
     
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
         <!-- Left Column: Pricing & Info -->
         <div class="lg:col-span-5 flex flex-col gap-6 order-2 lg:order-1">
-            <!-- Pricing Card -->
-            <div class="bg-white dark:bg-surface-dark rounded-xl p-6 border border-border-color dark:border-[#2d3748] shadow-sm flex flex-col gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="bg-primary/10 p-2 rounded-lg text-primary">
-                        <span class="material-symbols-outlined">payments</span>
+            <!-- Enhanced Pricing Card -->
+            <div class="relative bg-gradient-to-br from-primary via-primary to-orange-600 rounded-2xl p-6 text-white overflow-hidden shadow-xl shadow-primary/20">
+                <!-- Animated shine effect -->
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer"></div>
+                <!-- Background decoration -->
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="size-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">confirmation_number</span>
+                        </div>
+                        <div>
+                            <p class="text-white/80 text-xs font-bold uppercase tracking-wider">Standard Fee</p>
+                            <h3 class="font-bold text-lg">Result Checker PIN</h3>
+                        </div>
                     </div>
-                    <h3 class="text-text-main dark:text-white font-bold text-lg">Standard Fee</h3>
+                    
+                    <div class="mb-6">
+                        <span class="text-5xl font-black tracking-tight">₦{{ pin_price_formatted }}</span>
+                        <span class="text-white/80 text-sm font-medium ml-1">one-time</span>
+                    </div>
+                    
+                    <div class="h-px w-full bg-white/20 mb-6"></div>
+                    
+                    <ul class="flex flex-col gap-3">
+                        <li class="flex items-center gap-3">
+                            <div class="size-6 rounded-full bg-white/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </div>
+                            <span class="text-sm font-medium">Valid for one academic term</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="size-6 rounded-full bg-white/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </div>
+                            <span class="text-sm font-medium">Unlimited result checks</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="size-6 rounded-full bg-white/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </div>
+                            <span class="text-sm font-medium">Download result as PDF</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <div class="size-6 rounded-full bg-white/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </div>
+                            <span class="text-sm font-medium">Instant delivery via SMS & Email</span>
+                        </li>
+                    </ul>
                 </div>
-                <div>
-                    <span class="text-4xl font-bold text-text-main dark:text-white tracking-tight">₦1,500</span>
-                    <span class="text-text-sub dark:text-gray-400 text-sm font-medium">/ PIN</span>
-                </div>
-                <div class="h-px w-full bg-border-color dark:bg-[#2d3748]"></div>
-                <ul class="flex flex-col gap-3">
-                    <li class="flex items-center gap-3 text-text-main dark:text-gray-200">
-                        <span class="material-symbols-outlined text-green-500 text-xl">check_circle</span>
-                        <span class="text-sm font-medium">Valid for one academic term</span>
-                    </li>
-                    <li class="flex items-center gap-3 text-text-main dark:text-gray-200">
-                        <span class="material-symbols-outlined text-green-500 text-xl">check_circle</span>
-                        <span class="text-sm font-medium">Unlimited result checks</span>
-                    </li>
-                    <li class="flex items-center gap-3 text-text-main dark:text-gray-200">
-                        <span class="material-symbols-outlined text-green-500 text-xl">check_circle</span>
-                        <span class="text-sm font-medium">Download result as PDF</span>
-                    </li>
-                    <li class="flex items-center gap-3 text-text-main dark:text-gray-200">
-                        <span class="material-symbols-outlined text-green-500 text-xl">check_circle</span>
-                        <span class="text-sm font-medium">Instant delivery via SMS &amp; Email</span>
-                    </li>
-                </ul>
             </div>
             
+            {% if last_pin %}
             <!-- Recent Purchases -->
             <div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] overflow-hidden">
                 <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex justify-between items-center bg-gray-50 dark:bg-[#232b38]">
@@ -56,27 +93,108 @@
                     <span class="material-symbols-outlined text-text-sub dark:text-gray-400 text-lg">history</span>
                 </div>
                 <div class="p-4">
-                    <div class="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800/30">
+                    <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 rounded-xl border border-green-100 dark:border-green-800/30">
                         <div class="flex flex-col gap-1">
-                            <span class="text-xs text-green-700 dark:text-green-400 font-bold uppercase">Last Purchased</span>
-                            <span class="font-display font-bold text-lg text-text-main dark:text-white tracking-widest">8392-1029-4820</span>
-                            <span class="text-xs text-text-sub dark:text-gray-400">2nd Term, 2023/2024</span>
+                            <span class="text-xs text-green-700 dark:text-green-400 font-bold uppercase flex items-center gap-1">
+                                <span class="size-1.5 rounded-full bg-green-500"></span>
+                                Last Purchased
+                            </span>
+                            <span class="font-display font-bold text-xl text-text-main dark:text-white tracking-widest font-mono">{{ last_pin.code }}</span>
+                            <span class="text-xs text-text-sub dark:text-gray-400">{{ last_pin.term.name }}, {{ last_pin.academic_session.name }}</span>
                         </div>
-                        <button class="text-primary hover:text-primary/80 p-2 rounded-full hover:bg-white dark:hover:bg-[#2d3748] transition-colors" title="Copy PIN">
+                        <button onclick="copyPin('{{ last_pin.code }}')" class="size-10 rounded-xl bg-green-100 dark:bg-green-800/30 text-green-600 dark:text-green-400 flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors" title="Copy PIN">
                             <span class="material-symbols-outlined">content_copy</span>
                         </button>
                     </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Bank Transfer Details -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-xl p-6 border border-blue-100 dark:border-blue-800/30 flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 rounded-lg bg-blue-100 dark:bg-blue-800/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                        <span class="material-symbols-outlined">account_balance</span>
+                    </div>
+                    <div>
+                        <h3 class="text-text-main dark:text-white font-bold text-lg">Bank Transfer Option</h3>
+                        <p class="text-xs text-text-sub">For manual payments</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-3 bg-white dark:bg-[#1a202c] rounded-lg p-4 border border-blue-100 dark:border-blue-800/20">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-text-sub dark:text-gray-400">Bank Name</span>
+                        <span class="text-sm font-bold text-text-main dark:text-white">{{ config.bank_name }}</span>
+                    </div>
+                    <div class="h-px bg-gray-100 dark:bg-gray-700"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-text-sub dark:text-gray-400">Account Number</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-text-main dark:text-white font-mono">{{ config.account_number }}</span>
+                            <button onclick="copyText('{{ config.account_number }}', 'Account number copied!')" class="size-6 rounded bg-gray-100 dark:bg-gray-800 text-text-sub hover:text-primary flex items-center justify-center transition-colors">
+                                <span class="material-symbols-outlined text-sm">content_copy</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="h-px bg-gray-100 dark:bg-gray-700"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-text-sub dark:text-gray-400">Account Name</span>
+                        <span class="text-sm font-bold text-text-main dark:text-white">{{ config.account_name }}</span>
+                    </div>
+                </div>
+                <p class="text-xs text-text-sub dark:text-gray-400 italic flex items-start gap-2">
+                    <span class="material-symbols-outlined text-sm mt-0.5">info</span>
+                    <span>If you pay via manual transfer, please login to your dashboard and upload proof of payment to receive your PIN.</span>
+                </p>
+            </div>
+            
+            <!-- FAQ Accordion -->
+            <div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] overflow-hidden">
+                <div class="p-4 border-b border-border-color dark:border-[#2d3748] bg-gray-50 dark:bg-[#232b38]">
+                    <h3 class="text-text-main dark:text-white font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">help</span>
+                        Frequently Asked Questions
+                    </h3>
+                </div>
+                <div class="divide-y divide-border-color dark:divide-[#2d3748]">
+                    <details class="group">
+                        <summary class="p-4 cursor-pointer flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span class="text-sm font-medium text-text-main dark:text-white">How long is my PIN valid?</span>
+                            <span class="material-symbols-outlined text-text-sub group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-4 pb-4 text-sm text-text-sub">
+                            Your PIN is valid for checking results of the specific term you purchased it for, with no expiration date.
+                        </div>
+                    </details>
+                    <details class="group">
+                        <summary class="p-4 cursor-pointer flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span class="text-sm font-medium text-text-main dark:text-white">Can I use one PIN for multiple terms?</span>
+                            <span class="material-symbols-outlined text-text-sub group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-4 pb-4 text-sm text-text-sub">
+                            No, each PIN is tied to a specific academic term. You'll need to purchase a new PIN for each term.
+                        </div>
+                    </details>
+                    <details class="group">
+                        <summary class="p-4 cursor-pointer flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <span class="text-sm font-medium text-text-main dark:text-white">What if my payment fails?</span>
+                            <span class="material-symbols-outlined text-text-sub group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-4 pb-4 text-sm text-text-sub">
+                            If your payment fails, no charges will be made. Simply try again or contact the school's bursar office for assistance.
+                        </div>
+                    </details>
                 </div>
             </div>
         </div>
         
         <!-- Right Column: Form -->
         <div class="lg:col-span-7 order-1 lg:order-2">
-            <div class="bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-border-color dark:border-[#2d3748] overflow-hidden">
+            <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-xl border border-border-color dark:border-[#2d3748] overflow-hidden sticky top-8">
                 <div class="p-6 md:p-8 flex flex-col gap-6">
-                    <div class="flex items-center gap-3 pb-2 border-b border-border-color dark:border-[#2d3748]">
-                        <div class="bg-primary text-white p-2 rounded-lg shadow-sm">
-                            <span class="material-symbols-outlined">shopping_cart_checkout</span>
+                    <div class="flex items-center gap-3 pb-4 border-b border-border-color dark:border-[#2d3748]">
+                        <div class="size-12 rounded-xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                            <span class="material-symbols-outlined text-2xl">shopping_cart_checkout</span>
                         </div>
                         <div>
                             <h2 class="text-text-main dark:text-white text-xl font-bold">Payment Details</h2>
@@ -84,17 +202,27 @@
                         </div>
                     </div>
                     
-                    <form class="flex flex-col gap-6" method="post">
+                    <form class="flex flex-col gap-6" method="post" action="{% url 'initiate_payment' %}" id="payment-form">
                         {% csrf_token %}
+                        <!-- Hidden Fields -->
+                        <input type="hidden" name="method" value="paystack">
+                        <input type="hidden" name="amount" value="{{ config.pin_price }}">
+
                         <!-- Student ID Input -->
                         <div class="flex flex-col gap-2">
                             <label class="text-text-main dark:text-gray-200 text-sm font-bold leading-normal">
                                 Student Admission ID <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <input class="form-input w-full rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white h-12 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-[#9ca3af]" placeholder="e.g. SCH/2023/054" type="text" name="student_id" required/>
+                                <input class="form-input w-full rounded-xl border-2 border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white h-14 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-[#9ca3af] peer" placeholder="e.g. SCH/2023/054" type="text" name="student_id" id="student_id" value="{% if user.is_authenticated and user.role == 'student' %}{{ user.student_profile.admission_number|default:'' }}{% endif %}" required/>
+                                <div class="absolute right-3 top-1/2 -translate-y-1/2 hidden peer-valid:flex size-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 items-center justify-center">
+                                    <span class="material-symbols-outlined text-sm">check</span>
+                                </div>
                             </div>
-                            <p class="text-xs text-text-sub dark:text-gray-400">Enter your unique admission number provided by the school.</p>
+                            <p class="text-xs text-text-sub dark:text-gray-400 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">info</span>
+                                Enter your unique admission number provided by the school.
+                            </p>
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -102,10 +230,11 @@
                             <div class="flex flex-col gap-2">
                                 <label class="text-text-main dark:text-gray-200 text-sm font-bold leading-normal">Academic Session</label>
                                 <div class="relative">
-                                    <select class="form-select w-full rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white h-12 px-4 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none" name="session" required>
+                                    <select class="form-select w-full rounded-xl border-2 border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white h-14 px-4 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none" name="session" required>
                                         <option disabled="" selected="" value="">Select Session</option>
-                                        <option value="2023-2024">2023/2024</option>
-                                        <option value="2022-2023">2022/2023</option>
+                                        {% for session in sessions %}
+                                            <option value="{{ session.id }}" {% if current_session and session.id == current_session.id %}selected{% endif %}>{{ session.name }}</option>
+                                        {% endfor %}
                                     </select>
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-sub">
                                         <span class="material-symbols-outlined">expand_more</span>
@@ -117,11 +246,11 @@
                             <div class="flex flex-col gap-2">
                                 <label class="text-text-main dark:text-gray-200 text-sm font-bold leading-normal">Select Term</label>
                                 <div class="relative">
-                                    <select class="form-select w-full rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white h-12 px-4 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none" name="term" required>
+                                    <select class="form-select w-full rounded-xl border-2 border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white h-14 px-4 pr-10 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none" name="term_id" required>
                                         <option disabled="" selected="" value="">Select Term</option>
-                                        <option value="1">First Term</option>
-                                        <option value="2">Second Term</option>
-                                        <option value="3">Third Term</option>
+                                        {% for term in terms %}
+                                            <option value="{{ term.id }}" {% if term.is_current %}selected{% endif %}>{{ term.name }}</option>
+                                        {% endfor %}
                                     </select>
                                     <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-sub">
                                         <span class="material-symbols-outlined">expand_more</span>
@@ -131,31 +260,53 @@
                         </div>
                         
                         <!-- Summary Row -->
-                        <div class="mt-4 bg-background-light dark:bg-[#232b38] p-4 rounded-lg flex justify-between items-center border border-border-color dark:border-[#4a5568]">
-                            <span class="text-text-sub dark:text-gray-400 font-medium">Total Amount</span>
-                            <span class="text-text-main dark:text-white text-xl font-bold">₦1,500.00</span>
+                        <div class="mt-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-[#232b38] dark:to-[#1a202c] p-5 rounded-xl flex justify-between items-center border border-border-color dark:border-[#4a5568]">
+                            <div class="flex items-center gap-3">
+                                <div class="size-10 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center">
+                                    <span class="material-symbols-outlined">receipt_long</span>
+                                </div>
+                                <span class="text-text-sub dark:text-gray-400 font-medium">Total Amount</span>
+                            </div>
+                            <span class="text-text-main dark:text-white text-2xl font-black">₦{{ pin_price_formatted }}</span>
                         </div>
                         
                         <!-- Payment Button -->
-                        <button class="group relative w-full h-14 bg-primary hover:bg-primary-dark active:bg-blue-800 text-white rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 overflow-hidden" type="submit">
+                        <button class="group relative w-full h-14 bg-gradient-to-r from-primary to-orange-600 hover:from-primary-dark hover:to-orange-700 active:from-orange-700 active:to-primary-dark text-white rounded-xl font-bold text-lg shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 transition-all flex items-center justify-center gap-3 overflow-hidden" type="submit" id="submit-btn">
                             <span class="material-symbols-outlined group-hover:scale-110 transition-transform">lock</span>
-                            <span>Pay Securely Now</span>
+                            <span id="btn-text">Pay Securely Now</span>
+                            <span class="hidden" id="btn-loading">
+                                <span class="material-symbols-outlined animate-spin">progress_activity</span>
+                                Processing...
+                            </span>
                             <div class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                         </button>
                         
-                        <!-- Security Footnote -->
-                        <div class="flex flex-col items-center gap-2 pt-2">
-                            <div class="flex items-center justify-center gap-2 text-text-sub dark:text-gray-400 text-xs font-medium">
-                                <span class="material-symbols-outlined text-base">lock_person</span>
-                                <span>Secured by Paystack</span>
-                            </div>
-                            <div class="flex gap-2 opacity-60 grayscale hover:grayscale-0 transition-all">
-                                <div class="h-6 w-10 bg-[#1a1f71] rounded flex items-center justify-center text-[8px] text-white font-bold" title="Visa">VISA</div>
-                                <div class="h-6 w-10 bg-[#eb001b] rounded flex items-center justify-center relative overflow-hidden" title="Mastercard">
-                                    <div class="h-6 w-6 rounded-full bg-[#ff5f00] absolute left-0 opacity-80"></div>
-                                    <div class="h-6 w-6 rounded-full bg-[#eb001b] absolute right-0 opacity-80"></div>
+                        <!-- Trust Badges -->
+                        <div class="flex flex-col items-center gap-4 pt-4 border-t border-border-color dark:border-[#2d3748]">
+                            <div class="flex items-center justify-center gap-6 text-text-sub dark:text-gray-400 text-xs font-medium">
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-green-500 text-base">verified_user</span>
+                                    <span>SSL Secured</span>
                                 </div>
-                                <div class="h-6 w-10 bg-[#006fcf] rounded flex items-center justify-center text-[8px] text-white font-bold" title="Verve">VERVE</div>
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-blue-500 text-base">lock</span>
+                                    <span>256-bit Encryption</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-primary text-base">support_agent</span>
+                                    <span>24/7 Support</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 items-center">
+                                <span class="text-xs text-text-sub">Powered by</span>
+                                <div class="flex gap-2 opacity-70 hover:opacity-100 transition-all">
+                                    <div class="h-6 w-10 bg-[#1a1f71] rounded flex items-center justify-center text-[8px] text-white font-bold" title="Visa">VISA</div>
+                                    <div class="h-6 w-10 bg-[#eb001b] rounded flex items-center justify-center relative overflow-hidden" title="Mastercard">
+                                        <div class="h-6 w-6 rounded-full bg-[#ff5f00] absolute left-0 opacity-80"></div>
+                                        <div class="h-6 w-6 rounded-full bg-[#eb001b] absolute right-0 opacity-80"></div>
+                                    </div>
+                                    <div class="h-6 w-10 bg-[#006fcf] rounded flex items-center justify-center text-[8px] text-white font-bold" title="Verve">VERVE</div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -164,4 +315,57 @@
         </div>
     </div>
 </div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span id="toast-message">Copied to clipboard!</span>
+</div>
+
+<style>
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(200%); }
+    }
+    .animate-shimmer {
+        animation: shimmer 3s infinite;
+    }
+</style>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        toastMessage.textContent = message;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+        }, 3000);
+    }
+    
+    function copyPin(code) {
+        navigator.clipboard.writeText(code);
+        showToast('PIN copied to clipboard!');
+    }
+    
+    function copyText(text, message) {
+        navigator.clipboard.writeText(text);
+        showToast(message);
+    }
+    
+    // Form submission loading state
+    document.getElementById('payment-form')?.addEventListener('submit', function(e) {
+        const btn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoading = document.getElementById('btn-loading');
+        
+        btn.disabled = true;
+        btn.classList.add('cursor-wait');
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+    });
+</script>
 {% endblock %}

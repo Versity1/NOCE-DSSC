@@ -19,11 +19,10 @@
             <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-primary">
                 <span class="material-symbols-outlined">school</span>
             </div>
-            <span class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded">+5%</span>
         </div>
         <div>
             <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Total Students</p>
-            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">1,240</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">{{ total_students|default:"0" }}</p>
         </div>
     </div>
     
@@ -33,11 +32,10 @@
             <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600">
                 <span class="material-symbols-outlined">group</span>
             </div>
-            <span class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded">+2%</span>
         </div>
         <div>
             <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Total Staff</p>
-            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">85</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">{{ total_staff|default:"0" }}</p>
         </div>
     </div>
     
@@ -47,11 +45,10 @@
             <div class="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600">
                 <span class="material-symbols-outlined">person_check</span>
             </div>
-            <span class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded">+2%</span>
         </div>
         <div>
             <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Attendance Today</p>
-            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">92%</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">{{ attendance_rate }}%</p>
         </div>
     </div>
     
@@ -61,11 +58,13 @@
             <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600">
                 <span class="material-symbols-outlined">payments</span>
             </div>
-            <span class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-bold px-2 py-1 rounded">+12%</span>
+            {% if pending_payments > 0 %}
+            <span class="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 text-xs font-bold px-2 py-1 rounded">{{ pending_payments }} Pending</span>
+            {% endif %}
         </div>
         <div>
             <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Fees Collected</p>
-            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">₦ 15.4M</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">₦{{ total_collected|floatformat:0|default:"0" }}</p>
         </div>
     </div>
 </div>

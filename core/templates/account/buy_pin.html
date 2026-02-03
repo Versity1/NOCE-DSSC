@@ -7,10 +7,32 @@
 
 {% block content %}
 <div class="flex flex-col gap-8">
-    <!-- Header Section -->
-    <div class="flex flex-col gap-1">
-        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Purchase Result Pin</h1>
-        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Select a payment method below to get your result checker pin.</p>
+    <!-- Header Section with Step Indicator -->
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1">
+            <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Purchase Result Pin</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base font-normal">Select a payment method below to get your result checker pin.</p>
+        </div>
+        
+        <!-- Step Progress Indicator -->
+        <div class="flex items-center gap-2 p-4 bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748]">
+            <div class="flex items-center gap-2">
+                <div id="step1" class="size-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold transition-all">1</div>
+                <span class="text-sm font-bold text-primary">Select Method</span>
+            </div>
+            <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2">
+                <div id="progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div id="step2" class="size-8 rounded-full bg-gray-200 dark:bg-gray-700 text-text-sub flex items-center justify-center text-sm font-bold transition-all">2</div>
+                <span class="text-sm font-medium text-text-sub">Enter Details</span>
+            </div>
+            <div class="flex-1 h-0.5 bg-gray-200 dark:bg-gray-700 mx-2"></div>
+            <div class="flex items-center gap-2">
+                <div id="step3" class="size-8 rounded-full bg-gray-200 dark:bg-gray-700 text-text-sub flex items-center justify-center text-sm font-bold transition-all">3</div>
+                <span class="text-sm font-medium text-text-sub">Confirm</span>
+            </div>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -18,7 +40,11 @@
         <div class="lg:col-span-2 flex flex-col gap-6">
             <!-- Method Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button onclick="showForm('paystack')" class="flex flex-col items-start gap-4 p-6 bg-white dark:bg-surface-dark rounded-2xl border-2 border-transparent hover:border-primary/50 shadow-sm transition-all group focus:border-primary active:scale-[0.98]">
+                <button id="paystack-btn" onclick="showForm('paystack')" class="payment-method-btn flex flex-col items-start gap-4 p-6 bg-white dark:bg-surface-dark rounded-2xl border-2 border-transparent hover:border-primary/50 shadow-sm transition-all group focus:border-primary active:scale-[0.98] relative overflow-hidden">
+                    <!-- Selection indicator -->
+                    <div class="absolute top-3 right-3 size-6 rounded-full bg-primary text-white hidden items-center justify-center selected-indicator">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </div>
                     <div class="size-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-3xl">credit_card</span>
                     </div>
@@ -26,9 +52,17 @@
                         <h3 class="text-lg font-bold text-text-main dark:text-white">Instant Payment</h3>
                         <p class="text-sm text-text-sub">Pay via Paystack (Card, Transfer, USSD). Pin is released immediately.</p>
                     </div>
+                    <div class="flex items-center gap-1 text-xs text-green-600 font-bold mt-auto">
+                        <span class="material-symbols-outlined text-sm">bolt</span>
+                        <span>Instant Delivery</span>
+                    </div>
                 </button>
 
-                <button onclick="showForm('manual')" class="flex flex-col items-start gap-4 p-6 bg-white dark:bg-surface-dark rounded-2xl border-2 border-transparent hover:border-primary/50 shadow-sm transition-all group focus:border-primary active:scale-[0.98]">
+                <button id="manual-btn" onclick="showForm('manual')" class="payment-method-btn flex flex-col items-start gap-4 p-6 bg-white dark:bg-surface-dark rounded-2xl border-2 border-transparent hover:border-primary/50 shadow-sm transition-all group focus:border-primary active:scale-[0.98] relative overflow-hidden">
+                    <!-- Selection indicator -->
+                    <div class="absolute top-3 right-3 size-6 rounded-full bg-primary text-white hidden items-center justify-center selected-indicator">
+                        <span class="material-symbols-outlined text-sm">check</span>
+                    </div>
                     <div class="size-12 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-3xl">account_balance</span>
                     </div>
@@ -36,16 +70,28 @@
                         <h3 class="text-lg font-bold text-text-main dark:text-white">Bank Transfer</h3>
                         <p class="text-sm text-text-sub">Pay to school account and upload proof. Pin is released after approval.</p>
                     </div>
+                    <div class="flex items-center gap-1 text-xs text-orange-600 font-bold mt-auto">
+                        <span class="material-symbols-outlined text-sm">schedule</span>
+                        <span>1-24hr Processing</span>
+                    </div>
                 </button>
             </div>
 
             <!-- Paystack Form (Hidden by default) -->
             <div id="paystack-form" class="hidden animate-in fade-in slide-in-from-top-4 duration-300">
                 <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
-                    <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-blue-50/30 dark:bg-blue-900/10">
-                        <h3 class="text-lg font-bold text-blue-700 dark:text-blue-400">Paystack Checkout</h3>
+                    <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10">
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                                <span class="material-symbols-outlined">credit_card</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-blue-700 dark:text-blue-400">Paystack Checkout</h3>
+                                <p class="text-xs text-blue-600/70 dark:text-blue-400/70">Secure instant payment</p>
+                            </div>
+                        </div>
                     </div>
-                    <form method="POST" action="{% url 'initiate_payment' %}" class="p-6 space-y-6">
+                    <form method="POST" action="{% url 'initiate_payment' %}" class="p-6 space-y-6" id="paystack-payment-form">
                         {% csrf_token %}
                         <input type="hidden" name="method" value="paystack">
                         <input type="hidden" name="amount" value="{{ price }}">
@@ -62,15 +108,17 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-text-main dark:text-white mb-2">Amount Due</label>
-                                <div class="px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a202c] border border-border-color dark:border-[#2d3748] font-black text-xl text-text-main dark:text-white">
+                                <div class="px-4 py-3 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/30 font-black text-xl text-green-700 dark:text-green-400 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-green-500">payments</span>
                                     ₦{{ price }}
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all active:scale-[0.99] flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">bolt</span>
-                            Pay Now with Paystack
+                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.99] flex items-center justify-center gap-2 group">
+                            <span class="material-symbols-outlined group-hover:animate-pulse">bolt</span>
+                            <span>Pay Now with Paystack</span>
+                            <span class="loading-spinner hidden animate-spin material-symbols-outlined">progress_activity</span>
                         </button>
                     </form>
                 </div>
@@ -79,29 +127,51 @@
             <!-- Manual Form (Hidden by default) -->
             <div id="manual-form" class="hidden animate-in fade-in slide-in-from-top-4 duration-300">
                 <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
-                    <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-orange-50/30 dark:bg-orange-900/10">
-                        <h3 class="text-lg font-bold text-orange-700 dark:text-orange-400">Manual Transfer Details</h3>
+                    <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/10 dark:to-amber-900/10">
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-lg bg-orange-600 text-white flex items-center justify-center">
+                                <span class="material-symbols-outlined">account_balance</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-orange-700 dark:text-orange-400">Manual Transfer Details</h3>
+                                <p class="text-xs text-orange-600/70 dark:text-orange-400/70">Upload proof after payment</p>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-6 space-y-6">
-                        <div class="bg-orange-50 dark:bg-orange-900/10 border-l-4 border-orange-500 p-4 rounded-lg">
-                            <p class="text-sm font-bold text-orange-800 dark:text-orange-300 mb-2">Account Information</p>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <p class="text-text-sub">Bank Name</p>
-                                    <p class="font-bold text-text-main dark:text-white">{{ config.bank_name }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-text-sub">Account Number</p>
-                                    <p class="font-black text-lg text-primary">{{ config.account_number }}</p>
-                                </div>
-                                <div class="sm:col-span-2">
-                                    <p class="text-text-sub">Account Name</p>
-                                    <p class="font-bold text-text-main dark:text-white">{{ config.account_name }}</p>
+                        <!-- Bank Account Card -->
+                        <div class="relative bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl p-6 text-white overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                            <div class="relative z-10">
+                                <p class="text-xs text-white/80 font-bold uppercase tracking-wider mb-1">Transfer To</p>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-white/80">Bank Name</span>
+                                        <span class="font-bold">{{ config.bank_name }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-white/80">Account Number</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono font-black text-xl tracking-wider" id="account-number">{{ config.account_number }}</span>
+                                            <button type="button" onclick="copyAccountNumber()" class="size-8 rounded-lg bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors" title="Copy">
+                                                <span class="material-symbols-outlined text-sm">content_copy</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-white/80">Account Name</span>
+                                        <span class="font-bold">{{ config.account_name }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-2 border-t border-white/20">
+                                        <span class="text-sm text-white/80">Amount</span>
+                                        <span class="font-black text-2xl">₦{{ price }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <form method="POST" action="{% url 'initiate_payment' %}" enctype="multipart/form-data" class="space-y-6">
+                        <form method="POST" action="{% url 'initiate_payment' %}" enctype="multipart/form-data" class="space-y-6" id="manual-payment-form">
                             {% csrf_token %}
                             <input type="hidden" name="method" value="manual">
                             <input type="hidden" name="amount" value="{{ price }}">
@@ -118,11 +188,18 @@
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-text-main dark:text-white mb-2">Upload Receipt</label>
-                                    <input type="file" name="proof" class="w-full text-sm text-text-sub file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-black file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all" required>
+                                    <div class="relative">
+                                        <input type="file" name="proof" id="file-upload" class="hidden" accept="image/*,.pdf" required>
+                                        <label for="file-upload" class="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border-2 border-dashed border-border-color dark:border-[#4a5568] bg-gray-50 dark:bg-[#1a202c] hover:border-primary hover:bg-primary/5 transition-all cursor-pointer text-text-sub dark:text-gray-400">
+                                            <span class="material-symbols-outlined">cloud_upload</span>
+                                            <span id="file-name" class="text-sm font-medium">Click to upload receipt</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            <button type="submit" class="w-full bg-text-main dark:bg-white dark:text-text-main text-white font-bold py-4 rounded-xl hover:opacity-90 transition-all active:scale-[0.99]">
+                            <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/20 transition-all active:scale-[0.99] flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">upload_file</span>
                                 Submit Proof for Approval
                             </button>
                         </form>
@@ -133,40 +210,67 @@
 
         <!-- Right Side: Instructions & History -->
         <div class="flex flex-col gap-6">
-            <div class="bg-primary text-white p-6 rounded-2xl shadow-lg shadow-primary/20">
-                <div class="flex items-center gap-3 mb-4">
-                    <span class="material-symbols-outlined">info</span>
-                    <h3 class="font-bold">Instructions</h3>
+            <!-- Instructions Card -->
+            <div class="bg-gradient-to-br from-primary to-primary-dark text-white p-6 rounded-2xl shadow-lg shadow-primary/20 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="size-10 rounded-xl bg-white/20 flex items-center justify-center">
+                            <span class="material-symbols-outlined">lightbulb</span>
+                        </div>
+                        <h3 class="font-bold text-lg">Quick Tips</h3>
+                    </div>
+                    <ul class="text-sm space-y-3 opacity-90">
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-sm mt-0.5">check_circle</span>
+                            <span>Pins are generated per term.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-sm mt-0.5">check_circle</span>
+                            <span>Used pins cannot be reassigned.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-sm mt-0.5">check_circle</span>
+                            <span>Verify your term before paying.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="material-symbols-outlined text-sm mt-0.5">check_circle</span>
+                            <span>Instant payments are processed immediately.</span>
+                        </li>
+                    </ul>
                 </div>
-                <ul class="text-sm space-y-3 opacity-90">
-                    <li class="flex items-start gap-2">
-                        <span class="font-bold">•</span>
-                        <span>Pins are generated per term.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="font-bold">•</span>
-                        <span>Used pins cannot be reassigned.</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="font-bold">•</span>
-                        <span>Verify your term before paying.</span>
-                    </li>
-                </ul>
             </div>
 
             <!-- Recent Pins (Brief List) -->
             <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-border-color dark:border-[#2d3748]">
-                    <h4 class="font-bold text-text-main dark:text-white">Active Pins</h4>
+                <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex items-center justify-between">
+                    <h4 class="font-bold text-text-main dark:text-white flex items-center gap-2">
+                        <span class="material-symbols-outlined text-green-500">verified</span>
+                        Active Pins
+                    </h4>
+                    <span class="text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-full">{{ pins|length }} Total</span>
                 </div>
                 <div class="divide-y divide-border-color dark:divide-[#2d3748]">
                     {% for pin in pins|slice:":3" %}
-                    <div class="p-4 bg-green-50/30 dark:bg-green-900/10">
-                        <p class="text-xs text-text-sub mb-1">{{ pin.term.name }}</p>
-                        <p class="font-mono font-black text-lg text-green-600">{{ pin.code }}</p>
+                    {% if pin.status == 'active' %}
+                    <div class="p-4 bg-green-50/30 dark:bg-green-900/10 flex items-center justify-between group hover:bg-green-50/50 dark:hover:bg-green-900/20 transition-colors">
+                        <div>
+                            <p class="text-xs text-text-sub mb-1">{{ pin.term.name }}</p>
+                            <p class="font-mono font-black text-lg text-green-600">{{ pin.code }}</p>
+                        </div>
+                        <button onclick="copyPin('{{ pin.code }}')" class="size-8 rounded-lg bg-green-100 dark:bg-green-800/30 text-green-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-green-200 dark:hover:bg-green-800/50" title="Copy PIN">
+                            <span class="material-symbols-outlined text-sm">content_copy</span>
+                        </button>
                     </div>
+                    {% endif %}
                     {% empty %}
-                    <p class="p-4 text-sm text-text-sub italic">No active pins found.</p>
+                    <div class="p-6 text-center">
+                        <div class="size-16 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl text-text-sub">confirmation_number</span>
+                        </div>
+                        <p class="text-sm text-text-sub italic">No active pins found.</p>
+                        <p class="text-xs text-text-sub mt-1">Purchase one above to get started!</p>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -175,8 +279,14 @@
 
     <!-- Full History Table -->
     <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-border-color dark:border-[#2d3748]">
-            <h3 class="text-lg font-bold text-text-main dark:text-white">Pin Purchase History</h3>
+        <div class="p-5 border-b border-border-color dark:border-[#2d3748] flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-text-main dark:text-white">Pin Purchase History</h3>
+                <p class="text-xs text-text-sub mt-1">All your purchased pins and their status</p>
+            </div>
+            {% if pins %}
+            <span class="text-sm text-text-sub">{{ pins|length }} record(s)</span>
+            {% endif %}
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
@@ -187,6 +297,7 @@
                         <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Status</th>
                         <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Usage</th>
                         <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase text-right">Date</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border-color dark:divide-[#2d3748]">
@@ -198,17 +309,31 @@
                             <p class="text-[10px] text-text-sub">{{ pin.academic_session.name }}</p>
                         </td>
                         <td class="px-5 py-4">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase
-                                {% if pin.status == 'active' %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-700{% endif %}">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1 w-fit
+                                {% if pin.status == 'active' %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400{% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400{% endif %}">
+                                <span class="size-1.5 rounded-full {% if pin.status == 'active' %}bg-green-500{% else %}bg-gray-500{% endif %}"></span>
                                 {{ pin.status }}
                             </span>
                         </td>
                         <td class="px-5 py-4 text-sm text-text-sub">{{ pin.usage_count }} times</td>
                         <td class="px-5 py-4 text-right text-text-sub text-xs">{{ pin.created_at|date:"M d, Y" }}</td>
+                        <td class="px-5 py-4 text-center">
+                            <button onclick="copyPin('{{ pin.code }}')" class="size-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-text-sub hover:bg-primary hover:text-white flex items-center justify-center transition-all mx-auto" title="Copy PIN">
+                                <span class="material-symbols-outlined text-sm">content_copy</span>
+                            </button>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="px-5 py-10 text-center text-text-sub italic">No pin history available.</td>
+                        <td colspan="6" class="px-5 py-12 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="size-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-3xl text-text-sub">history</span>
+                                </div>
+                                <p class="text-text-sub font-medium">No pin history available</p>
+                                <p class="text-xs text-text-sub">Your purchased pins will appear here</p>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -217,18 +342,96 @@
     </div>
 </div>
 
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span id="toast-message">Copied to clipboard!</span>
+</div>
+
 <script>
+    let selectedMethod = null;
+    
     function showForm(type) {
         const paystackForm = document.getElementById('paystack-form');
         const manualForm = document.getElementById('manual-form');
+        const paystackBtn = document.getElementById('paystack-btn');
+        const manualBtn = document.getElementById('manual-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const step2 = document.getElementById('step2');
+        
+        // Update step indicator
+        progressBar.style.width = '50%';
+        step2.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-text-sub');
+        step2.classList.add('bg-primary', 'text-white');
+        
+        // Reset all buttons
+        document.querySelectorAll('.payment-method-btn').forEach(btn => {
+            btn.classList.remove('border-primary', 'bg-primary/5');
+            btn.classList.add('border-transparent');
+            btn.querySelector('.selected-indicator').classList.add('hidden');
+            btn.querySelector('.selected-indicator').classList.remove('flex');
+        });
         
         if (type === 'paystack') {
             paystackForm.classList.remove('hidden');
             manualForm.classList.add('hidden');
+            paystackBtn.classList.add('border-primary', 'bg-primary/5');
+            paystackBtn.classList.remove('border-transparent');
+            paystackBtn.querySelector('.selected-indicator').classList.remove('hidden');
+            paystackBtn.querySelector('.selected-indicator').classList.add('flex');
         } else {
             manualForm.classList.remove('hidden');
             paystackForm.classList.add('hidden');
+            manualBtn.classList.add('border-primary', 'bg-primary/5');
+            manualBtn.classList.remove('border-transparent');
+            manualBtn.querySelector('.selected-indicator').classList.remove('hidden');
+            manualBtn.querySelector('.selected-indicator').classList.add('flex');
         }
+        
+        selectedMethod = type;
     }
+    
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        toastMessage.textContent = message;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+        }, 3000);
+    }
+    
+    function copyPin(code) {
+        navigator.clipboard.writeText(code);
+        showToast('PIN copied to clipboard!');
+    }
+    
+    function copyAccountNumber() {
+        const accountNum = document.getElementById('account-number').textContent;
+        navigator.clipboard.writeText(accountNum);
+        showToast('Account number copied!');
+    }
+    
+    // File upload name display
+    document.getElementById('file-upload')?.addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || 'Click to upload receipt';
+        document.getElementById('file-name').textContent = fileName;
+    });
+    
+    // Form submission loading state
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-wait');
+            const spinner = btn.querySelector('.loading-spinner');
+            if (spinner) {
+                spinner.classList.remove('hidden');
+            }
+        });
+    });
 </script>
 {% endblock %}

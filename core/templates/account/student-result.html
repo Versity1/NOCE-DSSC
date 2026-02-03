@@ -1,4 +1,5 @@
 {% extends 'base_dashboard.html' %}
+{% load static %}
 
 {% block title %}My Results - NOCEN DSSN{% endblock %}
 
@@ -52,97 +53,201 @@
     </div>
 </div>
 
-<!-- PIN Entry Form (if needed) -->
-<div class="bg-white dark:bg-surface-dark rounded-xl p-6 border border-border-color dark:border-[#2d3748] shadow-sm mb-6 no-print">
-    <h3 class="text-lg font-bold text-text-main dark:text-white mb-4">Check Results</h3>
-    <form method="get" class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1 hidden">
-            <input type="text" placeholder="Enter your result PIN" class="w-full h-12 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+<!-- PIN Entry Form (Shown if no result or just always available) -->
+<div class="bg-white dark:bg-surface-dark rounded-2xl p-6 border border-border-color dark:border-[#2d3748] shadow-lg mb-6 no-print">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="size-12 rounded-xl bg-gradient-to-br from-primary to-orange-600 text-white flex items-center justify-center shadow-lg shadow-primary/20">
+            <span class="material-symbols-outlined text-2xl">key</span>
         </div>
-        <div class="flex gap-3 w-full md:w-auto">
-            <select name="term_id" class="h-12 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white w-full md:w-64">
-                <option value="">Select Term</option>
-                {% for term in terms %}
-                <option value="{{ term.id }}" {% if selected_term_id == term.id %}selected{% endif %}>{{ term.name|default:term }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" class="h-12 px-6 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-colors whitespace-nowrap">
-                Check Result
-            </button>
+        <div>
+            <h3 class="text-lg font-bold text-text-main dark:text-white">Check Your Results</h3>
+            <p class="text-sm text-text-sub">Enter your PIN to access your academic records</p>
         </div>
+    </div>
+    
+    <form method="get" class="flex flex-col gap-6" id="result-form">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- PIN Input with Auto-format -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-bold text-text-main dark:text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-primary">password</span>
+                    Result PIN
+                </label>
+                <div class="relative">
+                    <input type="text" name="pin_code" id="pin-input" placeholder="XXXX-XXXX-XXXX" maxlength="14" class="w-full h-14 px-4 rounded-xl border-2 border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-mono text-lg tracking-widest placeholder:text-gray-300 dark:placeholder:text-gray-600 uppercase">
+                    <div id="pin-valid-indicator" class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+                        <div class="size-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-sm">check</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-text-sub flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">info</span>
+                    Leave empty if you have already purchased a PIN online
+                </p>
+            </div>
+            
+            <!-- Term Select -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm font-bold text-text-main dark:text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm text-primary">calendar_month</span>
+                    Academic Term
+                </label>
+                <div class="relative">
+                    <select name="term_id" class="w-full h-14 px-4 pr-10 rounded-xl border-2 border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none" required>
+                        <option value="">Select Term</option>
+                        {% for term in terms %}
+                        <option value="{{ term.id }}" {% if selected_term_id == term.id %}selected{% endif %}>{{ term.name|default:term }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-sub">
+                        <span class="material-symbols-outlined">expand_more</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="submit" id="check-result-btn" class="w-full md:w-auto md:self-end h-14 px-8 bg-gradient-to-r from-primary to-orange-600 hover:from-primary-dark hover:to-orange-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]">
+            <span class="material-symbols-outlined" id="btn-icon">search</span>
+            <span id="btn-text">Check Result</span>
+            <span id="btn-loading" class="hidden flex items-center gap-2">
+                <span class="material-symbols-outlined animate-spin">progress_activity</span>
+                Loading...
+            </span>
+        </button>
     </form>
+    
+    <!-- Quick tip -->
+    <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-800/30 flex items-start gap-3">
+        <span class="material-symbols-outlined text-blue-500 shrink-0">lightbulb</span>
+        <div class="text-sm">
+            <p class="font-bold text-blue-800 dark:text-blue-400 mb-1">Don't have a PIN?</p>
+            <p class="text-blue-600 dark:text-blue-300/80">Purchase one from the <a href="{% url 'buy_pin_page' %}" class="underline hover:no-underline font-bold">Buy PIN page</a> to access your results.</p>
+        </div>
+    </div>
 </div>
+
+<script>
+    // PIN auto-format
+    const pinInput = document.getElementById('pin-input');
+    const validIndicator = document.getElementById('pin-valid-indicator');
+    
+    pinInput?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+        let formatted = '';
+        
+        for (let i = 0; i < value.length && i < 12; i++) {
+            if (i > 0 && i % 4 === 0) {
+                formatted += '-';
+            }
+            formatted += value[i];
+        }
+        
+        e.target.value = formatted;
+        
+        // Show valid indicator when format is complete
+        if (formatted.length === 14) {
+            validIndicator.classList.remove('hidden');
+        } else {
+            validIndicator.classList.add('hidden');
+        }
+    });
+    
+    // Form loading state
+    document.getElementById('result-form')?.addEventListener('submit', function() {
+        const btn = document.getElementById('check-result-btn');
+        const btnIcon = document.getElementById('btn-icon');
+        const btnText = document.getElementById('btn-text');
+        const btnLoading = document.getElementById('btn-loading');
+        
+        btn.disabled = true;
+        btn.classList.add('cursor-wait', 'opacity-80');
+        btnIcon.classList.add('hidden');
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+        btnLoading.classList.add('flex');
+    });
+</script>
+
 
 {% if selected_term_id and results %}
 <!-- Result Display -->
 <div id="result-sheet" class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] overflow-hidden relative">
+    
+    <!-- Watermark (Background Logo) -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] no-print-bg-fix">
+        <img src="{% static 'images/logo.png' %}" class="w-2/3 grayscale" alt="Watermark">
+    </div>
+
     <!-- Result Header -->
-    <div class="bg-primary text-white p-6">
+    <div class="bg-primary text-white p-6 relative z-10">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="size-16 rounded-full bg-white/20 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-3xl">school</span>
+                <div class="size-20 rounded-full bg-white flex items-center justify-center shadow-lg">
+                    <img src="{% static 'images/logo.png' %}" class="w-14 h-14 object-contain" alt="Logo">
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold">NOCE DEMONSTRATION SECONDARY SCHOOL</h2>
-                    <p class="text-white/80 text-sm">Student Academic Report</p>
+                    <h2 class="text-2xl font-black uppercase tracking-wide">NOCE Demonstration</h2>
+                    <h3 class="text-lg font-bold opacity-90">Secondary School</h3>
+                    <p class="text-white/80 text-xs tracking-widest uppercase mt-1">Student Academic Report Sheet</p>
                 </div>
             </div>
-            <div class="text-right">
-                <p class="font-bold">2023/2024 Session</p> 
-                <!-- Note: Session should ideally come from the Term's session -->
+            <div class="text-right border-l border-white/20 pl-6 hidden md:block">
+                <p class="text-xs text-blue-100 uppercase tracking-widest mb-1">Academic Session</p>
+                <p class="font-black text-2xl">2023/2024</p>
             </div>
         </div>
     </div>
     
     <!-- Student Info -->
-    <div class="p-6 border-b border-border-color dark:border-[#2d3748]">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-                <p class="text-text-sub">Student Name</p>
-                <p class="font-semibold text-text-main dark:text-white">{{ student_profile.user.get_full_name }}</p>
+    <div class="p-8 border-b-2 border-border-color dark:border-[#2d3748] relative z-10 bg-white/50 dark:bg-transparent backdrop-blur-sm">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4 text-sm">
+            <div class="flex flex-col gap-1">
+                <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Student Name</p>
+                <p class="font-black text-lg text-text-main dark:text-white capitalize">{{ student_profile.user.get_full_name }}</p>
             </div>
-            <div>
-                <p class="text-text-sub">Admission No.</p>
-                <p class="font-semibold text-text-main dark:text-white">{{ student_profile.admission_number|default:"-" }}</p>
+            <div class="flex flex-col gap-1">
+                <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Admission No.</p>
+                <p class="font-black text-lg text-text-main dark:text-white font-mono">{{ student_profile.admission_number|default:"-" }}</p>
             </div>
-            <div>
-                <p class="text-text-sub">Class</p>
-                <p class="font-semibold text-text-main dark:text-white">{{ student_profile.class_level }}</p>
+            <div class="flex flex-col gap-1">
+                <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Class Level</p>
+                <p class="font-black text-lg text-text-main dark:text-white">{{ student_profile.class_level }}</p>
             </div>
-            <div>
-                <p class="text-text-sub">Position</p>
-                <p class="font-semibold text-text-main dark:text-white">{{ stats.position|default:"-" }}</p>
+            <div class="flex flex-col gap-1">
+                <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Term</p>
+                <p class="font-black text-lg text-text-main dark:text-white">{% for term in terms %}{% if term.id == selected_term_id %}{{ term.name }}{% endif %}{% endfor %}</p>
             </div>
         </div>
     </div>
     
     <!-- Results Table -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-background-light dark:bg-[#2d3748]">
-                <tr>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Subject</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">CA (40%)</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">Exam (60%)</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">Total (100%)</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">Grade</th>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Remark</th>
+    <div class="p-8 relative z-10">
+        <table class="w-full text-sm border-collapse">
+            <thead>
+                <tr class="border-b-2 border-black/10 dark:border-white/10">
+                    <th class="py-3 px-4 text-left font-black text-text-sub uppercase text-xs tracking-wider">Subject</th>
+                    <th class="py-3 px-4 text-center font-black text-text-sub uppercase text-xs tracking-wider w-24">CA (40)</th>
+                    <th class="py-3 px-4 text-center font-black text-text-sub uppercase text-xs tracking-wider w-24">Exam (60)</th>
+                    <th class="py-3 px-4 text-center font-black text-text-sub uppercase text-xs tracking-wider w-24">Total</th>
+                    <th class="py-3 px-4 text-center font-black text-text-sub uppercase text-xs tracking-wider w-20">Grade</th>
+                    <th class="py-3 px-4 text-left font-black text-text-sub uppercase text-xs tracking-wider pl-8">Remark</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
                 {% for result in results %}
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">{{ result.subject.name }}</td>
-                    <td class="py-3 px-4 text-center">{{ result.ca1|add:result.ca2|add:result.ca3|add:result.ca4 }}</td>
-                    <td class="py-3 px-4 text-center">{{ result.exam }}</td>
-                    <td class="py-3 px-4 text-center font-bold">{{ result.total }}</td>
-                    <td class="py-3 px-4 text-center">
-                        <span class="px-2 py-1 {% if result.total >= 70 %}bg-green-100 text-green-700{% elif result.total >= 50 %}bg-blue-100 text-blue-700{% else %}bg-red-100 text-red-700{% endif %} rounded font-bold">
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-4 font-bold text-text-main dark:text-white">{{ result.subject.name }}</td>
+                    <td class="py-4 px-4 text-center text-text-sub">{{ result.ca1|add:result.ca2|add:result.ca3|add:result.ca4|default:"-" }}</td>
+                    <td class="py-4 px-4 text-center text-text-sub">{{ result.exam|default:"-" }}</td>
+                    <td class="py-4 px-4 text-center font-black text-text-main dark:text-white bg-gray-50/50 dark:bg-white/5">{{ result.total }}</td>
+                    <td class="py-4 px-4 text-center">
+                        <span class="inline-block w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs
+                            {% if result.grade == 'A' %}bg-green-100 text-green-700{% elif result.grade == 'B' %}bg-blue-100 text-blue-700{% elif result.grade == 'F' %}bg-red-100 text-red-700{% else %}bg-gray-100 text-gray-700{% endif %}">
                             {{ result.grade }}
                         </span>
                     </td>
-                    <td class="py-3 px-4 font-medium {% if result.total >= 50 %}text-green-600{% else %}text-red-600{% endif %}">{{ result.remark }}</td>
+                    <td class="py-4 px-4 pl-8 text-xs font-bold uppercase tracking-wide opacity-80 {% if result.total >= 50 %}text-green-600{% else %}text-red-600{% endif %}">{{ result.remark }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -150,60 +255,68 @@
     </div>
     
     <!-- Summary -->
-    <div class="p-6 bg-background-light dark:bg-[#2d3748] border-t border-border-color dark:border-[#4a5568]">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div>
-                <p class="text-text-sub text-sm">Total Score</p>
-                <p class="text-2xl font-bold text-text-main dark:text-white">{{ stats.total_score }}</p>
-            </div>
-            <div>
-                <p class="text-text-sub text-sm">Average</p>
-                <p class="text-2xl font-bold text-primary">{{ stats.average }}%</p>
-            </div>
-            <div>
-                <p class="text-text-sub text-sm">No. of Subjects</p>
-                <p class="text-2xl font-bold text-text-main dark:text-white">{{ stats.count }}</p>
-            </div>
-            <div>
-                <p class="text-text-sub text-sm">Overall Grade</p>
-                <p class="text-2xl font-bold text-green-600">{{ stats.grade }}</p>
+    <div class="px-8 pb-8 relative z-10">
+        <div class="bg-gray-50 dark:bg-[#2d3748]/50 rounded-xl p-6 border border-border-color dark:border-[#4a5568]">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
+                <div class="flex flex-col gap-1">
+                    <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Total Score</p>
+                    <p class="text-3xl font-black text-text-main dark:text-white">{{ stats.total_score }}</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Average Score</p>
+                    <p class="text-3xl font-black text-primary">{{ stats.average }}</p>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Overall Grade</p>
+                    <p class="text-3xl font-black {% if stats.average >= 50 %}text-green-600{% else %}text-red-600{% endif %}">{{ stats.grade }}</p>
+                </div>
+                 <div class="flex flex-col gap-1">
+                    <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Subjects</p>
+                    <p class="text-3xl font-black text-text-main dark:text-white">{{ stats.count }}</p>
+                </div>
+                <div class="flex flex-col gap-1 md:border-l md:pl-8 border-gray-200 dark:border-gray-700">
+                    <p class="text-[10px] uppercase font-bold text-text-sub tracking-wider">Class Position</p>
+                    <p class="text-xl font-bold text-text-main dark:text-white opacity-50">{{ stats.position }}</p>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- Principal's Remarks & Signature -->
-    <div class="p-8 border-t border-border-color dark:border-[#2d3748] mt-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div class="p-8 border-t border-border-color dark:border-[#2d3748] relative z-10 bg-white dark:bg-surface-dark">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
              <!-- Remarks -->
             <div>
-                <h4 class="text-sm font-bold text-text-sub uppercase mb-2">Principal's Remark</h4>
-                <div class="text-text-main dark:text-white font-medium italic">
+                <h4 class="text-xs font-black text-text-sub uppercase tracking-widest mb-3">Principal's Final Remark</h4>
+                <div class="text-text-main dark:text-white font-medium italic text-lg leading-relaxed font-serif">
                     {% if stats.average >= 75 %}
-                        "An excellent performance. Keep up the good work!"
+                        "An excellent result! {{ student_profile.user.first_name }} has shown exceptional brilliance this term. Keep it up!"
                     {% elif stats.average >= 60 %}
-                        "A good result. You can do better with more effort."
+                        "A very good performance. With a little more focus, {{ student_profile.user.first_name }} can achieve distinct excellence."
                     {% elif stats.average >= 50 %}
-                        "Fair performance. You need to sit up."
+                        "A fair result. {{ student_profile.user.first_name }} needs to put in more effort next term to improve grades."
                     {% else %}
-                        "Poor result. Hard work is required."
+                        "Below average performance. We strongly recommend immediate academic counseling and more dedicated study time."
                     {% endif %}
                 </div>
             </div>
             
             <!-- Signature -->
-            <div>
-                 <h4 class="text-sm font-bold text-text-sub uppercase mb-8">Principal's Signature</h4>
-                 <div class="border-b-2 border-dashed border-gray-400 w-3/4"></div>
-                 <p class="text-xs text-text-sub mt-2">Signed & Stamped</p>
+            <div class="flex flex-col items-center md:items-end">
+                 <div class="w-48 border-b-2 border-black/20 dark:border-white/20 relative h-16 mb-2">
+                     <img src="{% static 'images/signature.png' %}" class="absolute bottom-0 right-0 h-20 opacity-80" alt="Signature">
+                 </div>
+                 <h4 class="text-xs font-black text-text-main dark:text-white uppercase tracking-widest">Dr. Mrs. Principal Name</h4>
+                 <p class="text-[10px] text-text-sub font-bold uppercase">School Principal</p>
             </div>
         </div>
     </div>
     
     <!-- Actions -->
-    <div class="p-6 flex flex-col sm:flex-row gap-3 justify-end no-print">
-        <button onclick="window.print()" class="flex items-center justify-center gap-2 px-6 py-3 border border-border-color dark:border-[#4a5568] rounded-lg font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-colors">
+    <div class="p-6 flex flex-col sm:flex-row gap-3 justify-end no-print bg-gray-50 dark:bg-black/20 border-t border-border-color dark:border-[#2d3748]">
+        <button onclick="window.print()" class="flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-surface-dark border border-border-color dark:border-[#4a5568] rounded-xl font-bold text-text-main dark:text-white hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-all shadow-sm">
             <span class="material-symbols-outlined">print</span>
-            Print Result
+            Print Result Sheet
         </button>
         <button id="download-pdf-btn" class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-lg font-bold transition-colors">
             <span class="material-symbols-outlined">download</span>

@@ -98,10 +98,39 @@
                     <span class="text-sm font-medium leading-normal">Approve Payments</span>
                 </a>
                 
+                <!-- Generate PIN -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'pins' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'admin_generate_pin' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'pins' %}icon-fill{% endif %}">key</span>
+                    <span class="text-sm font-medium leading-normal">Generate PIN</span>
+                </a>
+                
                 <!-- Sales Report -->
                 <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'sales' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'admin_sales_report' %}">
                     <span class="material-symbols-outlined {% if active_page == 'sales' %}icon-fill{% endif %}">monitoring</span>
                     <span class="text-sm font-medium leading-normal">Sales Report</span>
+                </a>
+                
+                <!-- Fee Management Submenu -->
+                <div class="mt-3 mb-1 px-3">
+                    <span class="text-[10px] font-bold text-text-sub dark:text-gray-600 uppercase tracking-wider">Fee Management</span>
+                </div>
+                
+                <!-- Fee Types -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'fee_types' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'manage_fee_types' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'fee_types' %}icon-fill{% endif %}">category</span>
+                    <span class="text-sm font-medium leading-normal">Fee Types</span>
+                </a>
+                
+                <!-- Fee Structures -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'fee_structures' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'manage_fee_structures' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'fee_structures' %}icon-fill{% endif %}">table_chart</span>
+                    <span class="text-sm font-medium leading-normal">Fee Structures</span>
+                </a>
+                
+                <!-- Fee Payments -->
+                <a class="flex items-center gap-3 px-3 py-2.5 rounded-lg {% if active_page == 'fee_payments' %}bg-primary/10 text-primary{% else %}text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-text-main dark:hover:text-white{% endif %} transition-colors" href="{% url 'manage_fee_payments' %}">
+                    <span class="material-symbols-outlined {% if active_page == 'fee_payments' %}icon-fill{% endif %}">receipt_long</span>
+                    <span class="text-sm font-medium leading-normal">Fee Payments</span>
                 </a>
                 {% endif %}
                 

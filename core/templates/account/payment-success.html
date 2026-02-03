@@ -1,0 +1,285 @@
+{% extends 'base_public.html' %}
+
+{% block title %}Payment Successful - NOCEN DSSN{% endblock %}
+
+{% block content %}
+<div class="flex-1 w-full max-w-[800px] mx-auto px-4 py-8 md:px-8">
+    <!-- Confetti Container -->
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
+    
+    <!-- Success Alert with Animation -->
+    <div class="mb-8 p-8 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/10 dark:via-emerald-900/10 dark:to-teal-900/10 border border-green-200 dark:border-green-800/30 rounded-3xl flex flex-col items-center text-center gap-4 animate-fade-in shadow-xl shadow-green-500/10">
+        <div class="size-20 bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-full flex items-center justify-center shadow-xl shadow-green-500/30 animate-bounce-once">
+            <span class="material-symbols-outlined text-5xl">check_circle</span>
+        </div>
+        <div>
+            <h1 class="text-2xl md:text-3xl font-black text-text-main dark:text-white mb-2">Payment Successful! 🎉</h1>
+            <p class="text-text-sub dark:text-gray-400 font-medium">Your result checker PIN has been generated and is ready for use.</p>
+        </div>
+    </div>
+
+    <!-- PIN Card (The Printable Area) -->
+    <div id="printable-pin" class="bg-white dark:bg-surface-dark border-2 border-primary/20 dark:border-[#2d3748] rounded-3xl shadow-2xl overflow-hidden mb-8 transform hover:scale-[1.01] transition-transform">
+        <div class="p-8 flex flex-col gap-8">
+            <!-- School Header (Print Only) -->
+            <div class="hidden print-only flex items-center justify-between border-b pb-4 mb-4">
+                <div class="flex flex-col">
+                    <h2 class="text-xl font-black text-primary uppercase">NOCEN DSSN</h2>
+                    <p class="text-xs text-text-sub font-bold">Academic Result Verification Slip</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] text-text-sub">Date Generated: {{ pin.created_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+
+            <!-- PIN Display -->
+            <div class="flex flex-col items-center gap-3">
+                <span class="text-xs text-text-sub dark:text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-sm">key</span>
+                    Access Code / PIN
+                </span>
+                <div class="relative group">
+                    <div class="text-4xl md:text-5xl font-mono font-black text-primary dark:text-orange-500 tracking-[0.2em] bg-gradient-to-br from-primary/5 to-orange-500/5 dark:from-orange-500/5 dark:to-primary/5 px-8 py-6 rounded-2xl border-2 border-dashed border-primary/30 group-hover:border-primary/50 transition-colors" id="pin-code">
+                        {{ pin.code }}
+                    </div>
+                    <button onclick="copyPin()" class="absolute -right-3 -top-3 size-10 rounded-xl bg-white dark:bg-surface-dark shadow-lg border border-border-color dark:border-[#2d3748] flex items-center justify-center text-text-sub hover:text-primary hover:border-primary transition-all group-hover:scale-110" title="Copy PIN">
+                        <span class="material-symbols-outlined text-lg">content_copy</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#1a202c] dark:to-[#232b38] p-6 rounded-2xl">
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] text-text-sub dark:text-gray-400 font-bold uppercase">Student Name</span>
+                    <span class="text-sm font-black text-text-main dark:text-white">{{ user_name }}</span>
+                </div>
+                <div class="flex flex-col gap-1 text-right">
+                    <span class="text-[10px] text-text-sub dark:text-gray-400 font-bold uppercase">Admission ID</span>
+                    <span class="text-sm font-black text-text-main dark:text-white font-mono">{{ pin.student.student_profile.admission_number }}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] text-text-sub dark:text-gray-400 font-bold uppercase">Academic Session</span>
+                    <span class="text-sm font-black text-text-main dark:text-white">{{ pin.academic_session.name }}</span>
+                </div>
+                <div class="flex flex-col gap-1 text-right">
+                    <span class="text-[10px] text-text-sub dark:text-gray-400 font-bold uppercase">Term</span>
+                    <span class="text-sm font-black text-text-main dark:text-white">{{ pin.term.name }}</span>
+                </div>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="flex flex-col gap-2 border-t pt-6 opacity-60">
+                <div class="flex items-start gap-2 text-[10px] text-text-sub leading-normal italic">
+                    <span class="material-symbols-outlined text-[14px]">info</span>
+                    <span>This PIN is valid for checking the result of the specified term only. Please keep it secure. Report any issues to the school administrator.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What's Next Section -->
+    <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] overflow-hidden mb-8">
+        <div class="p-5 border-b border-border-color dark:border-[#2d3748] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10">
+            <h3 class="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">route</span>
+                What's Next?
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <!-- Step 1 -->
+                <div class="flex-1 flex items-start gap-4 p-4 bg-gray-50 dark:bg-[#1a202c] rounded-xl">
+                    <div class="size-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg shrink-0">1</div>
+                    <div>
+                        <h4 class="font-bold text-text-main dark:text-white mb-1">Go to Results</h4>
+                        <p class="text-sm text-text-sub">Navigate to the Results page in your dashboard</p>
+                    </div>
+                </div>
+                
+                <!-- Arrow -->
+                <div class="hidden md:flex items-center text-text-sub">
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="flex-1 flex items-start gap-4 p-4 bg-gray-50 dark:bg-[#1a202c] rounded-xl">
+                    <div class="size-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg shrink-0">2</div>
+                    <div>
+                        <h4 class="font-bold text-text-main dark:text-white mb-1">Enter PIN</h4>
+                        <p class="text-sm text-text-sub">Input your PIN and select the term</p>
+                    </div>
+                </div>
+                
+                <!-- Arrow -->
+                <div class="hidden md:flex items-center text-text-sub">
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="flex-1 flex items-start gap-4 p-4 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-800/30">
+                    <div class="size-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-lg shrink-0">3</div>
+                    <div>
+                        <h4 class="font-bold text-text-main dark:text-white mb-1">View Grades</h4>
+                        <p class="text-sm text-text-sub">Access your complete result sheet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Share Section -->
+    <div class="bg-white dark:bg-surface-dark rounded-2xl border border-border-color dark:border-[#2d3748] p-6 mb-8 no-print">
+        <h4 class="text-sm font-bold text-text-main dark:text-white mb-4 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">share</span>
+            Share PIN via
+        </h4>
+        <div class="flex gap-3">
+            <a href="https://wa.me/?text=My%20NOCEN%20DSSN%20Result%20PIN%3A%20{{ pin.code }}%20for%20{{ pin.term.name }}%2C%20{{ pin.academic_session.name }}" target="_blank" class="flex items-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-sm transition-colors">
+                <svg class="size-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                WhatsApp
+            </a>
+            <button onclick="copyPinWithMessage()" class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-text-main dark:text-white rounded-xl font-bold text-sm transition-colors">
+                <span class="material-symbols-outlined text-lg">sms</span>
+                Copy for SMS
+            </button>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row gap-4 no-print">
+        <button onclick="window.print()" class="flex-1 h-14 bg-text-main dark:bg-white dark:text-text-main text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:opacity-90 transition-all active:scale-[0.98]">
+            <span class="material-symbols-outlined">print</span>
+            Print Access Slip
+        </button>
+        <a href="{% url 'student_dashboard' %}" class="flex-1 h-14 bg-gradient-to-r from-primary to-orange-600 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-[0.98]">
+            <span class="material-symbols-outlined">dashboard</span>
+            Go to Dashboard
+        </a>
+    </div>
+
+    <!-- Help Notice -->
+    <p class="mt-8 text-center text-xs text-text-sub dark:text-gray-500 font-medium no-print">
+        Need help? Contact our support team or visit the bursar's office.
+    </p>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span id="toast-message">Copied to clipboard!</span>
+</div>
+
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        body {
+            background: white !important;
+            padding: 0 !important;
+        }
+        #printable-pin {
+            border: none !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+        .print-only {
+            display: flex !important;
+        }
+        #confetti-container {
+            display: none !important;
+        }
+    }
+    
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes bounce-once {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .animate-fade-in {
+        animation: fade-in 0.6s ease-out;
+    }
+    
+    .animate-bounce-once {
+        animation: bounce-once 0.6s ease-out;
+    }
+    
+    /* Confetti animation */
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        animation: confetti-fall 3s linear forwards;
+    }
+    
+    @keyframes confetti-fall {
+        0% {
+            opacity: 1;
+            transform: translateY(-100vh) rotate(0deg);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(100vh) rotate(720deg);
+        }
+    }
+</style>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        toastMessage.textContent = message;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+        }, 3000);
+    }
+    
+    function copyPin() {
+        const pinCode = document.getElementById('pin-code').textContent.trim();
+        navigator.clipboard.writeText(pinCode);
+        showToast('PIN copied to clipboard!');
+    }
+    
+    function copyPinWithMessage() {
+        const pinCode = "{{ pin.code }}";
+        const message = `My NOCEN DSSN Result PIN: ${pinCode} for {{ pin.term.name }}, {{ pin.academic_session.name }}`;
+        navigator.clipboard.writeText(message);
+        showToast('Message copied! Paste in SMS app');
+    }
+    
+    // Confetti animation on page load
+    function createConfetti() {
+        const container = document.getElementById('confetti-container');
+        const colors = ['#FF6B35', '#1A1A2E', '#22c55e', '#3b82f6', '#f59e0b', '#ec4899'];
+        
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            container.appendChild(confetti);
+        }
+        
+        // Clean up after animation
+        setTimeout(() => {
+            container.innerHTML = '';
+        }, 5000);
+    }
+    
+    // Run confetti on page load
+    document.addEventListener('DOMContentLoaded', createConfetti);
+</script>
+{% endblock %}

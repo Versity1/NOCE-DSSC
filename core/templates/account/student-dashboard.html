@@ -129,6 +129,66 @@
     </a>
 </div>
 
+<!-- Pending Payment Alert -->
+{% if pending_payments %}
+<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4 flex items-start gap-3">
+    <span class="material-symbols-outlined text-amber-500 shrink-0">hourglass_top</span>
+    <div class="flex-1">
+        <h4 class="font-bold text-amber-800 dark:text-amber-400 mb-1">Payment Under Review</h4>
+        <p class="text-sm text-amber-700 dark:text-amber-300/80">You have {{ pending_payments.count }} pending payment(s) awaiting approval.</p>
+    </div>
+    <a href="{% url 'payment_pending' %}" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-sm transition-colors whitespace-nowrap">
+        View Status
+    </a>
+</div>
+{% endif %}
+
+<!-- My Result PINs -->
+{% if pins %}
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748]">
+    <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex justify-between items-center">
+        <h3 class="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">key</span>
+            My Result PINs
+        </h3>
+        <a href="{% url 'buy_pin_page' %}" class="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">add</span>
+            Buy New
+        </a>
+    </div>
+    <div class="divide-y divide-border-color dark:divide-[#2d3748]">
+        {% for pin in pins %}
+        <div class="p-4 hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-colors">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-lg flex items-center justify-center {% if pin.status == 'active' %}bg-green-100 dark:bg-green-900/30 text-green-600{% else %}bg-gray-100 dark:bg-gray-800 text-gray-400{% endif %}">
+                        <span class="material-symbols-outlined">{% if pin.status == 'active' %}vpn_key{% else %}vpn_key_off{% endif %}</span>
+                    </div>
+                    <div>
+                        <p class="font-mono font-bold text-text-main dark:text-white text-lg tracking-wide">{{ pin.code }}</p>
+                        <p class="text-xs text-text-sub">{{ pin.term.name }} - {{ pin.academic_session.name }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-1 rounded-full text-xs font-bold {% if pin.status == 'active' %}bg-green-100 dark:bg-green-900/30 text-green-600{% else %}bg-gray-100 dark:bg-gray-800 text-gray-500{% endif %}">
+                        {{ pin.status|title }}
+                    </span>
+                    <button onclick="copyPin('{{ pin.code }}')" class="size-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-text-sub hover:text-primary hover:bg-primary/10 flex items-center justify-center transition-colors" title="Copy PIN">
+                        <span class="material-symbols-outlined text-lg">content_copy</span>
+                    </button>
+                    {% if pin.status == 'active' %}
+                    <a href="{% url 'student_result' %}?pin_code={{ pin.code }}&term_id={{ pin.term.id }}" class="size-8 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-colors" title="Check Result">
+                        <span class="material-symbols-outlined text-lg">visibility</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <!-- Recent Announcements -->
 <div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748]">
     <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex justify-between items-center">
@@ -162,4 +222,30 @@
         </div>
     </div>
 </div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span id="toast-message">Copied to clipboard!</span>
+</div>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        toastMessage.textContent = message;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+        }, 3000);
+    }
+    
+    function copyPin(code) {
+        navigator.clipboard.writeText(code);
+        showToast('PIN copied to clipboard!');
+    }
+</script>
 {% endblock %}

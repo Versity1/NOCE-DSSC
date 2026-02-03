@@ -5,121 +5,129 @@
 {% block page_title_mobile %}Fees{% endblock %}
 
 {% block content %}
-<!-- Page Heading -->
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
-    <div class="flex flex-col gap-1">
-        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Fees & Payments</h1>
-        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Manage student fees and payment records.</p>
+<div class="flex flex-col gap-6">
+    <!-- Page Heading -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div class="flex flex-col gap-1">
+            <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Fees & Payments</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base font-normal">Manage student fees and payment records.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <a href="{% url 'manage_fee_types' %}" class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
+                <span class="material-symbols-outlined text-lg">category</span>
+                <span class="truncate">Fee Types</span>
+            </a>
+            <a href="{% url 'manage_fee_structures' %}" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
+                <span class="material-symbols-outlined text-lg">table_chart</span>
+                <span class="truncate">Fee Structures</span>
+            </a>
+        </div>
     </div>
-    <div class="flex flex-wrap items-center gap-3">
-        <button class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
-            <span class="material-symbols-outlined text-lg">add</span>
-            <span class="truncate">Record Payment</span>
-        </button>
-    </div>
-</div>
 
-<!-- Stats -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600">
-                <span class="material-symbols-outlined">payments</span>
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+                <div>
+                    <p class="text-text-sub text-sm">Total Collected</p>
+                    <p class="text-text-main dark:text-white text-xl font-bold">₦{{ total_collected|floatformat:0|default:"0" }}</p>
+                </div>
             </div>
-            <div>
-                <p class="text-text-sub text-sm">Total Collected</p>
-                <p class="text-text-main dark:text-white text-xl font-bold">₦15.4M</p>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600">
+                    <span class="material-symbols-outlined">pending</span>
+                </div>
+                <div>
+                    <p class="text-text-sub text-sm">Outstanding</p>
+                    <p class="text-text-main dark:text-white text-xl font-bold">₦{{ outstanding|floatformat:0|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-primary">
+                    <span class="material-symbols-outlined">people</span>
+                </div>
+                <div>
+                    <p class="text-text-sub text-sm">Fully Paid</p>
+                    <p class="text-text-main dark:text-white text-xl font-bold">{{ fully_paid|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600">
+                    <span class="material-symbols-outlined">warning</span>
+                </div>
+                <div>
+                    <p class="text-text-sub text-sm">Defaulters</p>
+                    <p class="text-text-main dark:text-white text-xl font-bold">{{ defaulters|default:"0" }}</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600">
-                <span class="material-symbols-outlined">pending</span>
-            </div>
-            <div>
-                <p class="text-text-sub text-sm">Outstanding</p>
-                <p class="text-text-main dark:text-white text-xl font-bold">₦8.2M</p>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-primary">
-                <span class="material-symbols-outlined">people</span>
-            </div>
-            <div>
-                <p class="text-text-sub text-sm">Fully Paid</p>
-                <p class="text-text-main dark:text-white text-xl font-bold">856</p>
-            </div>
-        </div>
-    </div>
-    <div class="bg-white dark:bg-surface-dark rounded-xl p-5 border border-border-color dark:border-[#2d3748]">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600">
-                <span class="material-symbols-outlined">warning</span>
-            </div>
-            <div>
-                <p class="text-text-sub text-sm">Defaulters</p>
-                <p class="text-text-main dark:text-white text-xl font-bold">384</p>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Payment Records Table -->
-<div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
-    <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex flex-col md:flex-row justify-between gap-4">
-        <h3 class="text-lg font-bold text-text-main dark:text-white">Recent Payments</h3>
-        <div class="flex gap-2">
-            <input type="text" placeholder="Search by name or ID..." class="h-10 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-sm w-64">
-            <select class="h-10 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-sm">
-                <option>All Classes</option>
-                <option>JSS 1</option>
-                <option>JSS 2</option>
-            </select>
+    <!-- Payment Records Table -->
+    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+        <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex flex-col md:flex-row justify-between items-center gap-4">
+            <h3 class="text-lg font-bold text-text-main dark:text-white">Recent Fee Payments</h3>
+            <a href="{% url 'manage_fee_payments' %}" class="text-sm font-bold text-primary hover:underline flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">open_in_new</span>
+                View All & Manage
+            </a>
         </div>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="bg-background-light dark:bg-[#2d3748]">
-                <tr>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Receipt No.</th>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Student</th>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Class</th>
-                    <th class="py-3 px-4 text-right font-bold text-text-sub">Amount</th>
-                    <th class="py-3 px-4 text-left font-bold text-text-sub">Date</th>
-                    <th class="py-3 px-4 text-center font-bold text-text-sub">Status</th>
-                    <th class="py-3 px-4 text-right font-bold text-text-sub">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-primary">#RCP-2024-001</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">John Doe</td>
-                    <td class="py-3 px-4">JSS 2A</td>
-                    <td class="py-3 px-4 text-right font-bold">₦45,000</td>
-                    <td class="py-3 px-4">Jan 28, 2024</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Completed</span></td>
-                    <td class="py-3 px-4 text-right">
-                        <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#4a5568] rounded text-text-sub"><span class="material-symbols-outlined text-lg">visibility</span></button>
-                        <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#4a5568] rounded text-text-sub"><span class="material-symbols-outlined text-lg">print</span></button>
-                    </td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5">
-                    <td class="py-3 px-4 font-medium text-primary">#RCP-2024-002</td>
-                    <td class="py-3 px-4 font-medium text-text-main dark:text-white">Sarah Obi</td>
-                    <td class="py-3 px-4">JSS 1B</td>
-                    <td class="py-3 px-4 text-right font-bold">₦45,000</td>
-                    <td class="py-3 px-4">Jan 27, 2024</td>
-                    <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Completed</span></td>
-                    <td class="py-3 px-4 text-right">
-                        <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#4a5568] rounded text-text-sub"><span class="material-symbols-outlined text-lg">visibility</span></button>
-                        <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-[#4a5568] rounded text-text-sub"><span class="material-symbols-outlined text-lg">print</span></button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 dark:bg-[#1a202c] border-b border-border-color dark:border-[#2d3748]">
+                    <tr>
+                        <th class="py-3 px-5 text-xs font-bold text-text-sub uppercase">Student</th>
+                        <th class="py-3 px-5 text-xs font-bold text-text-sub uppercase">Fee Type</th>
+                        <th class="py-3 px-5 text-xs font-bold text-text-sub uppercase text-right">Amount</th>
+                        <th class="py-3 px-5 text-xs font-bold text-text-sub uppercase">Date</th>
+                        <th class="py-3 px-5 text-xs font-bold text-text-sub uppercase text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-color dark:divide-[#2d3748]">
+                    {% for payment in recent_payments %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <td class="py-4 px-5">
+                            <p class="text-sm font-bold text-text-main dark:text-white">{{ payment.student.get_full_name }}</p>
+                            <p class="text-xs text-text-sub">{{ payment.student.username }}</p>
+                        </td>
+                        <td class="py-4 px-5">
+                            <p class="text-sm font-medium text-text-main dark:text-white">{{ payment.fee_structure.fee_type.name }}</p>
+                            <p class="text-xs text-text-sub">{{ payment.fee_structure.class_level }}</p>
+                        </td>
+                        <td class="py-4 px-5 text-right text-sm font-bold text-text-main dark:text-white">₦{{ payment.amount_paid|floatformat:0 }}</td>
+                        <td class="py-4 px-5 text-sm text-text-sub">{{ payment.created_at|date:"M d, Y" }}</td>
+                        <td class="py-4 px-5 text-center">
+                            <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase
+                                {% if payment.status == 'approved' %}bg-green-100 text-green-700
+                                {% elif payment.status == 'pending' %}bg-amber-100 text-amber-700
+                                {% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ payment.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-text-sub">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="material-symbols-outlined text-4xl opacity-20">receipt_long</span>
+                                <p>No fee payments recorded yet.</p>
+                                <a href="{% url 'manage_fee_structures' %}" class="text-primary font-bold text-sm mt-2 hover:underline">Set up fee structures →</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

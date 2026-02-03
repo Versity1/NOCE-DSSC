@@ -1,0 +1,159 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Fee Structures - NOCEN DSSN{% endblock %}
+
+{% block page_title_mobile %}Fee Structures{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight">Fee Structures</h1>
+            <p class="text-text-sub dark:text-gray-400 text-base">Set fee amounts per class level and term.</p>
+        </div>
+        <button onclick="document.getElementById('addModal').classList.remove('hidden')" 
+            class="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold flex items-center gap-2 transition-colors w-fit">
+            <span class="material-symbols-outlined">add</span>
+            Add Fee Structure
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] p-4">
+        <form method="GET" class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-bold text-text-sub">Filter by Term:</label>
+                <select name="term_id" onchange="this.form.submit()"
+                    class="px-4 py-2 rounded-lg border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white text-sm">
+                    <option value="">All Terms</option>
+                    {% for term in terms %}
+                    <option value="{{ term.id }}" {% if selected_term_id == term.id %}selected{% endif %}>{{ term.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Fee Structures Table -->
+    <div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 dark:bg-[#1a202c] border-b border-border-color dark:border-[#2d3748]">
+                    <tr>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Fee Type</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Class Level</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Term</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Amount</th>
+                        <th class="px-5 py-3 text-xs font-bold text-text-sub uppercase">Due Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-color dark:divide-[#2d3748]">
+                    {% for structure in structures %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                        <td class="px-5 py-4">
+                            <p class="font-bold text-text-main dark:text-white">{{ structure.fee_type.name }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 text-xs font-bold">
+                                {{ structure.class_level }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 text-sm text-text-sub">{{ structure.term }}</td>
+                        <td class="px-5 py-4">
+                            <p class="text-lg font-black text-primary">₦{{ structure.amount|floatformat:2 }}</p>
+                        </td>
+                        <td class="px-5 py-4 text-sm text-text-sub">
+                            {% if structure.due_date %}
+                            {{ structure.due_date|date:"M d, Y" }}
+                            {% else %}
+                            <span class="text-gray-400">Not set</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-5 py-10 text-center text-text-sub italic">
+                            No fee structures found. Add one to get started.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Fee Structure Modal -->
+<div id="addModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50" onclick="document.getElementById('addModal').classList.add('hidden')"></div>
+    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
+        <div class="bg-white dark:bg-surface-dark rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-border-color dark:border-[#2d3748] flex items-center justify-between">
+                <h3 class="text-lg font-bold text-text-main dark:text-white">Add Fee Structure</h3>
+                <button onclick="document.getElementById('addModal').classList.add('hidden')" class="text-text-sub hover:text-text-main">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form action="{% url 'add_fee_structure' %}" method="POST" class="p-5 space-y-4">
+                {% csrf_token %}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-text-main dark:text-white mb-2">Fee Type *</label>
+                        <select name="fee_type_id" required
+                            class="w-full px-4 py-2.5 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                            <option value="">Select Fee Type</option>
+                            {% for ft in fee_types %}
+                            <option value="{{ ft.id }}">{{ ft.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-text-main dark:text-white mb-2">Term *</label>
+                        <select name="term_id" required
+                            class="w-full px-4 py-2.5 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                            <option value="">Select Term</option>
+                            {% for term in terms %}
+                            <option value="{{ term.id }}">{{ term.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-text-main dark:text-white mb-2">Class Level *</label>
+                        <select name="class_level" required
+                            class="w-full px-4 py-2.5 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                            <option value="">Select Class</option>
+                            {% for level in class_levels %}
+                            <option value="{{ level.0 }}">{{ level.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-text-main dark:text-white mb-2">Amount (₦) *</label>
+                        <input type="number" name="amount" required step="0.01" min="0" placeholder="0.00"
+                            class="w-full px-4 py-2.5 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-text-main dark:text-white mb-2">Due Date (Optional)</label>
+                    <input type="date" name="due_date"
+                        class="w-full px-4 py-2.5 rounded-xl border border-border-color dark:border-[#2d3748] bg-white dark:bg-[#1a202c] text-text-main dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')"
+                        class="flex-1 px-4 py-2.5 border border-border-color dark:border-[#2d3748] rounded-xl font-bold text-text-sub hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-colors">
+                        Save Structure
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

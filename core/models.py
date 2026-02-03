@@ -295,8 +295,9 @@ class Pin(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.code:
-             # Generate a 12 digit pin
-             self.code = ''.join([str(random.randint(0, 9)) for _ in range(12)])
+             # Generate a 12 digit pin formatted as XXXX-XXXX-XXXX
+             raw_pin = ''.join([str(random.randint(0, 9)) for _ in range(12)])
+             self.code = f"{raw_pin[:4]}-{raw_pin[4:8]}-{raw_pin[8:]}"
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -367,3 +368,82 @@ class SchoolConfiguration(models.Model):
     def load(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+
+# ============================================
+# FEES MODELS
+# ============================================
+
+class FeeType(models.Model):
+    """Types of fees (School Fees, Exam Fee, Development Levy, etc.)."""
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    is_recurring = models.BooleanField(default=True, help_text="Charged every term")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class FeeStructure(models.Model):
+    """Fee amounts per class level and term."""
+    fee_type = models.ForeignKey(FeeType, on_delete=models.CASCADE, related_name='structures')
+    class_level = models.CharField(max_length=20, choices=ClassInfo.LEVEL_CHOICES)
+    term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name='fee_structures')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    due_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['fee_type', 'class_level', 'term']
+        ordering = ['term', 'class_level', 'fee_type']
+
+    def __str__(self):
+        return f"{self.fee_type.name} - {self.class_level} ({self.term})"
+
+
+class FeePayment(models.Model):
+    """Student fee payment records."""
+    METHOD_CHOICES = [
+        ('paystack', 'Paystack'),
+        ('manual', 'Manual Deposit'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('declined', 'Declined'),
+    ]
+    
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='fee_payments', limit_choices_to={'role': 'student'})
+    fee_structure = models.ForeignKey(FeeStructure, on_delete=models.CASCADE, related_name='payments')
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    amount_due = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+    method = models.CharField(max_length=10, choices=METHOD_CHOICES)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    reference = models.CharField(max_length=100, unique=True)
+    paystack_ref = models.CharField(max_length=100, blank=True, null=True)
+    proof_of_payment = models.ImageField(upload_to='fee_proofs/', blank=True, null=True)
+    admin_note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.reference:
+            self.reference = f"FEE-{str(uuid.uuid4()).replace('-', '')[:10].upper()}"
+        if not self.amount_due:
+            self.amount_due = self.fee_structure.amount
+        self.balance = self.amount_due - self.amount_paid
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.student} - {self.fee_structure.fee_type.name} ({self.status})"
+
+    class Meta:
+        ordering = ['-created_at']
+
