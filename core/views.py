@@ -180,6 +180,95 @@ def buy_pin(request):
     return render(request, 'account/buy-pin.html', context)
 
 
+def payment_confirmation(request):
+    """Display payment confirmation page with bank details and upload form."""
+    from .models import SchoolConfiguration, AcademicSession, Term
+    
+    if request.method != 'POST':
+        messages.error(request, "Please fill in the form to proceed.")
+        return redirect('buy_pin_page')
+    
+    student_id = request.POST.get('student_id')
+    session_id = request.POST.get('session_id')
+    term_id = request.POST.get('term_id')
+    
+    if not all([student_id, session_id, term_id]):
+        messages.error(request, "Please fill in all required fields.")
+        return redirect('buy_pin_page')
+    
+    try:
+        session = AcademicSession.objects.get(id=session_id)
+        term = Term.objects.get(id=term_id)
+        config = SchoolConfiguration.load()
+        
+        context = {
+            'student_id': student_id,
+            'session': session,
+            'term': term,
+            'config': config,
+            'pin_price': f"{config.pin_price:,.2f}",
+        }
+        return render(request, 'account/payment_confirmation.html', context)
+    except (AcademicSession.DoesNotExist, Term.DoesNotExist):
+        messages.error(request, "Invalid session or term selected.")
+        return redirect('buy_pin_page')
+
+
+def submit_payment_proof(request):
+    """Handle payment proof submission for manual payments."""
+    from .models import Payment, Term, AcademicSession, CustomUser, SchoolConfiguration
+    
+    if request.method != 'POST':
+        return redirect('buy_pin_page')
+    
+    student_id = request.POST.get('student_id')
+    session_id = request.POST.get('session_id')
+    term_id = request.POST.get('term_id')
+    proof = request.FILES.get('proof')
+    
+    if not all([student_id, session_id, term_id, proof]):
+        messages.error(request, "Please upload proof of payment.")
+        return redirect('buy_pin_page')
+    
+    try:
+        session = AcademicSession.objects.get(id=session_id)
+        term = Term.objects.get(id=term_id)
+        config = SchoolConfiguration.load()
+        
+        # Find or identify the student
+        student = None
+        if request.user.is_authenticated and request.user.role == 'student':
+            student = request.user
+        else:
+            # Try to find student by admission number
+            student = CustomUser.objects.filter(username=student_id, role='student').first()
+        
+        if not student:
+            # Create payment even without linked student (admin will match later)
+            pass
+        
+        # Create Payment record
+        import uuid
+        payment = Payment(
+            student=student,
+            amount=config.pin_price,
+            method='manual',
+            term=term,
+            academic_session=session,
+            status='pending',
+            proof_of_payment=proof,
+            reference=f"MAN-{uuid.uuid4().hex[:8].upper()}"
+        )
+        payment.save()
+        
+        messages.success(request, "Payment proof submitted successfully! Your PIN will be issued after admin approval.")
+        return redirect('payment_pending')
+        
+    except Exception as e:
+        messages.error(request, f"Error submitting payment: {str(e)}")
+        return redirect('buy_pin_page')
+
+
 # ============================================
 # STUDENT PAGES
 # ============================================

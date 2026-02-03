@@ -35,6 +35,8 @@ urlpatterns = [
     
     # Payments & Pins
     path('buy-pin/', views.buy_pin, name='buy_pin_page'),
+    path('payment/confirmation/', views.payment_confirmation, name='payment_confirmation'),
+    path('payment/submit-proof/', views.submit_payment_proof, name='submit_payment_proof'),
     path('payment/initiate/', views.initiate_payment, name='initiate_payment'),
     path('payment/verify/', views.verify_payment, name='verify_payment'),
     path('payment/pending/', views.payment_pending, name='payment_pending'),
