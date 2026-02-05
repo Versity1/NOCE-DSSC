@@ -1,16 +1,17 @@
 {% extends 'base_public.html' %}
+{% load static %}
 
-{% block title %}NOCEN DSSN - Homepage{% endblock %}
+{% block title %}NOCE DSSN - Homepage{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
 <div class="relative w-full h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCDitPZ_Gf03JgIiw7PIK2LJeZbXNGkpsYQ2TccbloKH2QikN8Xf6BHQ-l1ZrlV1h2o4-EtddR_C5590jl7yo6UbJJ4S_7KLSqZA9i1WZZwuKz6p6n7ehcZtMTmzT1g-UMTJAqoHDDhSIzjs7xz9q3qGFcxhyo7HI66yJIBCWDJBQhXEuAdUDKPFDsu1SCZi6Sw-3vjoQFz3nYn5j5pkdOuqfNPCAKZF5HPf3ysytVlcoCT2zThid8-UfbyfxmoqrmA742_lbJBdA");'>
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105" style='background-image: url("{% static 'images/school1.jpg' %}");'>
     </div>
     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30"></div>
     <div class="relative z-10 w-full px-4 lg:px-20 text-center flex flex-col items-center gap-8 max-w-5xl mx-auto mt-10">
         <span class="px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-bold uppercase tracking-wider shadow-xl">
-            Welcome to NOCEN Demonstration Secondary School
+            Welcome to NOCE Demonstration Secondary School
         </span>
         <h1 class="text-white text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight drop-shadow-lg">
             Empowering <br class="hidden md:block"/>Future Leaders
@@ -33,11 +34,11 @@
 </div>
 
 <!-- Quick Access Cards Section -->
-<div class="w-full bg-background-light dark:bg-background-dark relative z-20 -mt-24 pb-20 px-4 md:px-12 lg:px-20">
+<div class="w-full bg-background-light dark:bg-background-dark relative z-20 mt-8 mb-16 py-16 px-4 md:px-12 lg:px-20">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-none">
         <!-- Online Result Checking -->
         <a href="{% url 'student_result' %}" class="group relative h-80 rounded-2xl overflow-hidden shadow-2xl cursor-pointer">
-            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCSFu4CQX0I3zoFIwCgFDi2QbbcZTTm_pclzrQu6LeYaCE5yPwdaf1wZjiSZLdgcwk6R4TYJVG90Ka8DfdL85KeH2GQf_SP9F0sfei-fPvxUB1v3R7jXGT3Vg26tYUOqrPEKenE51UHFnyWsId1vx25jf57VBvvo385f_4uYfVdVrPbEWoW8YbXYT8jF9iHKizn3-LL3J_msdZR9F94ZRxOywudqkHNhjO6t3feoOjfdQlu1LK6clan3F_-nZ6szjnGavAOiFNQVQ");'></div>
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style='background-image: url("{% static 'images/school2.jpg' %}");'></div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
             <div class="absolute inset-0 p-8 flex flex-col justify-end">
                 <div class="transform transition-transform duration-300 group-hover:-translate-y-2">
@@ -58,7 +59,7 @@
         
         <!-- E-Library -->
         <div class="group relative h-80 rounded-2xl overflow-hidden shadow-2xl cursor-pointer">
-            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCDitPZ_Gf03JgIiw7PIK2LJeZbXNGkpsYQ2TccbloKH2QikN8Xf6BHQ-l1ZrlV1h2o4-EtddR_C5590jl7yo6UbJJ4S_7KLSqZA9i1WZZwuKz6p6n7ehcZtMTmzT1g-UMTJAqoHDDhSIzjs7xz9q3qGFcxhyo7HI66yJIBCWDJBQhXEuAdUDKPFDsu1SCZi6Sw-3vjoQFz3nYn5j5pkdOuqfNPCAKZF5HPf3ysytVlcoCT2zThid8-UfbyfxmoqrmA742_lbJBdA");'></div>
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style='background-image: url("{% static 'images/school3.jpg' %}");'></div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
             <div class="absolute inset-0 p-8 flex flex-col justify-end">
                 <div class="transform transition-transform duration-300 group-hover:-translate-y-2">
@@ -84,7 +85,7 @@
                 <span class="material-symbols-outlined text-sm">bolt</span>
                 Quick & Easy
             </div>
-            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBe5RFtv8DCh_hCzQq2_Tp0QQfyOYlPPb-6FDrUDaQF_m2vMABr1lsSBDuz1rpGTcMpdSq8kYnI9sHyQzEwzSa_PmDDggzFAZnKnYWeB7S0rG11j2KiY4ttnjp3LpRSeVCX5vm6PFbC9rl5SDXZ98D4jxMpR3ikfpFFASxxpABXk_DA26zKpqjJwUJz2muQANhc6D1aBsNiz2nSW9Ifu-3F4eGtbZDyI5BexHoixAm7gXctky51rm5Ex2gWhZSCq-izIltuNtjHGg");'></div>
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style='background-image: url("{% static 'images/school4.jpg' %}");'></div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
             <div class="absolute inset-0 p-8 flex flex-col justify-end">
                 <div class="transform transition-transform duration-300 group-hover:-translate-y-2">
@@ -125,7 +126,7 @@
         <!-- Gallery Grid -->
         <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-auto md:h-[600px]">
             <div class="md:col-span-2 md:row-span-2 relative rounded-2xl overflow-hidden group min-h-[300px]">
-                <img alt="Students running" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJGDpegAwUbOJ8wiDESqkzeSqNlavRyQ4CJuMw7alk-UzwI5qgs5_PWqXkGip-bcbCPlyLNx7BPh6nYAkRcc8IvjYYQxOjcqgkxJsqUwoCCEDqzgTpxZr9bhIAG-pG7o0Gf-Yb01eyV0pzNna8VACt32qxaQl1XDQQNeoh6bYcYffbTsiBr1_12VxYMvnmOwDRGbTwSrFybVJWy07WPavbAQ6-faWg4Nt_SQS8UJHUADpCllst7_WILr5i4Fw8jJ1HOBsamIwJ_g"/>
+                <img alt="Students in classroom" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{% static 'images/school1.jpg' %}"/>
                 <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></div>
                 <div class="absolute bottom-0 left-0 p-6 md:p-8">
                     <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-bold rounded-lg mb-2 inline-block">Sports &amp; Recreation</span>
@@ -133,7 +134,7 @@
                 </div>
             </div>
             <div class="md:col-span-1 md:row-span-2 relative rounded-2xl overflow-hidden group min-h-[200px]">
-                <img alt="Student trophy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBe5RFtv8DCh_hCzQq2_Tp0QQfyOYlPPb-6FDrUDaQF_m2vMABr1lsSBDuz1rpGTcMpdSq8kYnI9sHyQzEwzSa_PmDDggzFAZnKnYWeB7S0rG11j2KiY4ttnjp3LpRSeVCX5vm6PFbC9rl5SDXZ98D4jxMpR3ikfpFFASxxpABXk_DA26zKpqjJwUJz2muQANhc6D1aBsNiz2nSW9Ifu-3F4eGtbZDyI5BexHoixAm7gXctky51rm5Ex2gWhZSCq-izIltuNtjHGg"/>
+                <img alt="Students learning" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{% static 'images/school5.jpg' %}"/>
                 <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></div>
                 <div class="absolute bottom-0 left-0 p-6">
                     <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-bold rounded-lg mb-2 inline-block">Achievements</span>
@@ -141,7 +142,7 @@
                 </div>
             </div>
             <div class="md:col-span-1 md:row-span-1 relative rounded-2xl overflow-hidden group min-h-[200px]">
-                <img alt="Classroom" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDitPZ_Gf03JgIiw7PIK2LJeZbXNGkpsYQ2TccbloKH2QikN8Xf6BHQ-l1ZrlV1h2o4-EtddR_C5590jl7yo6UbJJ4S_7KLSqZA9i1WZZwuKz6p6n7ehcZtMTmzT1g-UMTJAqoHDDhSIzjs7xz9q3qGFcxhyo7HI66yJIBCWDJBQhXEuAdUDKPFDsu1SCZi6Sw-3vjoQFz3nYn5j5pkdOuqfNPCAKZF5HPf3ysytVlcoCT2zThid8-UfbyfxmoqrmA742_lbJBdA"/>
+                <img alt="Classroom session" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{% static 'images/school3.jpg' %}"/>
                 <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></div>
                 <div class="absolute bottom-0 left-0 p-6">
                     <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-bold rounded-lg mb-2 inline-block">Academics</span>
@@ -149,7 +150,7 @@
                 </div>
             </div>
             <div class="md:col-span-1 md:row-span-1 relative rounded-2xl overflow-hidden group min-h-[200px]">
-                <img alt="Notice board" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSFu4CQX0I3zoFIwCgFDi2QbbcZTTm_pclzrQu6LeYaCE5yPwdaf1wZjiSZLdgcwk6R4TYJVG90Ka8DfdL85KeH2GQf_SP9F0sfei-fPvxUB1v3R7jXGT3Vg26tYUOqrPEKenE51UHFnyWsId1vx25jf57VBvvo385f_4uYfVdVrPbEWoW8YbXYT8jF9iHKizn3-LL3J_msdZR9F94ZRxOywudqkHNhjO6t3feoOjfdQlu1LK6clan3F_-nZ6szjnGavAOiFNQVQ"/>
+                <img alt="Teacher and students" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="{% static 'images/school2.jpg' %}"/>
                 <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></div>
                 <div class="absolute bottom-0 left-0 p-6">
                     <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-bold rounded-lg mb-2 inline-block">Community</span>
@@ -181,7 +182,7 @@
             <!-- News Card 1 -->
             <div class="flex flex-col group cursor-pointer">
                 <div class="w-full aspect-[4/3] rounded-2xl overflow-hidden relative mb-6 shadow-md">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDJGDpegAwUbOJ8wiDESqkzeSqNlavRyQ4CJuMw7alk-UzwI5qgs5_PWqXkGip-bcbCPlyLNx7BPh6nYAkRcc8IvjYYQxOjcqgkxJsqUwoCCEDqzgTpxZr9bhIAG-pG7o0Gf-Yb01eyV0pzNna8VACt32qxaQl1XDQQNeoh6bYcYffbTsiBr1_12VxYMvnmOwDRGbTwSrFybVJWy07WPavbAQ6-faWg4Nt_SQS8UJHUADpCllst7_WILr5i4Fw8jJ1HOBsamIwJ_g");'></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("{% static 'images/school4.jpg' %}");'></div>
                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
                     <div class="absolute top-4 left-4">
                         <span class="px-3 py-1 bg-white/90 backdrop-blur text-text-main text-xs font-bold rounded-full shadow-sm">Sports</span>
@@ -201,7 +202,7 @@
             <!-- News Card 2 -->
             <div class="flex flex-col group cursor-pointer">
                 <div class="w-full aspect-[4/3] rounded-2xl overflow-hidden relative mb-6 shadow-md">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCSFu4CQX0I3zoFIwCgFDi2QbbcZTTm_pclzrQu6LeYaCE5yPwdaf1wZjiSZLdgcwk6R4TYJVG90Ka8DfdL85KeH2GQf_SP9F0sfei-fPvxUB1v3R7jXGT3Vg26tYUOqrPEKenE51UHFnyWsId1vx25jf57VBvvo385f_4uYfVdVrPbEWoW8YbXYT8jF9iHKizn3-LL3J_msdZR9F94ZRxOywudqkHNhjO6t3feoOjfdQlu1LK6clan3F_-nZ6szjnGavAOiFNQVQ");'></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("{% static 'images/school2.jpg' %}");'></div>
                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
                     <div class="absolute top-4 left-4">
                         <span class="px-3 py-1 bg-white/90 backdrop-blur text-text-main text-xs font-bold rounded-full shadow-sm">Admissions</span>
@@ -221,7 +222,7 @@
             <!-- News Card 3 -->
             <div class="flex flex-col group cursor-pointer">
                 <div class="w-full aspect-[4/3] rounded-2xl overflow-hidden relative mb-6 shadow-md">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBe5RFtv8DCh_hCzQq2_Tp0QQfyOYlPPb-6FDrUDaQF_m2vMABr1lsSBDuz1rpGTcMpdSq8kYnI9sHyQzEwzSa_PmDDggzFAZnKnYWeB7S0rG11j2KiY4ttnjp3LpRSeVCX5vm6PFbC9rl5SDXZ98D4jxMpR3ikfpFFASxxpABXk_DA26zKpqjJwUJz2muQANhc6D1aBsNiz2nSW9Ifu-3F4eGtbZDyI5BexHoixAm7gXctky51rm5Ex2gWhZSCq-izIltuNtjHGg");'></div>
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style='background-image: url("{% static 'images/school5.jpg' %}");'></div>
                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
                     <div class="absolute top-4 left-4">
                         <span class="px-3 py-1 bg-white/90 backdrop-blur text-text-main text-xs font-bold rounded-full shadow-sm">Academics</span>
