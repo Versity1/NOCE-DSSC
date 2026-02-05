@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # Public pages
@@ -59,3 +61,5 @@ urlpatterns = [
     # Configuration
     path('admin-portal/settings/', views.manage_configuration, name='manage_configuration'),
 ]
+# media files
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

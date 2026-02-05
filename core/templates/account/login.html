@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Login - NOCEN DSSN{% endblock %}
+{% block title %}Login - NOCE DSSN{% endblock %}
 
 {% block body_class %}font-display bg-background-light dark:bg-background-dark text-text-main dark:text-white min-h-screen flex flex-col relative overflow-y-auto{% endblock %}
 
@@ -20,14 +21,12 @@
         <div class="flex flex-col items-center pt-8 pb-4 px-8">
             <div class="mb-4 relative">
                 <!-- Logo Container -->
-                <div class="h-24 w-24 bg-primary/10 rounded-full flex items-center justify-center mb-2 shadow-inner">
-                    <div class="size-16 flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined !text-5xl">school</span>
-                    </div>
+                <div class="h-24 w-24 bg-white rounded-full flex items-center justify-center mb-2 shadow-lg overflow-hidden">
+                    <img src="{% static 'images/logo.jpg' %}" alt="NOCE DSSN Logo" class="h-20 w-20 object-contain">
                 </div>
             </div>
             <div class="text-center space-y-1">
-                <h1 class="text-2xl font-bold tracking-tight text-text-main dark:text-white">NOCE Demonstration Secondary School</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-text-main dark:text-white">NOCE DSSN</h1>
                 <p class="text-text-sub dark:text-gray-400 text-sm font-medium">School Management Portal</p>
             </div>
         </div>

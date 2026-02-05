@@ -1,14 +1,13 @@
 <!-- Dashboard Sidebar Navigation -->
+{% load static %}
 <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white dark:bg-surface-dark border-r border-border-color dark:border-[#2d3748] flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out h-screen overflow-hidden">
     <div class="flex flex-col h-full">
         <div class="flex flex-col flex-1 overflow-hidden">
             <!-- Logo / Brand -->
             <div class="flex items-center gap-3 p-6 border-b border-border-color dark:border-[#2d3748] flex-shrink-0">
-                <div class="size-10 flex items-center justify-center text-white bg-primary rounded-full shadow-md">
-                    <span class="material-symbols-outlined !text-xl">school</span>
-                </div>
+                <img src="{% static 'images/logo.jpg' %}" alt="NOCE DSSN Logo" class="h-10 w-10 object-contain rounded-full shadow">
                 <div class="flex flex-col">
-                    <h1 class="text-text-main dark:text-white text-base font-bold leading-normal">NOCEN DSSN</h1>
+                    <h1 class="text-text-main dark:text-white text-base font-bold leading-normal">NOCE DSSN</h1>
                     <p class="text-text-sub dark:text-gray-400 text-xs font-normal leading-normal">
                         {% if user_role == 'admin' %}Admin Portal{% elif user_role == 'teacher' %}Teacher Portal{% elif user_role == 'staff' %}Staff Portal{% else %}Student Portal{% endif %}
                     </p>
