@@ -165,11 +165,18 @@ def buy_pin(request):
     
     # Get last purchased pin if student is logged in
     last_pin = None
-    if request.user.is_authenticated and request.user.role == 'student':
-        last_pin = Pin.objects.filter(student=request.user).order_by('-created_at').first()
+    user_role = None
+    user_initials = 'U'
+    if request.user.is_authenticated:
+        user_role = request.user.role
+        user_initials = ''.join([n[0].upper() for n in (request.user.get_full_name() or request.user.username).split()[:2]])
+        if request.user.role == 'student':
+            last_pin = Pin.objects.filter(student=request.user).order_by('-created_at').first()
 
     context = {
         'active_page': 'payments',
+        'user_role': user_role,
+        'user_initials': user_initials,
         'config': config,
         'sessions': AcademicSession.objects.all(),
         'terms': terms,
@@ -201,7 +208,17 @@ def payment_confirmation(request):
         term = Term.objects.get(id=term_id)
         config = SchoolConfiguration.load()
         
+        # Get user info for sidebar
+        user_role = None
+        user_initials = 'U'
+        if request.user.is_authenticated:
+            user_role = request.user.role
+            user_initials = ''.join([n[0].upper() for n in (request.user.get_full_name() or request.user.username).split()[:2]])
+        
         context = {
+            'active_page': 'payments',
+            'user_role': user_role,
+            'user_initials': user_initials,
             'student_id': student_id,
             'session': session,
             'term': term,
@@ -422,6 +439,8 @@ def student_result(request):
             
     context = {
         'active_page': 'results',
+        'user_role': user.role,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'terms': terms,
         'results': results,
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
@@ -1337,6 +1356,8 @@ def payment_success(request, pin_id):
     context = {
         'pin': pin,
         'user_name': request.user.get_full_name() or request.user.username,
+        'user_role': request.user.role,
+        'user_initials': ''.join([n[0].upper() for n in (request.user.get_full_name() or request.user.username).split()[:2]]),
         'active_page': 'payments',
     }
     return render(request, 'account/payment-success.html', context)
