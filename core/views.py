@@ -156,6 +156,18 @@ def home(request):
     return render(request, 'home.html', {'active_page': 'home'})
 
 
+def about_us(request):
+    return render(request, 'about.html', {'active_page': 'about'})
+
+
+def admissions_page(request):
+    return render(request, 'admissions.html', {'active_page': 'admissions'})
+
+
+def academics_page(request):
+    return render(request, 'academics.html', {'active_page': 'academics'})
+
+
 def buy_pin(request):
     from .models import SchoolConfiguration, AcademicSession, Term, Pin
     

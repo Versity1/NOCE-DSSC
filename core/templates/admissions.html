@@ -1,0 +1,661 @@
+{% extends 'base_public.html' %}
+{% load static %}
+
+{% block title %}Admissions - NOCE DSSN{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Fade-in on scroll */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    /* Gradient text */
+    .gradient-text {
+        background: linear-gradient(135deg, #0d59f2, #3b7cf5, #60a5fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Glass card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* Step line connector */
+    .step-connector {
+        position: absolute;
+        left: 27px;
+        top: 56px;
+        bottom: -24px;
+        width: 2px;
+        background: linear-gradient(180deg, #0d59f2, #3b7cf5);
+    }
+
+    /* Pulse animation for step numbers */
+    @keyframes step-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(13, 89, 242, 0.3); }
+        50% { box-shadow: 0 0 0 8px rgba(13, 89, 242, 0); }
+    }
+    .step-number:hover {
+        animation: step-pulse 1.5s infinite;
+    }
+
+    /* Requirements check animation */
+    .req-item {
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .req-item:hover {
+        transform: translateX(6px);
+    }
+
+    /* Timeline dot */
+    .timeline-dot {
+        position: relative;
+    }
+    .timeline-dot::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid rgba(13, 89, 242, 0.3);
+    }
+
+    /* Fee table row hover */
+    .fee-row {
+        transition: background-color 0.2s ease;
+    }
+    .fee-row:hover {
+        background-color: rgba(13, 89, 242, 0.03);
+    }
+
+    /* Subtle float */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================ -->
+<!-- HERO SECTION -->
+<!-- ============================================ -->
+<div class="relative w-full h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105" style='background-image: url("{% static 'images/school1.jpg' %}");'></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40"></div>
+
+    <!-- Decorative floating shapes -->
+    <div class="absolute top-20 right-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl animate-float"></div>
+    <div class="absolute bottom-20 left-10 w-48 h-48 bg-blue-400/10 rounded-full blur-3xl animate-float" style="animation-delay: 3s;"></div>
+
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <span class="inline-block px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-bold uppercase tracking-widest shadow-xl mb-6">
+            <span class="material-symbols-outlined text-sm align-middle mr-1">how_to_reg</span>
+            Admissions Open
+        </span>
+        <h1 class="text-white text-4xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight drop-shadow-lg mb-6">
+            Begin Your Journey <br class="hidden md:block"/>With Us Today
+        </h1>
+        <p class="text-gray-200 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-md mb-8">
+            Secure a place at NOCE Demonstration Secondary School and give your child the gift of quality education in a nurturing environment.
+        </p>
+        <a href="#admission-process" class="inline-flex items-center justify-center rounded-full h-14 px-8 bg-primary hover:bg-primary-dark transition-all transform hover:-translate-y-1 text-white text-lg font-bold shadow-xl shadow-primary/30">
+            <span class="material-symbols-outlined mr-2">arrow_downward</span>
+            View Admission Process
+        </a>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/50">
+        <span class="material-symbols-outlined text-4xl">keyboard_arrow_down</span>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- WHY ENROL SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <!-- Image Side -->
+            <div class="lg:w-1/2 w-full fade-up">
+                <div class="relative">
+                    <div class="absolute -top-4 -left-4 w-full h-full bg-primary/10 rounded-3xl"></div>
+                    <div class="absolute -bottom-4 -right-4 w-full h-full border-2 border-primary/30 rounded-3xl"></div>
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+                        <img alt="Students learning at NOCE DSSN" class="w-full h-auto aspect-[4/3] object-cover" src="{% static 'images/school3.jpg' %}"/>
+                    </div>
+                    <!-- Badge -->
+                    <div class="absolute -bottom-6 -right-6 bg-green-500 text-white rounded-2xl px-5 py-4 shadow-xl shadow-green-500/30">
+                        <div class="text-lg font-black flex items-center gap-2">
+                            <span class="material-symbols-outlined">verified</span>
+                            Now Enrolling
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Side -->
+            <div class="lg:w-1/2 w-full fade-up delay-1">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Why Enrol</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-black text-text-main dark:text-white leading-tight mb-6">
+                    Give Your Child a <span class="gradient-text">Head Start</span>
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 text-base leading-relaxed mb-8">
+                    At NOCE DSSN, we believe every child deserves a solid educational foundation. Our school combines experienced teaching staff, modern facilities, and a caring community to prepare students for academic and lifelong success.
+                </p>
+
+                <!-- Benefits -->
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 req-item p-3 rounded-xl">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined">school</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Qualified Teachers</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Trained educators who guide every student to their potential</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 req-item p-3 rounded-xl">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined">menu_book</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Comprehensive Curriculum</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Sciences, Arts, Commercial, and Vocational subjects available</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 req-item p-3 rounded-xl">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined">security</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Safe Campus</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Within the serene grounds of Nwafor Orizu College of Education</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 req-item p-3 rounded-xl">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined">computer</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Digital Learning Tools</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Online results, e-library, and technology-integrated education</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- ADMISSION PROCESS (STEPS) SECTION -->
+<!-- ============================================ -->
+<div id="admission-process" class="w-full bg-background-light dark:bg-background-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Step by Step</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Admission Process</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">Follow these simple steps to secure your child's place at NOCE DSSN.</p>
+        </div>
+
+        <!-- Steps Timeline -->
+        <div class="max-w-3xl mx-auto space-y-12">
+            <!-- Step 1 -->
+            <div class="relative flex gap-6 fade-up delay-1">
+                <div class="relative flex flex-col items-center">
+                    <div class="step-number size-14 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-black shadow-lg shadow-primary/30 shrink-0 z-10">1</div>
+                    <div class="step-connector"></div>
+                </div>
+                <div class="flex-1 pb-4">
+                    <h3 class="text-xl font-bold text-text-main dark:text-white mb-2">Obtain Admission Form</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Visit the school's administrative office to collect the official admission form. Forms are available during working hours (Monday – Friday, 8:00 AM – 3:00 PM). A non-refundable form fee applies.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative flex gap-6 fade-up delay-2">
+                <div class="relative flex flex-col items-center">
+                    <div class="step-number size-14 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-black shadow-lg shadow-primary/30 shrink-0 z-10">2</div>
+                    <div class="step-connector"></div>
+                </div>
+                <div class="flex-1 pb-4">
+                    <h3 class="text-xl font-bold text-text-main dark:text-white mb-2">Submit Completed Form</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Fill in all required sections of the form accurately. Attach the necessary documents (see requirements below) and submit to the admissions office before the deadline closes.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="relative flex gap-6 fade-up delay-3">
+                <div class="relative flex flex-col items-center">
+                    <div class="step-number size-14 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-black shadow-lg shadow-primary/30 shrink-0 z-10">3</div>
+                    <div class="step-connector"></div>
+                </div>
+                <div class="flex-1 pb-4">
+                    <h3 class="text-xl font-bold text-text-main dark:text-white mb-2">Entrance Examination</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        All applicants are required to sit for an entrance examination covering English Language, Mathematics, and General Knowledge. The exam date and schedule will be communicated upon form submission.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="relative flex gap-6 fade-up delay-4">
+                <div class="relative flex flex-col items-center">
+                    <div class="step-number size-14 rounded-2xl bg-primary text-white flex items-center justify-center text-xl font-black shadow-lg shadow-primary/30 shrink-0 z-10">4</div>
+                    <div class="step-connector"></div>
+                </div>
+                <div class="flex-1 pb-4">
+                    <h3 class="text-xl font-bold text-text-main dark:text-white mb-2">Interview & Selection</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Shortlisted candidates and their parents/guardians will be invited for a brief interview. Final selection is based on exam performance, interview outcome, and available places.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="relative flex gap-6 fade-up">
+                <div class="relative flex flex-col items-center">
+                    <div class="step-number size-14 rounded-2xl bg-green-500 text-white flex items-center justify-center text-xl font-black shadow-lg shadow-green-500/30 shrink-0 z-10">
+                        <span class="material-symbols-outlined">check</span>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-xl font-bold text-text-main dark:text-white mb-2">Acceptance & Enrolment</h3>
+                    <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Successful candidates will receive an admission letter. Complete the registration by paying the required fees and collecting the school's welcome pack including the school uniform requirements, book list, and academic calendar.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- ADMISSION REQUIREMENTS SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-gradient-to-br from-[#1A1A2E] via-[#16213E] to-[#0F3460] relative overflow-hidden py-20 md:py-28">
+    <!-- Background decorative elements -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl -translate-y-1/2 -translate-x-1/3"></div>
+        <div class="absolute bottom-0 right-0 w-72 h-72 bg-blue-400 rounded-full blur-3xl translate-y-1/3 translate-x-1/3"></div>
+    </div>
+
+    <div class="w-full px-4 md:px-12 lg:px-20 relative z-10 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-primary text-sm font-bold uppercase tracking-widest">What You Need</span>
+            <h2 class="text-4xl md:text-5xl font-black text-white mt-6 leading-tight">Admission Requirements</h2>
+            <p class="text-gray-300 text-lg mt-4 max-w-2xl mx-auto">Ensure you have the following documents ready before applying.</p>
+        </div>
+
+        <!-- Requirements Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <!-- JSS 1 Requirements -->
+            <div class="glass-card rounded-3xl p-8 md:p-10 fade-up delay-1">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="size-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined text-2xl">child_care</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">JSS 1 Entry</h3>
+                        <p class="text-gray-400 text-sm">Junior Secondary School</p>
+                    </div>
+                </div>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">Completed admission form</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">Primary school leaving certificate / testimonial</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">Birth certificate or declaration of age</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">4 recent passport photographs</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">LGA identification / state of origin certificate</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">Parent/guardian contact details</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- SS 1 Requirements -->
+            <div class="glass-card rounded-3xl p-8 md:p-10 fade-up delay-2">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="size-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined text-2xl">person</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">SS 1 Entry</h3>
+                        <p class="text-gray-400 text-sm">Senior Secondary School</p>
+                    </div>
+                </div>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">Completed admission form</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">BECE / Junior WAEC result</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">Testimonial from previous school</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">Birth certificate or declaration of age</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">4 recent passport photographs</span>
+                    </li>
+                    <li class="flex items-start gap-3 req-item p-2 rounded-lg">
+                        <span class="material-symbols-outlined text-primary text-lg mt-0.5 shrink-0">check_circle</span>
+                        <span class="text-gray-300 text-sm">LGA identification / state of origin certificate</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- ACADEMIC PROGRAMS SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Programs</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Academic Programs Offered</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">We offer a wide range of subjects across the sciences, arts, and commercial disciplines.</p>
+        </div>
+
+        <!-- Programs Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Science -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-1">
+                <div class="size-16 rounded-2xl bg-blue-50 dark:bg-blue-900/20 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-3xl">science</span>
+                </div>
+                <h3 class="text-2xl font-bold text-text-main dark:text-white mb-3">Science</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">For students passionate about scientific discovery and technology.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-xs font-bold">Physics</span>
+                    <span class="px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-xs font-bold">Chemistry</span>
+                    <span class="px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-xs font-bold">Biology</span>
+                    <span class="px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-xs font-bold">Mathematics</span>
+                    <span class="px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-xs font-bold">Computer Science</span>
+                    <span class="px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-xs font-bold">Agric. Science</span>
+                </div>
+            </div>
+
+            <!-- Arts -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-2">
+                <div class="size-16 rounded-2xl bg-purple-50 dark:bg-purple-900/20 group-hover:bg-purple-600 flex items-center justify-center text-purple-600 group-hover:text-white transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-3xl">palette</span>
+                </div>
+                <h3 class="text-2xl font-bold text-text-main dark:text-white mb-3">Arts</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">For creative and analytically-minded students exploring the humanities.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 text-xs font-bold">Literature</span>
+                    <span class="px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 text-xs font-bold">Government</span>
+                    <span class="px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 text-xs font-bold">CRS/IRS</span>
+                    <span class="px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 text-xs font-bold">History</span>
+                    <span class="px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 text-xs font-bold">Igbo Language</span>
+                    <span class="px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 text-xs font-bold">Civic Education</span>
+                </div>
+            </div>
+
+            <!-- Commercial -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-3">
+                <div class="size-16 rounded-2xl bg-amber-50 dark:bg-amber-900/20 group-hover:bg-amber-500 flex items-center justify-center text-amber-600 group-hover:text-white transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-3xl">account_balance</span>
+                </div>
+                <h3 class="text-2xl font-bold text-text-main dark:text-white mb-3">Commercial</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">For aspiring entrepreneurs, accountants, and business professionals.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 text-xs font-bold">Accounting</span>
+                    <span class="px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 text-xs font-bold">Commerce</span>
+                    <span class="px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 text-xs font-bold">Economics</span>
+                    <span class="px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 text-xs font-bold">Business Studies</span>
+                    <span class="px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 text-xs font-bold">Marketing</span>
+                    <span class="px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 text-xs font-bold">Office Practice</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- IMPORTANT DATES / ACADEMIC CALENDAR -->
+<!-- ============================================ -->
+<div class="w-full bg-background-light dark:bg-background-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-16">
+            <!-- Key Dates -->
+            <div class="lg:w-1/2 fade-up">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Key Dates</span>
+                <h2 class="text-3xl md:text-4xl font-black text-text-main dark:text-white leading-tight mb-8">Important Dates</h2>
+
+                <div class="space-y-6">
+                    <div class="flex gap-5 items-start group">
+                        <div class="size-12 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">edit_note</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Form Sales Begin</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">March – June (every academic year)</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-5 items-start group">
+                        <div class="size-12 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">quiz</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Entrance Examination</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">July (date announced upon form collection)</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-5 items-start group">
+                        <div class="size-12 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">list_alt</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Admission List Released</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">August (in batches)</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-5 items-start group">
+                        <div class="size-12 rounded-2xl bg-green-500/10 group-hover:bg-green-500 flex items-center justify-center text-green-600 group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">school</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white">Resumption & Orientation</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">September (first week)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="lg:w-1/2 fade-up delay-2">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">FAQ</span>
+                <h2 class="text-3xl md:text-4xl font-black text-text-main dark:text-white leading-tight mb-8">Common Questions</h2>
+
+                <div class="space-y-4">
+                    <details class="group rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                        <summary class="flex items-center justify-between p-5 cursor-pointer bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <span class="font-bold text-text-main dark:text-white text-sm">What age must my child be for JSS 1?</span>
+                            <span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Applicants for JSS 1 should generally be between 10 – 12 years of age. However, all applicants must sit for and pass the entrance examination regardless of age.
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                        <summary class="flex items-center justify-between p-5 cursor-pointer bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <span class="font-bold text-text-main dark:text-white text-sm">Is boarding available?</span>
+                            <span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            NOCE DSSN operates as a day school. Students attend from 7:30 AM and close by 3:00 PM on regular school days.
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                        <summary class="flex items-center justify-between p-5 cursor-pointer bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <span class="font-bold text-text-main dark:text-white text-sm">Can I transfer my child mid-term?</span>
+                            <span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Transfer admissions are handled on a case-by-case basis subject to availability. Contact the admin office with your child's previous school records and testimonial for assessment.
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                        <summary class="flex items-center justify-between p-5 cursor-pointer bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <span class="font-bold text-text-main dark:text-white text-sm">What are the school fees?</span>
+                            <span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            School fees vary by class level and are reviewed each academic session. Please visit the admin office or contact us directly for the most current fee schedule.
+                        </div>
+                    </details>
+
+                    <details class="group rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+                        <summary class="flex items-center justify-between p-5 cursor-pointer bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <span class="font-bold text-text-main dark:text-white text-sm">Are there scholarships available?</span>
+                            <span class="material-symbols-outlined text-primary group-open:rotate-180 transition-transform">expand_more</span>
+                        </summary>
+                        <div class="px-5 pb-5 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                            The school may offer merit-based fee waivers for exceptional students. Enquire at the principal's office for available scholarship or financial aid options.
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- CTA SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-gradient-to-r from-primary via-blue-600 to-blue-700 relative overflow-hidden">
+    <!-- Decorative elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 py-20 md:py-28 px-4 md:px-12 lg:px-20 text-center max-w-4xl mx-auto">
+        <div class="fade-up">
+            <span class="inline-block px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-bold uppercase tracking-wider mb-6">
+                <span class="material-symbols-outlined text-sm align-middle mr-1">campaign</span>
+                Don't Miss Out
+            </span>
+            <h2 class="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                Admissions Are Now Open!
+            </h2>
+            <p class="text-blue-100 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
+                Secure your child's future today at NOCE Demonstration Secondary School. Visit our campus or contact us to begin the enrolment process.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'home' %}" class="flex items-center justify-center min-w-[200px] rounded-full h-14 px-8 bg-white text-primary hover:bg-gray-100 transition-all transform hover:-translate-y-1 text-lg font-bold shadow-xl shadow-black/10">
+                    <span class="material-symbols-outlined mr-2">home</span>
+                    Back to Home
+                </a>
+                <a href="{% url 'login' %}" class="flex items-center justify-center min-w-[200px] rounded-full h-14 px-8 bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20 transition-all transform hover:-translate-y-1 text-lg font-bold">
+                    <span class="material-symbols-outlined mr-2">login</span>
+                    Portal Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    // ============================================
+    // SCROLL ANIMATION (Intersection Observer)
+    // ============================================
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ============================================
+    // SMOOTH SCROLL for anchor links
+    // ============================================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+{% endblock %}

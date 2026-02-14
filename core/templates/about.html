@@ -1,0 +1,577 @@
+{% extends 'base_public.html' %}
+{% load static %}
+
+{% block title %}About Us - NOCE DSSN{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Counter animation */
+    .counter-value {
+        transition: all 0.3s ease;
+    }
+    
+    /* Fade-in on scroll */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Staggered delay */
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+    
+    /* Subtle float animation */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Gradient text */
+    .gradient-text {
+        background: linear-gradient(135deg, #0d59f2, #3b7cf5, #60a5fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* Glass card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    
+    /* Value card hover */
+    .value-card {
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .value-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(13, 89, 242, 0.15);
+    }
+    
+    /* Timeline dot pulse */
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(13, 89, 242, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(13, 89, 242, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(13, 89, 242, 0); }
+    }
+    .pulse-dot {
+        animation: pulse-ring 2s infinite;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================ -->
+<!-- HERO SECTION -->
+<!-- ============================================ -->
+<div class="relative w-full h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105" style='background-image: url("{% static 'images/assembly.jpg' %}");'></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40"></div>
+    
+    <!-- Decorative floating shapes -->
+    <div class="absolute top-20 left-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-float"></div>
+    <div class="absolute bottom-20 right-10 w-48 h-48 bg-blue-400/10 rounded-full blur-3xl animate-float" style="animation-delay: 3s;"></div>
+    
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <span class="inline-block px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-bold uppercase tracking-widest shadow-xl mb-6">
+            <span class="material-symbols-outlined text-sm align-middle mr-1">school</span>
+            About Our School
+        </span>
+        <h1 class="text-white text-4xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight drop-shadow-lg mb-6">
+            A Legacy of <br class="hidden md:block"/>Academic Excellence
+        </h1>
+        <p class="text-gray-200 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-md">
+            Discover the story, values, and vision that make NOCE Demonstration Secondary School a beacon of quality education in Nsugbe, Anambra State.
+        </p>
+    </div>
+    
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/50">
+        <span class="material-symbols-outlined text-4xl">keyboard_arrow_down</span>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- OUR STORY SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <!-- Image Side -->
+            <div class="lg:w-1/2 w-full fade-up">
+                <div class="relative">
+                    <!-- Decorative accent -->
+                    <div class="absolute -top-4 -left-4 w-full h-full bg-primary/10 rounded-3xl"></div>
+                    <div class="absolute -bottom-4 -right-4 w-full h-full border-2 border-primary/30 rounded-3xl"></div>
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+                        <img alt="NOCE DSSN School Building" class="w-full h-auto aspect-[4/3] object-cover" src="{% static 'images/school1.jpg' %}"/>
+                    </div>
+                    <!-- Year badge -->
+                    <div class="absolute -bottom-6 -right-6 bg-primary text-white rounded-2xl p-5 shadow-xl shadow-primary/30">
+                        <div class="text-3xl font-black">Est.</div>
+                        <div class="text-sm font-bold opacity-80">Nsugbe</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Text Side -->
+            <div class="lg:w-1/2 w-full fade-up delay-1">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Our Story</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-black text-text-main dark:text-white leading-tight mb-6">
+                    Building Futures in <span class="gradient-text">Nsugbe</span>
+                </h2>
+                <div class="space-y-4 text-gray-600 dark:text-gray-400 text-base leading-relaxed">
+                    <p>
+                        NOCE Demonstration Secondary School (DSSN), located within the prestigious Nwafor Orizu College of Education in Nsugbe, Anambra State, stands as a model institution for academic excellence, moral uprightness, and all-round development.
+                    </p>
+                    <p>
+                        Established to serve as a demonstration and practice school for the College, NOCE DSSN has grown beyond its foundational purpose to become one of the most respected secondary schools in the region. The school provides both junior and senior secondary education with a curriculum enriched by innovative teaching methods and dedicated educators.
+                    </p>
+                    <p>
+                        Our environment nurtures critical thinking, creativity, and discipline. Every student who passes through our gates leaves equipped with the knowledge, skills, and character to thrive in an ever-changing world.
+                    </p>
+                </div>
+                
+                <!-- Key highlights -->
+                <div class="mt-8 grid grid-cols-2 gap-4">
+                    <div class="flex items-start gap-3">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined text-xl">verified</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-sm">Accredited School</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Government approved</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined text-xl">emoji_events</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-sm">Award Winning</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Regional excellence</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined text-xl">groups</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-sm">Dedicated Faculty</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Experienced teachers</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined text-xl">local_library</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-sm">Modern Facilities</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Equipped campus</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- MISSION, VISION & VALUES SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-gradient-to-br from-[#1A1A2E] via-[#16213E] to-[#0F3460] relative overflow-hidden py-20 md:py-28">
+    <!-- Background decorative elements -->
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div class="absolute bottom-0 left-0 w-72 h-72 bg-blue-400 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
+    </div>
+    
+    <div class="w-full px-4 md:px-12 lg:px-20 relative z-10 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-primary text-sm font-bold uppercase tracking-widest">What Drives Us</span>
+            <h2 class="text-4xl md:text-5xl font-black text-white mt-6 leading-tight">Mission, Vision & Core Values</h2>
+            <p class="text-gray-300 text-lg mt-4 max-w-2xl mx-auto">The pillars that guide our commitment to nurturing the next generation of leaders.</p>
+        </div>
+        
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Mission Card -->
+            <div class="glass-card rounded-3xl p-8 md:p-10 fade-up delay-1 value-card">
+                <div class="size-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-6">
+                    <span class="material-symbols-outlined text-3xl">flag</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">Our Mission</h3>
+                <p class="text-gray-300 leading-relaxed">
+                    To provide a holistic, quality education that develops the intellectual, moral, social, and physical capacities of every student, preparing them for higher education and responsible citizenship in a rapidly evolving society.
+                </p>
+            </div>
+            
+            <!-- Vision Card -->
+            <div class="glass-card rounded-3xl p-8 md:p-10 fade-up delay-2 value-card">
+                <div class="size-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-6">
+                    <span class="material-symbols-outlined text-3xl">visibility</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">Our Vision</h3>
+                <p class="text-gray-300 leading-relaxed">
+                    To be the leading demonstration secondary school in Nigeria, recognized for producing well-rounded graduates who embody academic excellence, moral integrity, and innovative thinking that impacts their communities and the world.
+                </p>
+            </div>
+            
+            <!-- Core Values Card -->
+            <div class="glass-card rounded-3xl p-8 md:p-10 fade-up delay-3 value-card">
+                <div class="size-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-6">
+                    <span class="material-symbols-outlined text-3xl">diamond</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">Core Values</h3>
+                <ul class="text-gray-300 leading-relaxed space-y-3">
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                        <span>Academic Excellence</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                        <span>Moral Integrity</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                        <span>Discipline & Respect</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                        <span>Innovation</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                        <span>Community Service</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- STATISTICS COUNTER SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-16 border-y border-gray-100 dark:border-gray-800">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+            <div class="text-center fade-up">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="25">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Years of Excellence</div>
+            </div>
+            <div class="text-center fade-up delay-1">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="1200">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Students Enrolled</div>
+            </div>
+            <div class="text-center fade-up delay-2">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="80">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Qualified Teachers</div>
+            </div>
+            <div class="text-center fade-up delay-3">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="30">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subjects Offered</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- OUR LEADERSHIP SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-background-light dark:bg-background-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Leadership</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Meet Our Principal</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">Guiding our school community with vision, dedication, and a passion for academic excellence.</p>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20 fade-up">
+            <!-- Principal Image -->
+            <div class="lg:w-2/5 relative">
+                <div class="relative">
+                    <div class="absolute -inset-3 bg-gradient-to-br from-primary via-blue-400 to-blue-600 rounded-3xl opacity-60 blur-sm"></div>
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10">
+                        <img alt="Our Principal" class="w-full h-auto object-cover aspect-[4/5]" src="{% static 'images/principal.jpeg' %}"/>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                    </div>
+                    <div class="absolute -bottom-5 -right-5 bg-primary text-white p-4 rounded-2xl shadow-xl shadow-primary/30">
+                        <span class="material-symbols-outlined text-4xl">format_quote</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Principal Info -->
+            <div class="lg:w-3/5 text-center lg:text-left">
+                <blockquote class="text-xl md:text-2xl lg:text-3xl font-medium text-text-main/90 dark:text-white/90 italic leading-relaxed mb-10 relative">
+                    <span class="absolute -top-6 -left-4 text-primary/20 text-8xl font-serif hidden lg:block">&ldquo;</span>
+                    Education is the most powerful weapon which you can use to change the world. At NOCE DSSN, we don't just teach; we inspire the next generation of changemakers.
+                </blockquote>
+                
+                <div class="flex flex-col items-center lg:items-start gap-4">
+                    <div>
+                        <h3 class="text-2xl md:text-3xl font-black text-text-main dark:text-white">The Principal</h3>
+                        <p class="text-primary text-lg font-bold mt-1">NOCE Demonstration Secondary School</p>
+                    </div>
+                    <div class="h-1 w-20 bg-gradient-to-r from-primary to-blue-400 rounded-full"></div>
+                    <p class="text-gray-500 dark:text-gray-400 text-base max-w-lg leading-relaxed">
+                        Leading with a commitment to nurturing well-rounded students who excel academically, morally, and socially. Our school is a beacon of quality education in Nsugbe.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- WHY CHOOSE US SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Why NOCE DSSN</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Why Choose Our School?</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">We offer a unique blend of academic rigor, character development, and modern facilities that sets us apart.</p>
+        </div>
+        
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-1">
+                <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center text-primary transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-2xl">school</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">Experienced Educators</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">Our teachers are not only highly qualified but are also passionate about mentoring and inspiring each student to reach their full potential.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-2">
+                <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center text-primary transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-2xl">science</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">Well-Equipped Laboratories</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">State-of-the-art science and computer laboratories provide hands-on learning experiences that bring theoretical concepts to life.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-3">
+                <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center text-primary transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-2xl">menu_book</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">Rich Curriculum</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">A comprehensive curriculum covering sciences, arts, and commercial subjects, enriched with vocational and extracurricular activities.</p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-1">
+                <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center text-primary transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-2xl">security</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">Safe Environment</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">A secure, serene campus within the College of Education grounds ensures your child learns in a safe and conducive atmosphere.</p>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-2">
+                <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center text-primary transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-2xl">computer</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">Digital Integration</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">From online result checking to e-learning resources, we integrate technology into every aspect of the educational experience.</p>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 fade-up delay-3">
+                <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-white flex items-center justify-center text-primary transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-2xl">sports_soccer</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">Sports & Activities</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">A vibrant sports program and diverse clubs and societies that develop teamwork, leadership, and physical fitness.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- CAMPUS GALLERY SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-background-light dark:bg-background-dark py-20">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-12 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Our Campus</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Explore Our Facilities</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">Take a glimpse into the vibrant life and modern facilities at NOCE DSSN.</p>
+        </div>
+        
+        <!-- Gallery Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 fade-up">
+            <div class="md:col-span-2 lg:col-span-2 relative rounded-2xl overflow-hidden group h-72 md:h-80">
+                <img alt="School Assembly" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="{% static 'images/assembly.jpg' %}"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <h4 class="text-white text-lg font-bold">Assembly Grounds</h4>
+                    <p class="text-gray-300 text-sm">Morning assemblies and events</p>
+                </div>
+            </div>
+            
+            <div class="relative rounded-2xl overflow-hidden group h-72 md:h-80">
+                <img alt="School Campus" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="{% static 'images/school2.jpg' %}"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <h4 class="text-white text-lg font-bold">Campus View</h4>
+                    <p class="text-gray-300 text-sm">Beautiful campus grounds</p>
+                </div>
+            </div>
+            
+            <div class="relative rounded-2xl overflow-hidden group h-72 md:h-80">
+                <img alt="School Facilities" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="{% static 'images/school3.jpg' %}"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <h4 class="text-white text-lg font-bold">Facilities</h4>
+                    <p class="text-gray-300 text-sm">Modern learning environment</p>
+                </div>
+            </div>
+            
+            <div class="relative rounded-2xl overflow-hidden group h-72 md:h-80">
+                <img alt="Staff Members" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="{% static 'images/staff_group.jpg' %}"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <h4 class="text-white text-lg font-bold">Our Staff</h4>
+                    <p class="text-gray-300 text-sm">Dedicated educators</p>
+                </div>
+            </div>
+            
+            <div class="relative rounded-2xl overflow-hidden group h-72 md:h-80">
+                <img alt="School Activities" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="{% static 'images/school4.jpg' %}"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <h4 class="text-white text-lg font-bold">School Activities</h4>
+                    <p class="text-gray-300 text-sm">Extracurricular programs</p>
+                </div>
+            </div>
+            
+            <div class="md:col-span-2 relative rounded-2xl overflow-hidden group h-72 md:h-80">
+                <img alt="School Environment" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="{% static 'images/school5.jpg' %}"/>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute bottom-0 left-0 p-6 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <h4 class="text-white text-lg font-bold">Our Environment</h4>
+                    <p class="text-gray-300 text-sm">Safe and serene learning space</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- CTA SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-gradient-to-r from-primary via-blue-600 to-blue-700 relative overflow-hidden">
+    <!-- Decorative elements -->
+    <div class="absolute inset-0">
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="relative z-10 py-20 md:py-28 px-4 md:px-12 lg:px-20 text-center max-w-4xl mx-auto">
+        <div class="fade-up">
+            <span class="inline-block px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-bold uppercase tracking-wider mb-6">
+                Join Our Community
+            </span>
+            <h2 class="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                Ready to Give Your Child the Best Education?
+            </h2>
+            <p class="text-blue-100 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
+                Enroll your ward at NOCE Demonstration Secondary School today and watch them blossom into the leaders of tomorrow.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'login' %}" class="flex items-center justify-center min-w-[200px] rounded-full h-14 px-8 bg-white text-primary hover:bg-gray-100 transition-all transform hover:-translate-y-1 text-lg font-bold shadow-xl shadow-black/10">
+                    <span class="material-symbols-outlined mr-2">login</span>
+                    Portal Login
+                </a>
+                <a href="{% url 'buy_pin_page' %}" class="flex items-center justify-center min-w-[200px] rounded-full h-14 px-8 bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20 transition-all transform hover:-translate-y-1 text-lg font-bold">
+                    <span class="material-symbols-outlined mr-2">confirmation_number</span>
+                    Buy Result PIN
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    // ============================================
+    // SCROLL ANIMATION (Intersection Observer)
+    // ============================================
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                
+                // Counter animation
+                if (entry.target.querySelector('.counter-value')) {
+                    const counters = entry.target.querySelectorAll('.counter-value');
+                    counters.forEach(counter => {
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        const duration = 2000;
+                        const step = target / (duration / 16);
+                        let current = 0;
+                        
+                        const updateCounter = () => {
+                            current += step;
+                            if (current < target) {
+                                counter.textContent = Math.ceil(current) + '+';
+                                requestAnimationFrame(updateCounter);
+                            } else {
+                                counter.textContent = target + '+';
+                            }
+                        };
+                        updateCounter();
+                    });
+                }
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    
+    // Also observe parent of counter for triggering
+    const counterSection = document.querySelector('.counter-value');
+    if (counterSection) {
+        observer.observe(counterSection.closest('.fade-up') || counterSection.parentElement.parentElement);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,731 @@
+{% extends 'base_public.html' %}
+{% load static %}
+
+{% block title %}Academics - NOCE DSSN{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Fade-in on scroll */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .fade-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    /* Gradient text */
+    .gradient-text {
+        background: linear-gradient(135deg, #0d59f2, #3b7cf5, #60a5fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Glass card */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* Feature card hover */
+    .feature-card {
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    /* Subject tag hover */
+    .subject-tag {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .subject-tag:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(13, 89, 242, 0.15);
+    }
+
+    /* Subtle float */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    /* Counter animation */
+    .counter-value {
+        transition: all 0.3s ease;
+    }
+
+    /* Tab active underline */
+    .tab-btn.active {
+        color: #0d59f2;
+        border-bottom-color: #0d59f2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================ -->
+<!-- HERO SECTION -->
+<!-- ============================================ -->
+<div class="relative w-full h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105" style='background-image: url("{% static 'images/school2.jpg' %}");'></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40"></div>
+
+    <!-- Decorative floating shapes -->
+    <div class="absolute top-16 left-16 w-36 h-36 bg-primary/10 rounded-full blur-2xl animate-float"></div>
+    <div class="absolute bottom-16 right-16 w-52 h-52 bg-blue-400/10 rounded-full blur-3xl animate-float" style="animation-delay: 3s;"></div>
+
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <span class="inline-block px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-bold uppercase tracking-widest shadow-xl mb-6">
+            <span class="material-symbols-outlined text-sm align-middle mr-1">auto_stories</span>
+            Academic Excellence
+        </span>
+        <h1 class="text-white text-4xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight drop-shadow-lg mb-6">
+            Where Knowledge <br class="hidden md:block"/>Meets Purpose
+        </h1>
+        <p class="text-gray-200 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto drop-shadow-md">
+            Explore our comprehensive curriculum, innovative teaching methods, and the academic programs that shape tomorrow's leaders at NOCE DSSN.
+        </p>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/50">
+        <span class="material-symbols-outlined text-4xl">keyboard_arrow_down</span>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- ACADEMIC LEVELS SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Our Structure</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Academic Levels</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">NOCE DSSN offers a seamless educational journey from Junior to Senior Secondary School.</p>
+        </div>
+
+        <!-- Levels Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Junior Secondary (JSS 1-3) -->
+            <div class="feature-card rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 fade-up delay-1">
+                <div class="relative h-56 overflow-hidden">
+                    <img alt="Junior Secondary Students" class="w-full h-full object-cover" src="{% static 'images/school4.jpg' %}"/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <span class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-full">JSS 1 – JSS 3</span>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-2xl font-bold text-text-main dark:text-white mb-3">Junior Secondary School</h3>
+                    <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        The foundation years where students build strong academic skills across a broad range of subjects. The junior curriculum is designed to discover each student's strengths and interests while ensuring a well-rounded education.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">English, Mathematics, Basic Science & Technology</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Social Studies, Civic Education, CRS/IRS</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Igbo Language, French, Computer Studies</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Agricultural Science, Home Economics, PHE</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Creative Arts, Music, Business Studies</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Senior Secondary (SS 1-3) -->
+            <div class="feature-card rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800 fade-up delay-2">
+                <div class="relative h-56 overflow-hidden">
+                    <img alt="Senior Secondary Students" class="w-full h-full object-cover" src="{% static 'images/school5.jpg' %}"/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-6">
+                        <span class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-full">SS 1 – SS 3</span>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-2xl font-bold text-text-main dark:text-white mb-3">Senior Secondary School</h3>
+                    <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        Students specialize in their chosen field — Science, Arts, or Commercial — preparing them for WAEC/NECO examinations and higher education. Our senior curriculum is rigorous and exam-focused.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-blue-600 text-lg">science</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400"><strong>Science:</strong> Physics, Chemistry, Biology, Further Maths</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-purple-600 text-lg">palette</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400"><strong>Arts:</strong> Literature, Government, History, CRS</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-amber-600 text-lg">account_balance</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400"><strong>Commercial:</strong> Accounting, Commerce, Economics</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400"><strong>Compulsory:</strong> English, Maths, Civic Ed, Computer</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-green-600 text-lg">workspace_premium</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400"><strong>Exams:</strong> WAEC, NECO, NABTEB preparation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- SUBJECT DEPARTMENTS SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-gradient-to-br from-[#1A1A2E] via-[#16213E] to-[#0F3460] relative overflow-hidden py-20 md:py-28">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div class="absolute bottom-0 left-0 w-72 h-72 bg-blue-400 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3"></div>
+    </div>
+
+    <div class="w-full px-4 md:px-12 lg:px-20 relative z-10 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-primary text-sm font-bold uppercase tracking-widest">Departments</span>
+            <h2 class="text-4xl md:text-5xl font-black text-white mt-6 leading-tight">Subject Departments</h2>
+            <p class="text-gray-300 text-lg mt-4 max-w-2xl mx-auto">Our academic departments are led by experienced heads of department who ensure curriculum excellence.</p>
+        </div>
+
+        <!-- Departments Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Languages -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-1 feature-card group">
+                <div class="size-14 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400 mb-5 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">translate</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Languages</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">English Language, Literature in English, Igbo Language, French</p>
+                <div class="h-1 w-12 bg-blue-500/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+
+            <!-- Sciences -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-2 feature-card group">
+                <div class="size-14 rounded-2xl bg-green-500/20 flex items-center justify-center text-green-400 mb-5 group-hover:bg-green-500 group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">biotech</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Sciences</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">Physics, Chemistry, Biology, Agricultural Science, Basic Science</p>
+                <div class="h-1 w-12 bg-green-500/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+
+            <!-- Mathematics -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-3 feature-card group">
+                <div class="size-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">calculate</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Mathematics</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">Mathematics, Further Mathematics, Statistics</p>
+                <div class="h-1 w-12 bg-primary/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+
+            <!-- Social Sciences -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-4 feature-card group">
+                <div class="size-14 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-400 mb-5 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">public</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Social Sciences</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">Government, Economics, Commerce, Social Studies, Civic Education</p>
+                <div class="h-1 w-12 bg-amber-500/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+
+            <!-- Humanities -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-1 feature-card group">
+                <div class="size-14 rounded-2xl bg-purple-500/20 flex items-center justify-center text-purple-400 mb-5 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">history_edu</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Humanities</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">History, CRS/IRS, Creative Arts, Music</p>
+                <div class="h-1 w-12 bg-purple-500/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+
+            <!-- Business Studies -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-2 feature-card group">
+                <div class="size-14 rounded-2xl bg-rose-500/20 flex items-center justify-center text-rose-400 mb-5 group-hover:bg-rose-500 group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">trending_up</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Business Studies</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">Accounting, Marketing, Office Practice, Business Studies</p>
+                <div class="h-1 w-12 bg-rose-500/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+
+            <!-- Technology -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-3 feature-card group">
+                <div class="size-14 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 mb-5 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">computer</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Technology</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">Computer Science, ICT, Basic Technology</p>
+                <div class="h-1 w-12 bg-cyan-500/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+
+            <!-- Vocational -->
+            <div class="glass-card rounded-3xl p-7 fade-up delay-4 feature-card group">
+                <div class="size-14 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-400 mb-5 group-hover:bg-orange-500 group-hover:text-white transition-all duration-300">
+                    <span class="material-symbols-outlined text-2xl">construction</span>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Vocational</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">Home Economics, PHE, Fine Arts, Technical Drawing</p>
+                <div class="h-1 w-12 bg-orange-500/50 rounded-full group-hover:w-full transition-all duration-500"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- TEACHING METHODOLOGY SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+            <!-- Text Side -->
+            <div class="lg:w-1/2 w-full fade-up">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Our Approach</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-black text-text-main dark:text-white leading-tight mb-6">
+                    How We <span class="gradient-text">Teach</span>
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 text-base leading-relaxed mb-8">
+                    Our teaching philosophy goes beyond rote learning. We employ a blend of traditional and modern methods to ensure every student grasps concepts deeply and can apply knowledge in real-world contexts.
+                </p>
+
+                <div class="space-y-5">
+                    <div class="flex items-start gap-4 group">
+                        <div class="size-12 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">psychology</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white mb-1">Student-Centred Learning</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Lessons tailored to individual learning paces and styles, ensuring no student is left behind.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 group">
+                        <div class="size-12 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">science</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white mb-1">Practical Laboratory Work</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Regular hands-on experiments in our science and computer labs bring theory to life.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 group">
+                        <div class="size-12 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">groups</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white mb-1">Collaborative Projects</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Group assignments and projects develop teamwork, communication, and leadership skills.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 group">
+                        <div class="size-12 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined">assessment</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white mb-1">Continuous Assessment</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Regular tests, quizzes, and assignments ensure steady progress and exam readiness throughout each term.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Side -->
+            <div class="lg:w-1/2 w-full fade-up delay-2">
+                <div class="relative">
+                    <div class="absolute -top-4 -right-4 w-full h-full bg-primary/10 rounded-3xl"></div>
+                    <div class="absolute -bottom-4 -left-4 w-full h-full border-2 border-primary/30 rounded-3xl"></div>
+                    <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+                        <img alt="Classroom teaching at NOCE DSSN" class="w-full h-auto aspect-[4/3] object-cover" src="{% static 'images/school3.jpg' %}"/>
+                    </div>
+                    <!-- Badge -->
+                    <div class="absolute -bottom-6 -left-6 bg-primary text-white rounded-2xl p-5 shadow-xl shadow-primary/30">
+                        <div class="text-sm font-bold opacity-80">Quality</div>
+                        <div class="text-2xl font-black">Teaching</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- ACADEMIC STATISTICS SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-background-light dark:bg-background-dark py-16 border-y border-gray-100 dark:border-gray-800">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+            <div class="text-center fade-up">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="30">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Subjects Offered</div>
+            </div>
+            <div class="text-center fade-up delay-1">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="8">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Departments</div>
+            </div>
+            <div class="text-center fade-up delay-2">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="95">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">% WAEC Pass Rate</div>
+            </div>
+            <div class="text-center fade-up delay-3">
+                <div class="text-5xl md:text-6xl font-black gradient-text counter-value" data-target="3">0</div>
+                <div class="mt-2 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Specializations</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- EXAMINATIONS & CERTIFICATIONS SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Exams & Results</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Examinations & Certifications</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">We prepare students thoroughly for all major national examinations.</p>
+        </div>
+
+        <!-- Exams Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- WAEC -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark feature-card fade-up delay-1">
+                <div class="size-16 rounded-2xl bg-green-50 dark:bg-green-900/20 group-hover:bg-green-600 flex items-center justify-center text-green-600 group-hover:text-white transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-3xl">workspace_premium</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">WAEC / WASSCE</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-5">
+                    The West African Senior School Certificate Examination — the primary qualification for university admission in Nigeria and West Africa.
+                </p>
+                <div class="flex items-center gap-2 text-green-600 font-bold text-sm">
+                    <span class="material-symbols-outlined text-lg">trending_up</span>
+                    <span>Excellent pass rates annually</span>
+                </div>
+            </div>
+
+            <!-- NECO -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark feature-card fade-up delay-2">
+                <div class="size-16 rounded-2xl bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-600 flex items-center justify-center text-blue-600 group-hover:text-white transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-3xl">verified</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">NECO / SSCE</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-5">
+                    The National Examination Council's Senior School Certificate — an additional nationally recognized certification for higher education entry.
+                </p>
+                <div class="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                    <span class="material-symbols-outlined text-lg">school</span>
+                    <span>Comprehensive preparation program</span>
+                </div>
+            </div>
+
+            <!-- BECE -->
+            <div class="group p-8 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-primary/30 bg-background-light dark:bg-background-dark feature-card fade-up delay-3">
+                <div class="size-16 rounded-2xl bg-amber-50 dark:bg-amber-900/20 group-hover:bg-amber-500 flex items-center justify-center text-amber-600 group-hover:text-white transition-all duration-300 mb-6">
+                    <span class="material-symbols-outlined text-3xl">assignment_turned_in</span>
+                </div>
+                <h3 class="text-xl font-bold text-text-main dark:text-white mb-3">BECE (Junior WAEC)</h3>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed mb-5">
+                    The Basic Education Certificate Examination taken at the end of JSS 3 — qualifying students for progression to senior secondary.
+                </p>
+                <div class="flex items-center gap-2 text-amber-600 font-bold text-sm">
+                    <span class="material-symbols-outlined text-lg">emoji_events</span>
+                    <span>Strong foundation results</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- EXTRACURRICULAR ACTIVITIES SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-background-light dark:bg-background-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 fade-up">
+            <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Beyond the Classroom</span>
+            <h2 class="text-4xl md:text-5xl font-black text-text-main dark:text-white leading-tight">Extracurricular Activities</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-lg mt-4 max-w-2xl mx-auto">We develop the whole student through a rich array of clubs, sports, and cultural activities.</p>
+        </div>
+
+        <!-- Activities Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Sports -->
+            <div class="group p-6 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all duration-300 hover:shadow-lg fade-up delay-1">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="size-12 rounded-xl bg-red-50 dark:bg-red-900/20 group-hover:bg-red-500 flex items-center justify-center text-red-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">sports_soccer</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main dark:text-white">Sports & Athletics</h3>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Football, volleyball, basketball, track and field, table tennis, and inter-house sports competitions.</p>
+            </div>
+
+            <!-- Debate -->
+            <div class="group p-6 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all duration-300 hover:shadow-lg fade-up delay-2">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="size-12 rounded-xl bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-500 flex items-center justify-center text-blue-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">record_voice_over</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main dark:text-white">Debate & Quiz</h3>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Active debate club and quiz teams that compete in inter-school and regional competitions.</p>
+            </div>
+
+            <!-- Science Club -->
+            <div class="group p-6 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all duration-300 hover:shadow-lg fade-up delay-3">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="size-12 rounded-xl bg-green-50 dark:bg-green-900/20 group-hover:bg-green-500 flex items-center justify-center text-green-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">biotech</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main dark:text-white">Science Club</h3>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Hands-on experiments, science fairs, and innovation challenges to spark scientific curiosity.</p>
+            </div>
+
+            <!-- Cultural -->
+            <div class="group p-6 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all duration-300 hover:shadow-lg fade-up delay-1">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="size-12 rounded-xl bg-purple-50 dark:bg-purple-900/20 group-hover:bg-purple-500 flex items-center justify-center text-purple-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">theater_comedy</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main dark:text-white">Cultural & Drama</h3>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Drama productions, cultural displays, and inter-house cultural competitions that celebrate heritage.</p>
+            </div>
+
+            <!-- Press Club -->
+            <div class="group p-6 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all duration-300 hover:shadow-lg fade-up delay-2">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="size-12 rounded-xl bg-amber-50 dark:bg-amber-900/20 group-hover:bg-amber-500 flex items-center justify-center text-amber-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">newspaper</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main dark:text-white">Press & Literary</h3>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">School magazine, creative writing, poetry, and public speaking development.</p>
+            </div>
+
+            <!-- Community Service -->
+            <div class="group p-6 rounded-2xl bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 hover:border-primary/30 transition-all duration-300 hover:shadow-lg fade-up delay-3">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="size-12 rounded-xl bg-teal-50 dark:bg-teal-900/20 group-hover:bg-teal-500 flex items-center justify-center text-teal-500 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">volunteer_activism</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-text-main dark:text-white">Community Service</h3>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Environmental clean-ups, outreach programs, and service learning that build civic responsibility.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- ACADEMIC CALENDAR OVERVIEW -->
+<!-- ============================================ -->
+<div class="w-full bg-white dark:bg-surface-dark py-20 md:py-28">
+    <div class="w-full px-4 md:px-12 lg:px-20 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-16">
+            <!-- Calendar Overview -->
+            <div class="lg:w-1/2 fade-up">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Academic Year</span>
+                <h2 class="text-3xl md:text-4xl font-black text-text-main dark:text-white leading-tight mb-8">Academic Calendar</h2>
+
+                <div class="space-y-6">
+                    <div class="flex gap-5 items-start group p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
+                        <div class="size-14 rounded-2xl bg-green-50 dark:bg-green-900/20 group-hover:bg-green-500 flex items-center justify-center text-green-600 group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined text-2xl">nature</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-lg">First Term</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">September – December</p>
+                            <p class="text-gray-400 dark:text-gray-500 text-xs mt-2">Resumption, mid-term break, first term examinations, inter-house sports</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-5 items-start group p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
+                        <div class="size-14 rounded-2xl bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-500 flex items-center justify-center text-blue-600 group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined text-2xl">ac_unit</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-lg">Second Term</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">January – April</p>
+                            <p class="text-gray-400 dark:text-gray-500 text-xs mt-2">Resumption, cultural activities, second term examinations, science fair</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-5 items-start group p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 transition-all">
+                        <div class="size-14 rounded-2xl bg-amber-50 dark:bg-amber-900/20 group-hover:bg-amber-500 flex items-center justify-center text-amber-600 group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined text-2xl">wb_sunny</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-lg">Third Term</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">April – July</p>
+                            <p class="text-gray-400 dark:text-gray-500 text-xs mt-2">Resumption, WAEC/NECO (SS3), promotion exams, graduation ceremony</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Online Resources -->
+            <div class="lg:w-1/2 fade-up delay-2">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-3 block">Digital Tools</span>
+                <h2 class="text-3xl md:text-4xl font-black text-text-main dark:text-white leading-tight mb-8">Online Academic Resources</h2>
+
+                <div class="space-y-6">
+                    <a href="{% url 'student_result' %}" class="flex gap-5 items-start group p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 hover:shadow-md transition-all">
+                        <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined text-2xl">assignment_ind</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-lg group-hover:text-primary transition-colors">Online Result Checking</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Check your termly results securely from anywhere with your result PIN.</p>
+                        </div>
+                    </a>
+                    <a href="{% url 'buy_pin_page' %}" class="flex gap-5 items-start group p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 hover:shadow-md transition-all">
+                        <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined text-2xl">confirmation_number</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-lg group-hover:text-primary transition-colors">Buy Result PIN</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Purchase your result checker PIN online instantly and securely.</p>
+                        </div>
+                    </a>
+                    <a href="{% url 'login' %}" class="flex gap-5 items-start group p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary/20 hover:shadow-md transition-all">
+                        <div class="size-14 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all shrink-0">
+                            <span class="material-symbols-outlined text-2xl">dashboard</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-text-main dark:text-white text-lg group-hover:text-primary transition-colors">Student Portal</h4>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Access your dashboard, attendance records, and academic performance data.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- CTA SECTION -->
+<!-- ============================================ -->
+<div class="w-full bg-gradient-to-r from-primary via-blue-600 to-blue-700 relative overflow-hidden">
+    <div class="absolute inset-0">
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 py-20 md:py-28 px-4 md:px-12 lg:px-20 text-center max-w-4xl mx-auto">
+        <div class="fade-up">
+            <span class="inline-block px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-bold uppercase tracking-wider mb-6">
+                <span class="material-symbols-outlined text-sm align-middle mr-1">auto_stories</span>
+                Start Learning
+            </span>
+            <h2 class="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                Ready to Excel Academically?
+            </h2>
+            <p class="text-blue-100 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
+                Join NOCE DSSN and experience an academic environment designed to bring out the best in every student.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'admissions' %}" class="flex items-center justify-center min-w-[200px] rounded-full h-14 px-8 bg-white text-primary hover:bg-gray-100 transition-all transform hover:-translate-y-1 text-lg font-bold shadow-xl shadow-black/10">
+                    <span class="material-symbols-outlined mr-2">how_to_reg</span>
+                    Apply Now
+                </a>
+                <a href="{% url 'buy_pin_page' %}" class="flex items-center justify-center min-w-[200px] rounded-full h-14 px-8 bg-white/10 backdrop-blur-md border border-white/30 text-white hover:bg-white/20 transition-all transform hover:-translate-y-1 text-lg font-bold">
+                    <span class="material-symbols-outlined mr-2">confirmation_number</span>
+                    Buy Result PIN
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    // ============================================
+    // SCROLL ANIMATION (Intersection Observer)
+    // ============================================
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+
+                // Counter animation
+                if (entry.target.querySelector('.counter-value')) {
+                    const counters = entry.target.querySelectorAll('.counter-value');
+                    counters.forEach(counter => {
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        const duration = 2000;
+                        const step = target / (duration / 16);
+                        let current = 0;
+
+                        const updateCounter = () => {
+                            current += step;
+                            if (current < target) {
+                                counter.textContent = Math.ceil(current) + '+';
+                                requestAnimationFrame(updateCounter);
+                            } else {
+                                counter.textContent = target + '+';
+                            }
+                        };
+                        updateCounter();
+                    });
+                }
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Also observe parent of counter for triggering
+    const counterSection = document.querySelector('.counter-value');
+    if (counterSection) {
+        observer.observe(counterSection.closest('.fade-up') || counterSection.parentElement.parentElement);
+    }
+</script>
+{% endblock %}
