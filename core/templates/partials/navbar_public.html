@@ -14,7 +14,7 @@
             <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'about' %}text-primary{% endif %}" href="{% url 'about_us' %}">About Us</a>
             <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'admissions' %}text-primary{% endif %}" href="{% url 'admissions' %}">Admissions</a>
             <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'academics' %}text-primary{% endif %}" href="{% url 'academics' %}">Academics</a>
-            <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'contact' %}text-primary{% endif %}" href="#">Contact</a>
+            <a class="text-text-main dark:text-gray-300 text-sm font-bold hover:text-primary dark:hover:text-primary transition-colors {% if active_page == 'contact' %}text-primary{% endif %}" href="{% url 'contact' %}">Contact</a>
         </nav>
         
         <!-- Actions -->
@@ -43,7 +43,7 @@
             <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="{% url 'about_us' %}">About Us</a>
             <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="{% url 'admissions' %}">Admissions</a>
             <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="{% url 'academics' %}">Academics</a>
-            <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">Contact</a>
+            <a class="px-4 py-3 rounded-lg text-text-main dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="{% url 'contact' %}">Contact</a>
             {% if user.is_authenticated %}
             <a href="{% url 'logout' %}" class="mt-2 flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-red-500 hover:bg-red-600 text-white font-bold transition-colors">
                 <span class="material-symbols-outlined !text-lg">logout</span>

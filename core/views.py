@@ -168,6 +168,10 @@ def academics_page(request):
     return render(request, 'academics.html', {'active_page': 'academics'})
 
 
+def contact_page(request):
+    return render(request, 'contact.html', {'active_page': 'contact'})
+
+
 def buy_pin(request):
     from .models import SchoolConfiguration, AcademicSession, Term, Pin
     

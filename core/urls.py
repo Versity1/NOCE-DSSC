@@ -9,6 +9,7 @@ urlpatterns = [
     path('about/', views.about_us, name='about_us'),
     path('admissions/', views.admissions_page, name='admissions'),
     path('academics/', views.academics_page, name='academics'),
+    path('contact/', views.contact_page, name='contact'),
     
     # Authentication
     path('login/', views.login_view, name='login'),
