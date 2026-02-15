@@ -370,7 +370,9 @@ def student_result(request):
     View for students to check their results.
     Requires a valid PIN for the selected term.
     """
-    from .models import Term, Pin, StudentResult, ClassInfo, StudentProfile, AcademicSession
+    from .models import Term, Pin, StudentResult, ClassInfo, StudentProfile, AcademicSession, Attendance
+    from django.db.models import Sum, Avg, Count, F, Q
+    from datetime import date
     from django.db.models import Sum, Avg, Count, F
     
     user = request.user
@@ -526,6 +528,44 @@ def student_result(request):
         except Term.DoesNotExist:
             messages.error(request, "Invalid term selected.")
             
+    # Calculate Age
+    student_age = None
+    if hasattr(user, 'student_profile') and user.student_profile.date_of_birth:
+        today = date.today()
+        dob = user.student_profile.date_of_birth
+        student_age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+    # Calculate Attendance
+    attendance_stats = {
+        'present': 0,
+        'absent': 0,
+        'late': 0,
+        'total': 0
+    }
+    
+    if selected_term_id:
+        try:
+            current_term = Term.objects.get(id=selected_term_id)
+            session = current_term.academic_session
+            # Filter attendance by the session start/end if available, else just all for student
+            # Ideally we want attendance *within this term*.
+            # Since Term doesn't have dates, we'll fallback to session dates or just all.
+            # Best effort: Filter by session year if start_date/end_date exist.
+            
+            att_qs = Attendance.objects.filter(student=user)
+            if session.start_date and session.end_date:
+                att_qs = att_qs.filter(date__range=[session.start_date, session.end_date])
+                
+            att_counts = att_qs.aggregate(
+                present=Count('id', filter=Q(status='Present')),
+                absent=Count('id', filter=Q(status='Absent')),
+                late=Count('id', filter=Q(status='Late'))
+            )
+            attendance_stats.update(att_counts)
+        except:
+            pass
+
+            
     context = {
         'active_page': 'results',
         'user_role': user.role,
@@ -537,6 +577,8 @@ def student_result(request):
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
         'stats': stats,
         'student_profile': user.student_profile,
+        'student_age': student_age,
+        'attendance_stats': attendance_stats,
     }
     return render(request, 'account/student-result.html', context)
 

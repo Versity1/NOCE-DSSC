@@ -72,6 +72,15 @@ class StudentProfile(models.Model):
     )
     admission_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     class_level = models.CharField(max_length=50, blank=True)
+    
+    GENDER_CHOICES = [
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+    ]
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    house = models.CharField(max_length=50, blank=True, help_text="e.g. Red House")
+    
     parent_name = models.CharField(max_length=100, blank=True)
     parent_phone = models.CharField(max_length=20, blank=True)
     

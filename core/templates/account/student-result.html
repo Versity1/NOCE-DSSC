@@ -144,11 +144,11 @@
             <div class="flex items-end">
                 <div class="w-24 flex border-b border-black">
                     <span class="whitespace-nowrap mr-2">Age:</span>
-                    <span class="flex-1"></span>
+                    <span class="flex-1 text-center">{% if student_age %}{{ student_age }}{% else %}-{% endif %}</span>
                 </div>
                 <div class="flex-1 flex border-b border-black ml-4">
                     <span class="whitespace-nowrap mr-2">House:</span>
-                    <span class="flex-1 text-center">Red House</span>
+                    <span class="flex-1 text-center">{{ student_profile.house|default:"-" }}</span>
                 </div>
                 <div class="w-48 flex border-b border-black ml-4">
                     <span class="whitespace-nowrap mr-2">Class:</span>
@@ -160,7 +160,7 @@
             <div class="flex items-end">
                 <div class="flex-1 flex border-b border-black">
                     <span class="whitespace-nowrap mr-2">Session:</span>
-                    <span class="flex-1 text-center">2023/2024</span>
+                    <span class="flex-1 text-center">{% for term in terms %}{% if term.id == selected_term_id %}{{ term.academic_session.name }}{% endif %}{% endfor %}</span>
                 </div>
                 <div class="flex-1 flex border-b border-black ml-4">
                     <span class="whitespace-nowrap mr-2">Annual:</span>
@@ -176,11 +176,11 @@
             <div class="flex items-end justify-between border-b border-black pb-0.5">
                 <div class="flex ">
                     <span class="whitespace-nowrap mr-2">No. of Days Absent:</span>
-                    <span class="w-12 text-center font-bold"> - </span>
+                    <span class="w-12 text-center font-bold">{{ attendance_stats.absent }}</span>
                 </div>
                 <div class="flex">
                     <span class="whitespace-nowrap mr-2">No. of Days Late:</span>
-                    <span class="w-12 text-center font-bold"> - </span>
+                    <span class="w-12 text-center font-bold">{{ attendance_stats.late }}</span>
                 </div>
                 <div class="w-1/3"></div> <!-- Spacer to match left alignment preference of image if any -->
             </div>
