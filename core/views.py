@@ -438,6 +438,9 @@ def student_result(request):
                 elif average >= 40: grade = 'D'
                 else: grade = 'F'
                 
+                # Determine class from results (use the first result's class)
+                result_class = results.first().student_class.name if results.exists() and results.first().student_class else user.student_profile.class_level
+
                 stats = {
                     'total_score': total_score,
                     'average': average,
@@ -459,6 +462,7 @@ def student_result(request):
         'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'terms': terms,
         'results': results,
+        'result_class': locals().get('result_class', user.student_profile.class_level if hasattr(user, 'student_profile') else ''), # Pass the determined class
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
         'stats': stats,
         'student_profile': user.student_profile,
