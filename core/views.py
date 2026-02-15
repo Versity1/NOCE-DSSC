@@ -439,15 +439,85 @@ def student_result(request):
                 else: grade = 'F'
                 
                 # Determine class from results (use the first result's class)
-                result_class = results.first().student_class.name if results.exists() and results.first().student_class else user.student_profile.class_level
+                first_result = results.first()
+                if first_result and first_result.student_class:
+                     result_class_name = first_result.student_class.name
+                     result_class_id = first_result.student_class.id
+                else:
+                     result_class_name = user.student_profile.class_level
+                     # Try to find the ID if possible, else None (limitations of legacy data)
+                     result_class_obj = ClassInfo.objects.filter(name=result_class_name).first()
+                     result_class_id = result_class_obj.id if result_class_obj else None
+
+                # Calculate Class Stats (Positions & Averages)
+                # We need all results for this class and term to calculate stats
+                class_results = StudentResult.objects.filter(
+                    term=term, 
+                    student_class__name=result_class_name
+                ).select_related('student', 'subject')
+
+                # 1. Subject Stats (Average & Position per subject)
+                subject_stats = {}
+                # Group by subject
+                from collections import defaultdict
+                subject_scores = defaultdict(list)
+                
+                for res in class_results:
+                    subject_scores[res.subject_id].append(res.total)
+                
+                for res in results:
+                    scores = subject_scores.get(res.subject_id, [])
+                    scores.sort(reverse=True)
+                    
+                    # Position
+                    try:
+                        position = scores.index(res.total) + 1
+                        # Handle ties (optional, simple ranking)
+                        if 10 <= position % 100 <= 20: suffix = 'th'
+                        else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(position % 10, 'th')
+                        position_str = f"{position}{suffix}"
+                    except ValueError:
+                        position_str = "-"
+                        
+                    # Class Average
+                    avg = round(sum(scores) / len(scores)) if scores else 0
+                    
+                    subject_stats[res.subject_id] = {
+                        'position': position_str,
+                        'average': avg,
+                        'highest': scores[0] if scores else 0,
+                        'lowest': scores[-1] if scores else 0
+                    }
+
+                # 2. Overall Class Stats
+                # Group totals by student
+                student_totals = defaultdict(int)
+                for res in class_results:
+                    student_totals[res.student_id] += res.total
+                
+                # Convert to list and sort
+                sorted_totals = sorted(student_totals.values(), reverse=True)
+                my_total = student_totals.get(user.id, 0)
+                
+                try:
+                    overall_pos = sorted_totals.index(my_total) + 1
+                    if 10 <= overall_pos % 100 <= 20: suffix = 'th'
+                    else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(overall_pos % 10, 'th')
+                    overall_position = f"{overall_pos}{suffix}"
+                except ValueError:
+                    overall_position = "-"
+                
+                class_size = len(student_totals)
+                class_average_score = round(sum(sorted_totals) / class_size, 1) if class_size else 0
 
                 stats = {
                     'total_score': total_score,
                     'average': average,
                     'count': count,
                     'grade': grade,
-                    # Position is complex, requires aggregation across all students in class
-                    'position': '-' 
+                    'position': overall_position,
+                    'class_size': class_size,
+                    'class_average': class_average_score
                 }
             elif not manual_pin_code and not existing_pin:
                  messages.warning(request, "You need a valid PIN to view results for this term.")
@@ -462,7 +532,8 @@ def student_result(request):
         'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
         'terms': terms,
         'results': results,
-        'result_class': locals().get('result_class', user.student_profile.class_level if hasattr(user, 'student_profile') else ''), # Pass the determined class
+        'subject_stats': locals().get('subject_stats', {}),
+        'result_class': locals().get('result_class_name', user.student_profile.class_level if hasattr(user, 'student_profile') else ''),
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
         'stats': stats,
         'student_profile': user.student_profile,
