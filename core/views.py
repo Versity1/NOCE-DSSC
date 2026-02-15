@@ -380,8 +380,23 @@ def student_result(request):
         messages.error(request, "Access denied. Student only.")
         return redirect('home')
 
+    # Fetch all sessions for selection
+    sessions = AcademicSession.objects.all().order_by('-id')
     current_session = AcademicSession.objects.filter(is_current=True).first()
-    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    # Check for selected session, default to current
+    selected_session_id = request.GET.get('session_id')
+    if selected_session_id:
+        try:
+            active_view_session = AcademicSession.objects.get(id=selected_session_id)
+        except AcademicSession.DoesNotExist:
+            active_view_session = current_session
+    else:
+        active_view_session = current_session
+        selected_session_id = current_session.id if current_session else None
+
+    # Filter terms by the ACTIVE VIEW session
+    terms = Term.objects.filter(academic_session=active_view_session) if active_view_session else Term.objects.none()
     
     selected_term_id = request.GET.get('term_id')
     manual_pin_code = request.GET.get('pin_code', '').strip()
@@ -389,43 +404,67 @@ def student_result(request):
     results = []
     stats = {}
     
+    # 1. Check PIN Access
+    access_granted = False
+    
     if selected_term_id:
         try:
             term = Term.objects.get(id=selected_term_id)
             
-            # 1. Check if student already has a valid active PIN for this term
-            # OR if they provided a valid manual PIN
-            has_access = False
-            
-            # Check existing owned pins
-            existing_pin = Pin.objects.filter(student=user, term=term, status='active').first()
-            if existing_pin:
-                has_access = True
-            
-            # If no existing pin, check valid manual pin entry
-            if not has_access and manual_pin_code:
-                # Find a pin with this code that is either unused (no student) or belongs to this student
-                # Use flexible matching for formatted vs unformatted
-                # If generated as XXXX-XXXX-XXXX, user might enter XXXXXXXXXXXX or vice versa
-                # Let's clean the input and db value for comparison
+            # ADMIN/STAFF BYPASS: Admins and Staff can view results without a PIN
+            if user.is_admin_user or user.is_staff_member:
+                access_granted = True
+            else:
+                # Check existing owned pins for students
+                # Relaxed check: If assigned to student for this term, grant access regardless of status
+                existing_pin = Pin.objects.filter(student=user, term=term).first()
+                if existing_pin:
+                    access_granted = True
                 
-                # Simple exact match for now based on improved format
-                pin_candidate = Pin.objects.filter(code=manual_pin_code, term=term, status='active').first()
-                
-                if pin_candidate:
-                    if pin_candidate.student and pin_candidate.student != user:
-                        messages.error(request, "This PIN has already been used by another student.")
+                # If no existing pin, check valid manual pin entry
+                if not access_granted and manual_pin_code:
+                    # ROBUST NORMALIZATION: Remove ALL non-alphanumeric characters and convert to upper
+                    import re
+                    clean_code = re.sub(r'[^a-zA-Z0-9]', '', manual_pin_code).upper()
+                    
+                    # Also handle the generated format XXXX-XXXX-XXXX
+                    if len(clean_code) == 12:
+                        formatted_code = f"{clean_code[:4]}-{clean_code[4:8]}-{clean_code[8:]}"
                     else:
-                        # Valid PIN. If not assigned, assign to student
-                        if not pin_candidate.student:
-                            pin_candidate.student = user
-                            pin_candidate.save()
-                        has_access = True
-                        messages.success(request, "PIN accepted!")
-                else:
-                     messages.error(request, "Invalid PIN code for this term.")
+                        formatted_code = clean_code
+                    
+                    # 1. First, try to find a valid PIN for the SELECTED TERM specifically
+                    valid_pin = Pin.objects.filter(
+                        Q(code__iexact=manual_pin_code) | Q(code__iexact=formatted_code) | Q(code__iexact=clean_code),
+                        term=term
+                    ).first()
+                    
+                    if valid_pin:
+                        # PIN exists for this term. check availability.
+                        if valid_pin.student and valid_pin.student != user:
+                            messages.error(request, "This PIN has already been used by another student.")
+                        elif valid_pin.status != 'active' and not valid_pin.student:
+                             messages.error(request, "This PIN is no longer active.")
+                        else:
+                            # Success: Assign if needed
+                            if not valid_pin.student:
+                                valid_pin.student = user
+                                valid_pin.status = 'active'
+                                valid_pin.save()
+                            access_granted = True
+                            messages.success(request, "PIN accepted!")
+                    else:
+                        # 2. If not found for this term, check if it exists for ANY term (for better error message)
+                        wrong_term_pin = Pin.objects.filter(
+                            Q(code__iexact=manual_pin_code) | Q(code__iexact=formatted_code) | Q(code__iexact=clean_code)
+                        ).first()
+                        
+                        if wrong_term_pin:
+                             messages.error(request, f"Invalid Term: This PIN is for '{wrong_term_pin.term.name}', but you selected '{term.name}'.")
+                        else:
+                             messages.error(request, "Invalid PIN code. Please check your digits.")
 
-            if has_access:
+            if access_granted:
                 results = StudentResult.objects.filter(student=user, term=term)
                 
                 # Calculate stats
@@ -434,10 +473,9 @@ def student_result(request):
                 average = round(total_score / count, 2) if count > 0 else 0
                 
                 # Determine grade
-                if average >= 75: grade = 'A'
-                elif average >= 60: grade = 'B'
-                elif average >= 50: grade = 'C'
-                elif average >= 40: grade = 'D'
+                if average >= 70: grade = 'A'
+                elif average >= 55: grade = 'C'
+                elif average >= 40: grade = 'P'
                 else: grade = 'F'
                 
                 # Determine class from results (use the first result's class)
@@ -446,7 +484,7 @@ def student_result(request):
                      result_class_name = first_result.student_class.name
                      result_class_id = first_result.student_class.id
                 else:
-                     result_class_name = user.student_profile.class_level
+                     result_class_name = user.student_profile.class_level if hasattr(user, 'student_profile') else ''
                      # Try to find the ID if possible, else None (limitations of legacy data)
                      result_class_obj = ClassInfo.objects.filter(name=result_class_name).first()
                      result_class_id = result_class_obj.id if result_class_obj else None
@@ -521,9 +559,12 @@ def student_result(request):
                     'class_size': class_size,
                     'class_average': class_average_score
                 }
-            elif not manual_pin_code and not existing_pin:
-                 messages.warning(request, "You need a valid PIN to view results for this term.")
-                 # return redirect('buy_pin_page') # Optional: auto-redirect
+            else:
+                 # Access Denied
+                 results = []
+                 stats = {}
+                 if not manual_pin_code:
+                     messages.warning(request, "Access Restricted: You need a valid PIN to view results.")
                  
         except Term.DoesNotExist:
             messages.error(request, "Invalid term selected.")
@@ -570,15 +611,18 @@ def student_result(request):
         'active_page': 'results',
         'user_role': user.role,
         'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'sessions': sessions,
+        'selected_session_id': int(selected_session_id) if selected_session_id else None,
         'terms': terms,
         'results': results,
         'subject_stats': locals().get('subject_stats', {}),
-        'result_class': locals().get('result_class_name', user.student_profile.class_level if hasattr(user, 'student_profile') else ''),
+        'result_class': result_class_name if 'result_class_name' in locals() else (user.student_profile.class_level if hasattr(user, 'student_profile') else ''),
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
         'stats': stats,
         'student_profile': user.student_profile,
         'student_age': student_age,
         'attendance_stats': attendance_stats,
+        'access_granted': access_granted,
     }
     return render(request, 'account/student-result.html', context)
 

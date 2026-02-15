@@ -79,11 +79,23 @@
 <div class="bg-white dark:bg-surface-dark rounded-2xl p-6 border border-border-color dark:border-[#2d3748] shadow-lg mb-6 no-print">
     <form method="get" class="flex flex-col md:flex-row gap-4 items-end">
         <div class="flex-1 w-full relative">
+            <label class="text-xs font-bold uppercase text-text-sub mb-1 block">Session</label>
+            <select name="session_id" onchange="this.form.submit()" class="w-full h-12 px-4 rounded-xl border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white appearance-none cursor-pointer">
+                {% for session in sessions %}
+                <option value="{{ session.id }}" {% if selected_session_id == session.id %}selected{% endif %}>{{ session.name }}{% if session.is_current %} (Current){% endif %}</option>
+                {% endfor %}
+            </select>
+            <div class="absolute right-3 bottom-3 pointer-events-none text-text-sub">
+                <span class="material-symbols-outlined">expand_more</span>
+            </div>
+        </div>
+
+        <div class="flex-1 w-full relative">
             <label class="text-xs font-bold uppercase text-text-sub mb-1 block">Term</label>
             <select name="term_id" class="w-full h-12 px-4 rounded-xl border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white appearance-none" required>
                 <option value="">Select Term</option>
                 {% for term in terms %}
-                <option value="{{ term.id }}" {% if selected_term_id == term.id %}selected{% endif %}>{{ term.name|default:term }}</option>
+                <option value="{{ term.id }}" {% if selected_term_id == term.id|stringformat:"i" or selected_term_id == term.id %}selected{% endif %}>{{ term.name|default:term }}</option>
                 {% endfor %}
             </select>
             <div class="absolute right-3 bottom-3 pointer-events-none text-text-sub">
@@ -102,277 +114,302 @@
     </form>
 </div>
 
-{% if selected_term_id and results %}
-<!-- REPORT CARD LAYOUT (Matches Image) -->
-<div id="result-sheet" class="bg-white text-black p-8 max-w-[210mm] mx-auto shadow-2xl relative overflow-hidden">
+{% if selected_term_id %}
+    {% if access_granted %}
+        {% if results %}
+            <!-- REPORT CARD LAYOUT (Matches Image) -->
+            <div id="result-sheet" class="bg-white text-black p-8 max-w-[210mm] mx-auto shadow-2xl relative overflow-hidden">
+                
+                <!-- Watermark -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05] z-0">
+                    <img src="{% static 'images/logo.jpg' %}" class="w-2/3 grayscale" alt="Watermark">
+                </div>
+
+                <div class="relative z-10 border-4 border-double border-gray-800 p-4 h-full">
+                    
+                    <!-- 1. Header Section -->
+                    <div class="flex items-start justify-between border-b-2 border-black pb-4 mb-4">
+                        <img src="{% static 'images/logo-left.png' %}" class="w-20 h-20 object-contain" alt="Logo L">
+                        
+                        <div class="text-center flex-1 px-4">
+                            <h1 class="text-2xl font-black uppercase tracking-tight scale-y-110">Nwafor Orizu College of Education</h1>
+                            <h2 class="text-xl font-bold uppercase mt-1">Demonstration Secondary School, Nsugbe</h2>
+                            <h3 class="text-lg font-serif italic mt-2 border-t border-black inline-block px-4 pt-1">Secondary Termly Report</h3>
+                        </div>
+                        
+                        <img src="{% static 'images/logo.jpg' %}" class="w-20 h-20 object-contain" alt="Logo R">
+                    </div>
+                    
+                    <!-- 2. Student Info Grid (Exact Replica) -->
+                    <div class="flex flex-col gap-1 text-sm font-semibold mb-6 font-mono leading-relaxed tracking-tight">
+                        <!-- Row 1: Name | Gender -->
+                        <div class="flex items-end">
+                            <div class="flex-1 flex border-b border-black">
+                                <span class="whitespace-nowrap mr-2">Name of Student:</span>
+                                <span class="flex-1 uppercase text-blue-900 font-bold items-center flex">{{ student_profile.user.get_full_name }}</span>
+                            </div>
+                            <div class="w-48 flex border-b border-black ml-4">
+                                <span class="whitespace-nowrap mr-2">Gender:</span>
+                                <span class="flex-1 text-center">{% if student_profile.gender %}{{ student_profile.gender }}{% else %}-{% endif %}</span>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Age | House | Class -->
+                        <div class="flex items-end">
+                            <div class="w-24 flex border-b border-black">
+                                <span class="whitespace-nowrap mr-2">Age:</span>
+                                <span class="flex-1 text-center">{% if student_age %}{{ student_age }}{% else %}-{% endif %}</span>
+                            </div>
+                            <div class="flex-1 flex border-b border-black ml-4">
+                                <span class="whitespace-nowrap mr-2">House:</span>
+                                <span class="flex-1 text-center">{{ student_profile.house|default:"-" }}</span>
+                            </div>
+                            <div class="w-48 flex border-b border-black ml-4">
+                                <span class="whitespace-nowrap mr-2">Class:</span>
+                                <span class="flex-1 uppercase text-center">{{ result_class }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Session | Term | No in Class -->
+                        <div class="flex items-end">
+                            <div class="flex-1 flex border-b border-black">
+                                <span class="whitespace-nowrap mr-2">Session:</span>
+                                <span class="flex-1 text-center">{% for term in terms %}{% if term.id == selected_term_id %}{{ term.academic_session.name }}{% endif %}{% endfor %}</span>
+                            </div>
+                            <div class="flex-1 flex border-b border-black ml-4">
+                                <span class="whitespace-nowrap mr-2">Annual:</span>
+                                <span class="flex-1 uppercase text-center">{% for term in terms %}{% if term.id == selected_term_id %}{{ term.name }}{% endif %}{% endfor %}</span>
+                            </div>
+                            <div class="w-48 flex border-b border-black ml-4">
+                                <span class="whitespace-nowrap mr-2">No. in Class:</span>
+                                <span class="flex-1 text-center">{{ stats.class_size }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Absent | Late -->
+                        <div class="flex items-end justify-between border-b border-black pb-0.5">
+                            <div class="flex ">
+                                <span class="whitespace-nowrap mr-2">No. of Days Absent:</span>
+                                <span class="w-12 text-center font-bold">{{ attendance_stats.absent }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="whitespace-nowrap mr-2">No. of Days Late:</span>
+                                <span class="w-12 text-center font-bold">{{ attendance_stats.late }}</span>
+                            </div>
+                            <div class="w-1/3"></div> <!-- Spacer to match left alignment preference of image if any -->
+                        </div>
+                    </div>
+
+                    <!-- 3. Results Table (Exact Columns & Rotation) -->
+                    <table class="report-table text-[11px] mb-4 border-2 border-black">
+                        <thead>
+                            <tr class="h-32"> <!-- Fixed height for headers -->
+
+                                <th rowspan="2" class="text-left border-black px-2">SUBJECT</th>
+                                <!-- CA Columns -->
+                                <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">1st CA</div></th>
+                                <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">2nd CA</div></th>
+                                <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">3rd CA</div></th>
+                                <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">4th CA</div></th>
+                                <th class="w-10 border-black bg-gray-200"><div class="-rotate-90 origin-bottom translate-x-4 w-10 font-bold">Total C.A</div></th>
+                                <!-- Exam -->
+                                <th class="w-10 border-black"><div class="-rotate-90 origin-bottom translate-x-4 w-10">Exam</div></th>
+                                <th class="w-10 border-black bg-gray-200"><div class="-rotate-90 origin-bottom translate-x-4 w-10 font-bold">Total</div></th>
+                                <!-- Class Avg -->
+                                <th class="w-10 border-black"><div class="-rotate-90 origin-bottom translate-x-4 w-10">Class Avg</div></th>
+                                <!-- Rotated Columns -->
+                                <th class="w-8 border-black"><div class="-rotate-90 origin-center w-8 h-24 flex items-center justify-center">Position</div></th>
+                                <th class="w-8 border-black"><div class="-rotate-90 origin-center w-8 h-24 flex items-center justify-center">Grade</div></th>
+                                <th class="w-24 border-black"><div class="-rotate-90 origin-center w-24 h-24 flex items-center justify-center">Teachers Remark</div></th>
+                                
+                            </tr>
+                            <tr class="h-6">
+                                <td class="border-black">10%</td>
+                                <td class="border-black">10%</td>
+                                <td class="border-black">10%</td>
+                                <td class="border-black">10%</td>
+                                <td class="border-black bg-gray-200">40%</td>
+                                <td class="border-black">60%</td>
+                                <td class="border-black bg-gray-200">100%</td>
+                                <td class="border-black">100%</td>
+                                <td class="border-black bg-gray-100"></td>
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                                {% with stat=subject_stats|get_item:result.subject.id %}
+                            <tr class="h-6">
+
+                                <td class="text-left font-bold px-2 uppercase border-black whitespace-nowrap">{{ result.subject.name }}</td>
+                                <td class="border-black">{{ result.ca1|default:"-" }}</td>
+                                <td class="border-black">{{ result.ca2|default:"-" }}</td>
+                                <td class="border-black">{{ result.ca3|default:"-" }}</td>
+                                <td class="border-black">{{ result.ca4|default:"-" }}</td>
+                                <td class="font-bold bg-gray-100 border-black">{{ result.ca1|add:result.ca2|add:result.ca3|add:result.ca4 }}</td>
+                                <td class="font-bold border-black">{{ result.exam|default:"-" }}</td>
+                                <td class="font-black bg-gray-100 text-blue-900 border-black">{{ result.total }}</td>
+                                <td class="italic text-gray-600 border-black">{{ stat.average|default:"-" }}</td>
+                                <td class="font-bold border-black">{{ stat.position }}</td>
+                                <td class="font-bold border-black {% if result.grade == 'F' %}text-red-600{% else %}text-green-700{% endif %}">{{ result.grade }}</td>
+                                <td class="text-[9px] uppercase font-semibold px-1 leading-tight text-center border-black">{{ result.remark }}</td>
+                                
+                            </tr>
+                                {% endwith %}
+                            {% endfor %}
+                            
+                            <!-- Fill remaining rows to reach 20 -->
+                            {% with results_count=results|length %}
+                            {% with range_val=20|add:"-"|add:results_count %} <!-- Simplistic range hack or just loop enough -->
+                            {% for i in "x"|rjust:15 %} <!-- Loop 15 times max (assuming at least 5 subjects) -->
+                                {% if forloop.counter <= 20 and forloop.counter > results_count %} 
+                                    <!-- Logic is hard in templates without custom range filter. Using a simpler approach: Just add empty rows. -->
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <!-- Better approach: Loop constant 20 times, check if result exists -->
+                            <!-- We can't easily iterate 0..19. Let's just add a fixed number of empty rows for now or valid range filter -->
+                            {% for i in "123456789012345"|make_list %}
+                                {% if forloop.counter0|add:results.count < 20 %}
+                            <tr class="h-6">
+
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="bg-gray-100 border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="bg-gray-100 border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+                                <td class="border-black"></td>
+
+                            </tr>
+                                {% endif %}
+                            {% endfor %}
+                            {% endwith %}
+                            {% endwith %}
+                        </tbody>
+                    </table>
+
+                    <!-- 4. Footer Analysis (Exact Labels) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
+                        
+                        <!-- Grading Keys -->
+                        <div class="border-2 border-black rounded-xl p-2 h-full">
+                            <h5 class="font-bold border-b border-black text-center mb-1 bg-gray-100 italic text-xs">KEYS TO GRADES:</h5>
+                            <div class="text-[10px] grid grid-cols-1 gap-1 pl-4 font-mono font-bold">
+                                <p>70% AND ABOVE - A (DISTINCTION)</p>
+                                <p>55% - 69%     - C (CREDIT)</p>
+                                <p>40% - 54%     - P (PASS)</p>
+                                <p>0% - 39%      - F (FAIL)</p>
+                            </div>
+                        </div>
+
+                        <!-- Result Analysis -->
+                        <div class="border-2 border-black rounded-xl p-2 h-full">
+                             <h5 class="font-bold border-b border-black text-center mb-1 bg-gray-100 uppercase text-xs">Result Analysis</h5>
+                             <div class="text-[10px] space-y-1 font-bold font-mono">
+                                 <div class="flex border-b border-dotted border-gray-400 pb-0.5">
+                                     <span class="w-48">Class Position of Student:</span>
+                                     <span class="flex-1 pl-2 text-base text-blue-900 leading-none">{{ stats.position }}</span>
+                                 </div>
+                                 <div class="flex border-b border-dotted border-gray-400 pb-0.5">
+                                     <span class="w-48">Class Average:</span>
+                                     <span class="flex-1 pl-2 leading-none">{{ stats.class_average }}</span>
+                                 </div>
+                                  <!-- The image has "Student Position Average". This is vague. Assuming it means Student Average. -->
+                                 <div class="flex border-b border-dotted border-gray-400 pb-0.5">
+                                     <span class="w-48">Student Position Average:</span>
+                                     <span class="flex-1 pl-2 leading-none">{{ stats.average }}</span>
+                                 </div>
+                                 <div class="flex border-b border-dotted border-gray-400 pb-0.5">
+                                     <span class="w-48">Student Total:</span>
+                                     <span class="flex-1 pl-2 leading-none">{{ stats.total_score }}</span>
+                                 </div>
+                                 <div class="flex border-b border-dotted border-gray-400 pb-0.5">
+                                     <span class="w-48">Result Status:</span>
+                                     <span class="flex-1 pl-2 uppercase text-green-700 leading-none">{% if stats.average >= 40 %}Pass{% else %}Fail{% endif %}</span>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Signatures (Exact Flow) -->
+                    <div class="mt-4 space-y-2 text-xs font-bold font-mono">
+                         <div class="flex border-b border-black pb-0.5 items-end">
+                             <span class="w-40 shrink-0">FORM TEACHER'S NAME:</span>
+                             <span class="flex-1 pl-2"></span>
+                         </div>
+                         <div class="flex border-b border-black pb-0.5 items-end">
+                             <span class="w-40 shrink-0">FORM TEACHER'S COMMENT:</span>
+                             <span class="flex-1 pl-2 italic truncate">A good result. Keep it up.</span>
+                         </div>
+                         
+                         <div class="flex border-b border-black pb-0.5 mt-2 items-end">
+                             <span class="w-40 shrink-0">PRINCIPAL'S COMMENT:</span>
+                             <span class="flex-1 pl-2 italic truncate">Excellent performance.</span>
+                         </div>
+                         
+                         <div class="flex items-end mt-4 pt-2">
+                             <div class="flex-1 flex border-b border-black pb-0.5 relative items-end">
+                                 <span class="w-32 shrink-0">PRINCIPAL'S SIGN:</span>
+                                 <div class="absolute left-28 bottom-0 h-12 w-32 -mb-2">
+                                     <img src="{% static 'images/signature.png' %}" class="h-full object-contain filter multiply" alt="Sign">
+                                 </div>
+                             </div>
+                             <div class="flex-1 flex border-b border-black pb-0.5 justify-end items-end ml-4">
+                                 <span class="mr-2 whitespace-nowrap">SCHOOL CLOSES:</span>
+                                 <span class="italic">13/12/2024</span>
+                             </div>
+                             <div class="flex-1 flex border-b border-black pb-0.5 justify-end items-end ml-4">
+                                 <span class="mr-2 whitespace-nowrap">NEXT TERM BEGINS:</span>
+                                 <span class="italic">08/01/2025</span>
+                             </div>
+                         </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Print Actions -->
+            <div class="flex justify-center gap-4 mt-8 no-print pb-12">
+                <button onclick="window.print()" class="px-8 py-3 bg-gray-800 text-white rounded-lg flex items-center gap-2 font-bold hover:bg-black transition-colors">
+                    <span class="material-symbols-outlined">print</span> Print Result
+                </button>
+            </div>
+
+        {% else %}
+            <!-- Access Granted but Info not found in database -->
+             <div class="bg-white dark:bg-surface-dark rounded-xl p-12 text-center text-text-sub border-2 border-dashed border-gray-300">
+                <span class="material-symbols-outlined text-4xl mb-2 text-gray-400">content_paste_off</span>
+                <p class="text-lg">No result data found for the selected term.</p>
+                <p class="text-sm mt-2">The school may not have uploaded results yet.</p>
+            </div>
+        {% endif %}
     
-    <!-- Watermark -->
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05] z-0">
-        <img src="{% static 'images/logo.jpg' %}" class="w-2/3 grayscale" alt="Watermark">
-    </div>
-
-    <div class="relative z-10 border-4 border-double border-gray-800 p-4 h-full">
-        
-        <!-- 1. Header Section -->
-        <div class="flex items-start justify-between border-b-2 border-black pb-4 mb-4">
-            <img src="{% static 'images/logo-left.png' %}" class="w-20 h-20 object-contain" alt="Logo L">
-            
-            <div class="text-center flex-1 px-4">
-                <h1 class="text-2xl font-black uppercase tracking-tight scale-y-110">Nwafor Orizu College of Education</h1>
-                <h2 class="text-xl font-bold uppercase mt-1">Demonstration Secondary School, Nsugbe</h2>
-                <h3 class="text-lg font-serif italic mt-2 border-t border-black inline-block px-4 pt-1">Senior Secondary Termly Report</h3>
-            </div>
-            
-             <img src="{% static 'images/logo.jpg' %}" class="w-20 h-20 object-contain" alt="Logo R">
-        </div>
-        
-        <!-- 2. Student Info Grid (Exact Replica) -->
-        <div class="flex flex-col gap-1 text-sm font-semibold mb-6 font-mono leading-relaxed tracking-tight">
-            <!-- Row 1: Name | Gender -->
-            <div class="flex items-end">
-                <div class="flex-1 flex border-b border-black">
-                    <span class="whitespace-nowrap mr-2">Name of Student:</span>
-                    <span class="flex-1 uppercase text-blue-900 font-bold items-center flex">{{ student_profile.user.get_full_name }}</span>
-                </div>
-                <div class="w-48 flex border-b border-black ml-4">
-                    <span class="whitespace-nowrap mr-2">Gender:</span>
-                    <span class="flex-1 text-center">{% if student_profile.gender %}{{ student_profile.gender }}{% else %}-{% endif %}</span>
-                </div>
-            </div>
-
-            <!-- Row 2: Age | House | Class -->
-            <div class="flex items-end">
-                <div class="w-24 flex border-b border-black">
-                    <span class="whitespace-nowrap mr-2">Age:</span>
-                    <span class="flex-1 text-center">{% if student_age %}{{ student_age }}{% else %}-{% endif %}</span>
-                </div>
-                <div class="flex-1 flex border-b border-black ml-4">
-                    <span class="whitespace-nowrap mr-2">House:</span>
-                    <span class="flex-1 text-center">{{ student_profile.house|default:"-" }}</span>
-                </div>
-                <div class="w-48 flex border-b border-black ml-4">
-                    <span class="whitespace-nowrap mr-2">Class:</span>
-                    <span class="flex-1 uppercase text-center">{{ result_class }}</span>
-                </div>
-            </div>
-
-            <!-- Row 3: Session | Term | No in Class -->
-            <div class="flex items-end">
-                <div class="flex-1 flex border-b border-black">
-                    <span class="whitespace-nowrap mr-2">Session:</span>
-                    <span class="flex-1 text-center">{% for term in terms %}{% if term.id == selected_term_id %}{{ term.academic_session.name }}{% endif %}{% endfor %}</span>
-                </div>
-                <div class="flex-1 flex border-b border-black ml-4">
-                    <span class="whitespace-nowrap mr-2">Annual:</span>
-                    <span class="flex-1 uppercase text-center">{% for term in terms %}{% if term.id == selected_term_id %}{{ term.name }}{% endif %}{% endfor %}</span>
-                </div>
-                <div class="w-48 flex border-b border-black ml-4">
-                    <span class="whitespace-nowrap mr-2">No. in Class:</span>
-                    <span class="flex-1 text-center">{{ stats.class_size }}</span>
-                </div>
-            </div>
-
-            <!-- Row 4: Absent | Late -->
-            <div class="flex items-end justify-between border-b border-black pb-0.5">
-                <div class="flex ">
-                    <span class="whitespace-nowrap mr-2">No. of Days Absent:</span>
-                    <span class="w-12 text-center font-bold">{{ attendance_stats.absent }}</span>
-                </div>
-                <div class="flex">
-                    <span class="whitespace-nowrap mr-2">No. of Days Late:</span>
-                    <span class="w-12 text-center font-bold">{{ attendance_stats.late }}</span>
-                </div>
-                <div class="w-1/3"></div> <!-- Spacer to match left alignment preference of image if any -->
-            </div>
-        </div>
-
-        <!-- 3. Results Table (Exact Columns & Rotation) -->
-        <table class="report-table text-[11px] mb-4 border-2 border-black">
-            <thead>
-                <tr class="h-32"> <!-- Fixed height for headers -->
-
-                    <th rowspan="2" class="text-left border-black px-2">SUBJECT</th>
-                    <!-- CA Columns -->
-                    <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">1st CA</div></th>
-                    <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">2nd CA</div></th>
-                    <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">3rd CA</div></th>
-                    <th class="w-8 border-black"><div class="-rotate-90 origin-bottom translate-x-3 w-8">4th CA</div></th>
-                    <th class="w-10 border-black bg-gray-200"><div class="-rotate-90 origin-bottom translate-x-4 w-10 font-bold">Total C.A</div></th>
-                    <!-- Exam -->
-                    <th class="w-10 border-black"><div class="-rotate-90 origin-bottom translate-x-4 w-10">Exam</div></th>
-                    <th class="w-10 border-black bg-gray-200"><div class="-rotate-90 origin-bottom translate-x-4 w-10 font-bold">Total</div></th>
-                    <!-- Class Avg -->
-                    <th class="w-10 border-black"><div class="-rotate-90 origin-bottom translate-x-4 w-10">Class Avg</div></th>
-                    <!-- Rotated Columns -->
-                    <th class="w-8 border-black"><div class="-rotate-90 origin-center w-8 h-24 flex items-center justify-center">Position</div></th>
-                    <th class="w-8 border-black"><div class="-rotate-90 origin-center w-8 h-24 flex items-center justify-center">Grade</div></th>
-                    <th class="w-24 border-black"><div class="-rotate-90 origin-center w-24 h-24 flex items-center justify-center">Teachers Remark</div></th>
-                    
-                </tr>
-                <tr class="h-6">
-                    <td class="border-black">10%</td>
-                    <td class="border-black">10%</td>
-                    <td class="border-black">10%</td>
-                    <td class="border-black">10%</td>
-                    <td class="border-black bg-gray-200">40%</td>
-                    <td class="border-black">60%</td>
-                    <td class="border-black bg-gray-200">100%</td>
-                    <td class="border-black">100%</td>
-                    <td class="border-black bg-gray-100"></td>
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-                    
-                </tr>
-            </thead>
-            <tbody>
-                {% for result in results %}
-                    {% with stat=subject_stats|get_item:result.subject.id %}
-                <tr class="h-6">
-
-                    <td class="text-left font-bold px-2 uppercase border-black whitespace-nowrap">{{ result.subject.name }}</td>
-                    <td class="border-black">{{ result.ca1|default:"-" }}</td>
-                    <td class="border-black">{{ result.ca2|default:"-" }}</td>
-                    <td class="border-black">{{ result.ca3|default:"-" }}</td>
-                    <td class="border-black">{{ result.ca4|default:"-" }}</td>
-                    <td class="font-bold bg-gray-100 border-black">{{ result.ca1|add:result.ca2|add:result.ca3|add:result.ca4 }}</td>
-                    <td class="font-bold border-black">{{ result.exam|default:"-" }}</td>
-                    <td class="font-black bg-gray-100 text-blue-900 border-black">{{ result.total }}</td>
-                    <td class="italic text-gray-600 border-black">{{ stat.average|default:"-" }}</td>
-                    <td class="font-bold border-black">{{ stat.position }}</td>
-                    <td class="font-bold border-black {% if result.grade == 'F' %}text-red-600{% else %}text-green-700{% endif %}">{{ result.grade }}</td>
-                    <td class="text-[9px] uppercase font-semibold px-1 leading-tight text-center border-black">{{ result.remark }}</td>
-                    
-                </tr>
-                    {% endwith %}
-                {% endfor %}
-                
-                <!-- Fill remaining rows to reach 20 -->
-                {% with results_count=results|length %}
-                {% with range_val=20|add:"-"|add:results_count %} <!-- Simplistic range hack or just loop enough -->
-                {% for i in "x"|rjust:15 %} <!-- Loop 15 times max (assuming at least 5 subjects) -->
-                    {% if forloop.counter <= 20 and forloop.counter > results_count %} 
-                        <!-- Logic is hard in templates without custom range filter. Using a simpler approach: Just add empty rows. -->
-                    {% endif %}
-                {% endfor %}
-                
-                <!-- Better approach: Loop constant 20 times, check if result exists -->
-                <!-- We can't easily iterate 0..19. Let's just add a fixed number of empty rows for now or valid range filter -->
-                {% for i in "123456789012345"|make_list %}
-                    {% if forloop.counter0|add:results.count < 20 %}
-                <tr class="h-6">
-
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="bg-gray-100 border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="bg-gray-100 border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-                    <td class="border-black"></td>
-
-                </tr>
-                    {% endif %}
-                {% endfor %}
-                {% endwith %}
-                {% endwith %}
-            </tbody>
-        </table>
-
-        <!-- 4. Footer Analysis (Exact Labels) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
-            
-            <!-- Grading Keys -->
-            <div class="border-2 border-black rounded-xl p-2 h-full">
-                <h5 class="font-bold border-b border-black text-center mb-1 bg-gray-100 italic text-xs">KEYS TO GRADES:</h5>
-                <div class="text-[10px] grid grid-cols-1 gap-1 pl-4 font-mono font-bold">
-                    <p>70% AND ABOVE - A (DISTINCTION)</p>
-                    <p>55% - 69%     - C (CREDIT)</p>
-                    <p>40% - 54%     - P (PASS)</p>
-                    <p>0% - 39%      - F (FAIL)</p>
-                </div>
-            </div>
-
-            <!-- Result Analysis -->
-            <div class="border-2 border-black rounded-xl p-2 h-full">
-                 <h5 class="font-bold border-b border-black text-center mb-1 bg-gray-100 uppercase text-xs">Result Analysis</h5>
-                 <div class="text-[10px] space-y-1 font-bold font-mono">
-                     <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                         <span class="w-48">Class Position of Student:</span>
-                         <span class="flex-1 pl-2 text-base text-blue-900 leading-none">{{ stats.position }}</span>
-                     </div>
-                     <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                         <span class="w-48">Class Average:</span>
-                         <span class="flex-1 pl-2 leading-none">{{ stats.class_average }}</span>
-                     </div>
-                      <!-- The image has "Student Position Average". This is vague. Assuming it means Student Average. -->
-                     <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                         <span class="w-48">Student Position Average:</span>
-                         <span class="flex-1 pl-2 leading-none">{{ stats.average }}</span>
-                     </div>
-                     <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                         <span class="w-48">Student Total:</span>
-                         <span class="flex-1 pl-2 leading-none">{{ stats.total_score }}</span>
-                     </div>
-                     <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                         <span class="w-48">Result Status:</span>
-                         <span class="flex-1 pl-2 uppercase text-green-700 leading-none">{% if stats.average >= 40 %}Pass{% else %}Fail{% endif %}</span>
-                     </div>
-                 </div>
-            </div>
-        </div>
-        
-        <!-- Signatures (Exact Flow) -->
-        <div class="mt-4 space-y-2 text-xs font-bold font-mono">
-             <div class="flex border-b border-black pb-0.5 items-end">
-                 <span class="w-40 shrink-0">FORM TEACHER'S NAME:</span>
-                 <span class="flex-1 pl-2"></span>
+    {% else %}
+        <!-- Access Denied -->
+        <div class="max-w-md mx-auto bg-white dark:bg-surface-dark rounded-2xl p-8 text-center shadow-lg border-l-4 border-red-500">
+             <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                 <span class="material-symbols-outlined text-3xl">lock</span>
              </div>
-             <div class="flex border-b border-black pb-0.5 items-end">
-                 <span class="w-40 shrink-0">FORM TEACHER'S COMMENT:</span>
-                 <span class="flex-1 pl-2 italic truncate">A good result. Keep it up.</span>
-             </div>
-             
-             <div class="flex border-b border-black pb-0.5 mt-2 items-end">
-                 <span class="w-40 shrink-0">PRINCIPAL'S COMMENT:</span>
-                 <span class="flex-1 pl-2 italic truncate">Excellent performance.</span>
-             </div>
-             
-             <div class="flex items-end mt-4 pt-2">
-                 <div class="flex-1 flex border-b border-black pb-0.5 relative items-end">
-                     <span class="w-32 shrink-0">PRINCIPAL'S SIGN:</span>
-                     <div class="absolute left-24 bottom-0 h-12 w-32 -mb-2">
-                         <img src="{% static 'images/signature.png' %}" class="h-full object-contain filter multiply" alt="Sign">
-                     </div>
-                 </div>
-                 <div class="flex-1 flex border-b border-black pb-0.5 justify-end items-end ml-4">
-                     <span class="mr-2 whitespace-nowrap">SCHOOL CLOSES:</span>
-                     <span class="italic">13/12/2024</span>
-                 </div>
-                 <div class="flex-1 flex border-b border-black pb-0.5 justify-end items-end ml-4">
-                     <span class="mr-2 whitespace-nowrap">NEXT TERM BEGINS:</span>
-                     <span class="italic">08/01/2025</span>
-                 </div>
-             </div>
+             <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Access Restricted</h3>
+             <p class="text-gray-600 dark:text-gray-300 mb-6">
+                 You need a valid <strong>Result Checker PIN</strong> to view your results for this term.
+             </p>
+             <button class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-colors" onclick="document.querySelector('input[name=pin_code]').focus()">
+                 Enter PIN Above
+             </button>
+             <p class="text-xs text-gray-500 mt-4">
+                 Don't have a PIN? Contact the school bursary or purchase one online.
+             </p>
         </div>
-
-    </div>
-</div>
-
-<!-- Print Actions -->
-<div class="flex justify-center gap-4 mt-8 no-print pb-12">
-    <button onclick="window.print()" class="px-8 py-3 bg-gray-800 text-white rounded-lg flex items-center gap-2 font-bold hover:bg-black transition-colors">
-        <span class="material-symbols-outlined">print</span> Print Result
-    </button>
-</div>
-
-{% elif selected_term_id %}
-<div class="bg-white dark:bg-surface-dark rounded-xl p-8 text-center text-text-sub">
-    <p>No results found for the selected term.</p>
-</div>
+    {% endif %}
 {% endif %}
 
 {% endblock %}

@@ -236,21 +236,15 @@ class StudentResult(models.Model):
         # Calculate Total
         self.total = self.ca1 + self.ca2 + self.ca3 + self.ca4 + self.exam
         
-        # Calculate Grade using standard WAEC/NECO grading system (example)
+        # Calculate Grade using updated scale (A, C, P, F)
         if self.total >= 70:
             self.grade = 'A'
             self.remark = 'Excellent'
-        elif self.total >= 60:
-            self.grade = 'B'
-            self.remark = 'Very Good'
-        elif self.total >= 50:
+        elif self.total >= 55:
             self.grade = 'C'
-            self.remark = 'Good'
-        elif self.total >= 45:
-            self.grade = 'D'
-            self.remark = 'Fair'
+            self.remark = 'Credit'
         elif self.total >= 40:
-            self.grade = 'E'
+            self.grade = 'P'
             self.remark = 'Pass'
         else:
             self.grade = 'F'
