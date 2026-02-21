@@ -1,0 +1,553 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Staff Management - NOCEN DSSN{% endblock %}
+
+{% block page_title_mobile %}Staff{% endblock %}
+
+{% block content %}
+<!-- Page Heading & Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div class="flex flex-col gap-1">
+        <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Staff Directory</h1>
+        <p class="text-text-sub dark:text-gray-400 text-base font-normal">Manage teachers & staff, assign form teachers and subject teachers.</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+        <button onclick="openAddModal()" class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white gap-2 text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
+            <span class="material-symbols-outlined text-lg">person_add</span>
+            <span class="truncate">Add Staff</span>
+        </button>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+    <div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-dark shadow-sm border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center justify-between">
+            <div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-primary">
+                <span class="material-symbols-outlined">school</span>
+            </div>
+        </div>
+        <div>
+            <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Teachers</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">{{ total_teachers }}</p>
+        </div>
+    </div>
+    <div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-dark shadow-sm border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center justify-between">
+            <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-orange-600">
+                <span class="material-symbols-outlined">badge</span>
+            </div>
+        </div>
+        <div>
+            <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Non-Teaching Staff</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">{{ total_non_teaching }}</p>
+        </div>
+    </div>
+    <div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-dark shadow-sm border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center justify-between">
+            <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600">
+                <span class="material-symbols-outlined">check_circle</span>
+            </div>
+        </div>
+        <div>
+            <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Classes with Form Teacher</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">{{ classes_with_form_teacher }}</p>
+        </div>
+    </div>
+    <div class="flex flex-col gap-3 rounded-xl p-5 bg-white dark:bg-surface-dark shadow-sm border border-border-color dark:border-[#2d3748]">
+        <div class="flex items-center justify-between">
+            <div class="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-600">
+                <span class="material-symbols-outlined">warning</span>
+            </div>
+        </div>
+        <div>
+            <p class="text-text-sub dark:text-gray-400 text-sm font-medium">Unassigned Classes</p>
+            <p class="text-text-main dark:text-white text-2xl font-bold mt-1">{{ classes_without_form_teacher }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="mt-8 border-b border-border-color dark:border-[#2d3748]">
+    <nav class="flex gap-6 -mb-px" id="staff-tabs">
+        <button onclick="switchTab('directory')" id="tab-directory" class="tab-btn pb-3 text-sm font-bold border-b-2 border-primary text-primary transition-colors">
+            Staff Directory
+        </button>
+        <button onclick="switchTab('form-teachers')" id="tab-form-teachers" class="tab-btn pb-3 text-sm font-bold border-b-2 border-transparent text-text-sub dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors">
+            Form Teachers
+        </button>
+        <button onclick="switchTab('subject-teachers')" id="tab-subject-teachers" class="tab-btn pb-3 text-sm font-bold border-b-2 border-transparent text-text-sub dark:text-gray-400 hover:text-text-main dark:hover:text-white transition-colors">
+            Subject Teachers
+        </button>
+    </nav>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 1: STAFF DIRECTORY -->
+<!-- ============================================ -->
+<div id="panel-directory" class="tab-panel">
+    <!-- Search & Filter Bar -->
+    <div class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4 justify-between items-center my-6">
+        <form method="get" class="flex flex-col md:flex-row gap-4 w-full">
+            <div class="relative w-full md:w-96 group">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] group-focus-within:text-primary transition-colors">search</span>
+                <input name="search" value="{{ search_query }}" class="w-full h-11 pl-10 pr-4 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-sm" placeholder="Search by name, email, or employee ID..." type="text"/>
+            </div>
+            <div class="flex w-full md:w-auto items-center gap-3">
+                <div class="relative min-w-[140px]">
+                    <select name="role" onchange="this.form.submit()" class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
+                        <option value="">All Roles</option>
+                        <option value="teacher" {% if selected_role == 'teacher' %}selected{% endif %}>Teachers</option>
+                        <option value="staff" {% if selected_role == 'staff' %}selected{% endif %}>Non-Teaching Staff</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table -->
+    <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden flex flex-col">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-background-light dark:bg-[#2d3748] border-b border-border-color dark:border-[#4a5568]">
+                    <tr>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Name</th>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Role</th>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Employee ID</th>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Department</th>
+                        <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Form Class</th>
+                        <th class="py-4 px-6 text-right text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                    {% for member in staff_members %}
+                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <div class="size-9 rounded-full {{ member.role|yesno:'bg-blue-100 dark:bg-blue-900/30,bg-orange-100 dark:bg-orange-900/30' }} flex items-center justify-center text-sm font-bold {{ member.role|yesno:'text-primary,text-orange-600' }}">
+                                    {{ member.first_name|first|default:"?" }}{{ member.last_name|first|default:"?" }}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-text-main dark:text-white">{{ member.get_full_name }}</p>
+                                    <p class="text-xs text-text-sub dark:text-gray-400">{{ member.email|default:"No email" }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            {% if member.role == 'teacher' %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/20 text-primary">
+                                <span class="material-symbols-outlined text-[14px]">school</span> Teacher
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-orange-50 dark:bg-orange-900/20 text-orange-600">
+                                <span class="material-symbols-outlined text-[14px]">badge</span> Staff
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-sm text-text-main dark:text-white font-mono">
+                            {% if member.role == 'teacher' and member.teacher_profile %}
+                                {{ member.teacher_profile.employee_id|default:"—" }}
+                            {% elif member.role == 'staff' and member.staff_profile %}
+                                {{ member.staff_profile.employee_id|default:"—" }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-sm text-text-main dark:text-white">
+                            {% if member.role == 'teacher' and member.teacher_profile %}
+                                {{ member.teacher_profile.department|default:"—" }}
+                            {% elif member.role == 'staff' and member.staff_profile %}
+                                {{ member.staff_profile.department|default:"—" }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-sm">
+                            {% if member.role == 'teacher' and member.form_class %}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs font-medium">
+                                    {{ member.form_class.name }}
+                                </span>
+                            {% else %}
+                                <span class="text-text-sub dark:text-gray-500">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="openEditModal({{ member.id }}, '{{ member.first_name }}', '{{ member.last_name }}', '{{ member.email }}', '{{ member.phone|default_if_none:"" }}', '{{ member.role }}', '{% if member.role == "teacher" and member.teacher_profile %}{{ member.teacher_profile.employee_id|default_if_none:"" }}{% elif member.role == "staff" and member.staff_profile %}{{ member.staff_profile.employee_id|default_if_none:"" }}{% endif %}', '{% if member.role == "teacher" and member.teacher_profile %}{{ member.teacher_profile.department }}{% elif member.role == "staff" and member.staff_profile %}{{ member.staff_profile.department }}{% endif %}', '{% if member.role == "teacher" and member.teacher_profile %}{{ member.teacher_profile.qualification }}{% elif member.role == "staff" and member.staff_profile %}{{ member.staff_profile.qualification }}{% endif %}', '{% if member.role == "staff" and member.staff_profile %}{{ member.staff_profile.position }}{% endif %}')" class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors" title="Edit">
+                                    <span class="material-symbols-outlined text-lg">edit</span>
+                                </button>
+                                <form action="{% url 'delete_staff' member.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this staff member? This cannot be undone.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors" title="Delete">
+                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-text-sub dark:text-gray-400">
+                            <span class="material-symbols-outlined text-4xl mb-2 block">group_off</span>
+                            No staff members found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if staff_members.has_other_pages %}
+        <div class="bg-background-light dark:bg-[#2d3748] px-6 py-4 border-t border-border-color dark:border-[#4a5568] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-text-sub dark:text-gray-400">
+                Page <span class="font-bold text-text-main dark:text-white">{{ staff_members.number }}</span> of <span class="font-bold text-text-main dark:text-white">{{ staff_members.paginator.num_pages }}</span>
+            </p>
+            <div class="flex items-center gap-2">
+                {% if staff_members.has_previous %}
+                <a href="?page={{ staff_members.previous_page_number }}&search={{ search_query }}&role={{ selected_role }}" class="p-2 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-surface-dark text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#4a5568]">
+                    <span class="material-symbols-outlined text-lg">chevron_left</span>
+                </a>
+                {% endif %}
+                {% if staff_members.has_next %}
+                <a href="?page={{ staff_members.next_page_number }}&search={{ search_query }}&role={{ selected_role }}" class="p-2 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-surface-dark text-text-sub dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#4a5568]">
+                    <span class="material-symbols-outlined text-lg">chevron_right</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 2: FORM TEACHER ASSIGNMENT -->
+<!-- ============================================ -->
+<div id="panel-form-teachers" class="tab-panel hidden">
+    <div class="mt-6">
+        <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+            <div class="p-5 border-b border-border-color dark:border-[#2d3748]">
+                <h3 class="text-text-main dark:text-white text-lg font-bold">Form Teacher Assignments</h3>
+                <p class="text-text-sub dark:text-gray-400 text-sm mt-1">Assign one teacher per class as the form teacher. Form teachers manage their assigned class.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-background-light dark:bg-[#2d3748] border-b border-border-color dark:border-[#4a5568]">
+                        <tr>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Class</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Current Form Teacher</th>
+                            <th class="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Assign Teacher</th>
+                            <th class="py-4 px-6 text-right text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                        {% for cls in classes %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <td class="py-4 px-6">
+                                <span class="text-sm font-semibold text-text-main dark:text-white">{{ cls.name }}</span>
+                                <span class="text-xs text-text-sub dark:text-gray-400 ml-1">({{ cls.level }})</span>
+                            </td>
+                            <td class="py-4 px-6">
+                                {% if cls.form_teacher %}
+                                <div class="flex items-center gap-2">
+                                    <div class="size-7 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-700 dark:text-green-400 text-xs font-bold">
+                                        {{ cls.form_teacher.first_name|first }}{{ cls.form_teacher.last_name|first }}
+                                    </div>
+                                    <span class="text-sm text-text-main dark:text-white font-medium">{{ cls.form_teacher.get_full_name }}</span>
+                                </div>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400 font-medium">
+                                    <span class="material-symbols-outlined text-[14px]">warning</span> Unassigned
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 px-6">
+                                <form method="post" action="{% url 'assign_form_teacher' %}" class="flex items-center gap-2" id="form-teacher-form-{{ cls.id }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="class_id" value="{{ cls.id }}">
+                                    <div class="relative w-full max-w-xs">
+                                        <select name="teacher_id" class="appearance-none w-full h-9 pl-3 pr-8 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                            <option value="">— None —</option>
+                                            {% for teacher in all_teachers %}
+                                            <option value="{{ teacher.id }}" {% if cls.form_teacher and cls.form_teacher.id == teacher.id %}selected{% endif %}>{{ teacher.get_full_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none text-[18px]">expand_more</span>
+                                    </div>
+                            </td>
+                            <td class="py-4 px-6 text-right">
+                                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors">
+                                        <span class="material-symbols-outlined text-[16px]">save</span> Save
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-text-sub dark:text-gray-400">No classes found. Please create classes first.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 3: SUBJECT TEACHER ASSIGNMENT -->
+<!-- ============================================ -->
+<div id="panel-subject-teachers" class="tab-panel hidden">
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Assign Form -->
+        <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden">
+            <div class="p-5 border-b border-border-color dark:border-[#2d3748]">
+                <h3 class="text-text-main dark:text-white text-lg font-bold">Assign Subject to Teacher</h3>
+                <p class="text-text-sub dark:text-gray-400 text-sm mt-1">Select a teacher, subject, and optionally a class.</p>
+            </div>
+            <form method="post" action="{% url 'assign_subject_teacher' %}" class="p-5 flex flex-col gap-4">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="assign">
+
+                <div>
+                    <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Teacher</label>
+                    <div class="relative">
+                        <select name="teacher_id" required class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <option value="">Select Teacher</option>
+                            {% for teacher in all_teachers %}
+                            <option value="{{ teacher.id }}">{{ teacher.get_full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Subject</label>
+                    <div class="relative">
+                        <select name="subject_id" required class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <option value="">Select Subject</option>
+                            {% for subject in all_subjects %}
+                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Class <span class="text-text-sub dark:text-gray-500">(Optional)</span></label>
+                    <div class="relative">
+                        <select name="class_id" class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                            <option value="">All Classes (General)</option>
+                            {% for cls in classes %}
+                            <option value="{{ cls.id }}">{{ cls.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary text-white text-sm font-bold shadow-md hover:bg-primary-dark transition-colors">
+                    <span class="material-symbols-outlined text-lg">add</span>
+                    Assign Subject
+                </button>
+            </form>
+        </div>
+
+        <!-- Current Assignments -->
+        <div class="bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] overflow-hidden flex flex-col">
+            <div class="p-5 border-b border-border-color dark:border-[#2d3748]">
+                <h3 class="text-text-main dark:text-white text-lg font-bold">Current Assignments</h3>
+                <p class="text-text-sub dark:text-gray-400 text-sm mt-1">{{ subject_assignments|length }} active subject assignment{{ subject_assignments|length|pluralize }}.</p>
+            </div>
+            <div class="overflow-y-auto max-h-[500px] flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-background-light dark:bg-[#2d3748] border-b border-border-color dark:border-[#4a5568] sticky top-0">
+                        <tr>
+                            <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Teacher</th>
+                            <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Subject</th>
+                            <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400">Class</th>
+                            <th class="py-3 px-4 text-right text-xs font-bold uppercase tracking-wider text-text-sub dark:text-gray-400"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
+                        {% for assignment in subject_assignments %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <td class="py-3 px-4 text-sm font-medium text-text-main dark:text-white">{{ assignment.teacher.get_full_name }}</td>
+                            <td class="py-3 px-4 text-sm text-text-main dark:text-white">{{ assignment.subject.name }}</td>
+                            <td class="py-3 px-4 text-sm text-text-sub dark:text-gray-400">{{ assignment.class_info.name|default:"All" }}</td>
+                            <td class="py-3 px-4 text-right">
+                                <form method="post" action="{% url 'assign_subject_teacher' %}" onsubmit="return confirm('Remove this assignment?');" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="remove">
+                                    <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+                                    <button type="submit" class="p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 dark:text-red-400 transition-colors" title="Remove">
+                                        <span class="material-symbols-outlined text-[18px]">close</span>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-text-sub dark:text-gray-400">
+                                <span class="material-symbols-outlined text-3xl mb-1 block">assignment</span>
+                                No subject assignments yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================ -->
+<!-- ADD / EDIT STAFF MODAL -->
+<!-- ============================================ -->
+<div id="staff-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeStaffModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white dark:bg-surface-dark rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="staff-form" method="post" action="{% url 'add_staff' %}">
+                {% csrf_token %}
+                <div class="px-5 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg font-bold text-text-main dark:text-white mb-5" id="staff-modal-title">Add Staff Member</h3>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">First Name *</label>
+                            <input type="text" name="first_name" required class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Last Name *</label>
+                            <input type="text" name="last_name" required class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Email</label>
+                            <input type="email" name="email" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Phone</label>
+                            <input type="text" name="phone" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Role *</label>
+                            <select name="role" id="staff-role-select" required onchange="togglePositionField()" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                                <option value="teacher">Teacher</option>
+                                <option value="staff">Non-Teaching Staff</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Employee ID</label>
+                            <input type="text" name="employee_id" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="e.g. EMP001">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Department</label>
+                            <input type="text" name="department" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="e.g. Sciences">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Qualification</label>
+                            <input type="text" name="qualification" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="e.g. B.Ed, M.Sc">
+                        </div>
+                    </div>
+
+                    <!-- Position field (Only for non-teaching staff) -->
+                    <div class="mt-4" id="position-field" style="display:none;">
+                        <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Position</label>
+                        <input type="text" name="position" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2.5 bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="e.g. Secretary, Bursar">
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700/50 px-5 py-4 sm:px-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                    <button type="button" class="w-full sm:w-auto rounded-lg px-4 py-2.5 border border-gray-300 dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#4a5568]" onclick="closeStaffModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="w-full sm:w-auto rounded-lg px-4 py-2.5 bg-primary text-white text-sm font-bold shadow-sm hover:bg-primary-dark">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== Tab Switching ==========
+    function switchTab(tabName) {
+        // Hide all panels
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+        // Deactivate all tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-primary', 'text-primary');
+            btn.classList.add('border-transparent', 'text-text-sub', 'dark:text-gray-400');
+        });
+        // Show selected panel
+        document.getElementById('panel-' + tabName).classList.remove('hidden');
+        // Activate selected tab
+        const activeTab = document.getElementById('tab-' + tabName);
+        activeTab.classList.add('border-primary', 'text-primary');
+        activeTab.classList.remove('border-transparent', 'text-text-sub', 'dark:text-gray-400');
+    }
+
+    // ========== Position Field Toggle ==========
+    function togglePositionField() {
+        const role = document.getElementById('staff-role-select').value;
+        document.getElementById('position-field').style.display = role === 'staff' ? 'block' : 'none';
+    }
+
+    // ========== Modal Controls ==========
+    function openAddModal() {
+        document.getElementById('staff-modal-title').innerText = 'Add Staff Member';
+        document.getElementById('staff-form').action = "{% url 'add_staff' %}";
+        document.getElementById('staff-form').reset();
+        togglePositionField();
+        document.getElementById('staff-modal').classList.remove('hidden');
+    }
+
+    function openEditModal(id, fname, lname, email, phone, role, empId, dept, qual, position) {
+        document.getElementById('staff-modal-title').innerText = 'Edit Staff Member';
+        document.getElementById('staff-form').action = "/admin-portal/staff/edit/" + id + "/";
+
+        const form = document.getElementById('staff-form');
+        form.elements['first_name'].value = fname;
+        form.elements['last_name'].value = lname;
+        form.elements['email'].value = email;
+        form.elements['phone'].value = phone;
+
+        // For edit, we make role read-only (can't change teacher<->staff without data migration)
+        const roleSelect = form.elements['role'];
+        roleSelect.value = role;
+        // Don't disable — just set it
+
+        form.elements['employee_id'].value = empId;
+        form.elements['department'].value = dept;
+        form.elements['qualification'].value = qual;
+        form.elements['position'].value = position;
+
+        togglePositionField();
+        document.getElementById('staff-modal').classList.remove('hidden');
+    }
+
+    function closeStaffModal() {
+        document.getElementById('staff-modal').classList.add('hidden');
+    }
+
+    // ========== Keyboard Shortcuts ==========
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeStaffModal();
+    });
+</script>
+{% endblock %}

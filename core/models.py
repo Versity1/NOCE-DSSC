@@ -99,6 +99,7 @@ class TeacherProfile(models.Model):
     employee_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     department = models.CharField(max_length=100, blank=True)
     subjects = models.CharField(max_length=255, blank=True, help_text='Comma-separated list of subjects')
+    qualification = models.CharField(max_length=200, blank=True, help_text='e.g. B.Ed, M.Sc')
     
     def __str__(self):
         return f"Teacher Profile: {self.user.get_full_name()}"
@@ -115,6 +116,7 @@ class StaffProfile(models.Model):
     employee_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     department = models.CharField(max_length=100, blank=True)
     position = models.CharField(max_length=100, blank=True)
+    qualification = models.CharField(max_length=200, blank=True, help_text='e.g. OND, HND, B.Sc')
     
     def __str__(self):
         return f"Staff Profile: {self.user.get_full_name()}"
@@ -178,6 +180,15 @@ class ClassInfo(models.Model):
     name = models.CharField(max_length=50, unique=True, help_text="e.g. JSS 1A")
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES)
     subjects = models.ManyToManyField('Subject', related_name='classes', blank=True)
+    form_teacher = models.OneToOneField(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='form_class',
+        limit_choices_to={'role': 'teacher'},
+        help_text='Teacher assigned as form teacher for this class'
+    )
     
     class Meta:
         verbose_name_plural = "Classes"
@@ -198,6 +209,34 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SubjectAssignment(models.Model):
+    """Assigns a teacher to a subject, optionally for specific classes."""
+    teacher = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='subject_assignments',
+        limit_choices_to={'role': 'teacher'}
+    )
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='assignments')
+    class_info = models.ForeignKey(
+        'ClassInfo',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='subject_assignments',
+        help_text='Specific class for this assignment (optional)'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['teacher', 'subject', 'class_info']
+        ordering = ['teacher__last_name', 'subject__name']
+
+    def __str__(self):
+        cls = f" ({self.class_info.name})" if self.class_info else ""
+        return f"{self.teacher.get_full_name()} → {self.subject.name}{cls}"
 
 
 class StudentResult(models.Model):

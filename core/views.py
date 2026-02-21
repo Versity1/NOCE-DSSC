@@ -851,6 +851,321 @@ def promote_students(request):
     return redirect('manage_students')
 
 
+# ============================================
+# STAFF MANAGEMENT VIEWS
+# ============================================
+
+@login_required
+def manage_staff(request):
+    """Admin view to list, search, and filter staff members."""
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    from .models import CustomUser, ClassInfo, Subject, SubjectAssignment
+
+    user = request.user
+    if user.role != 'admin':
+        messages.warning(request, "Access restricted to administrators.")
+        return redirect('home')
+
+    # Base Query — teachers and staff
+    staff_list = CustomUser.objects.filter(role__in=['teacher', 'staff']).order_by('role', 'last_name')
+
+    # Search
+    search_query = request.GET.get('search', '')
+    if search_query:
+        staff_list = staff_list.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(teacher_profile__employee_id__icontains=search_query) |
+            Q(staff_profile__employee_id__icontains=search_query)
+        ).distinct()
+
+    # Role filter
+    selected_role = request.GET.get('role', '')
+    if selected_role in ['teacher', 'staff']:
+        staff_list = staff_list.filter(role=selected_role)
+
+    # Pagination
+    paginator = Paginator(staff_list, 20)
+    page_number = request.GET.get('page')
+    staff_members = paginator.get_page(page_number)
+
+    # Stats
+    total_teachers = CustomUser.objects.filter(role='teacher').count()
+    total_non_teaching = CustomUser.objects.filter(role='staff').count()
+    classes = ClassInfo.objects.all().select_related('form_teacher')
+    classes_with_form_teacher = classes.filter(form_teacher__isnull=False).count()
+    classes_without_form_teacher = classes.filter(form_teacher__isnull=True).count()
+
+    # All teachers for assignment dropdowns
+    all_teachers = CustomUser.objects.filter(role='teacher').order_by('last_name')
+    all_subjects = Subject.objects.all()
+
+    # Subject assignments
+    subject_assignments = SubjectAssignment.objects.all().select_related('teacher', 'subject', 'class_info')
+
+    context = {
+        'user_role': user.role,
+        'user_name': user.get_full_name() or user.username,
+        'user_initials': ''.join([n[0].upper() for n in (user.get_full_name() or user.username).split()[:2]]),
+        'active_page': 'staff',
+
+        'staff_members': staff_members,
+        'search_query': search_query,
+        'selected_role': selected_role,
+
+        'total_teachers': total_teachers,
+        'total_non_teaching': total_non_teaching,
+        'classes': classes,
+        'classes_with_form_teacher': classes_with_form_teacher,
+        'classes_without_form_teacher': classes_without_form_teacher,
+
+        'all_teachers': all_teachers,
+        'all_subjects': all_subjects,
+        'subject_assignments': subject_assignments,
+    }
+    return render(request, 'custom_admin/manage-staff.html', context)
+
+
+@login_required
+def add_staff(request):
+    """Create a new teacher or staff member with profile."""
+    from .models import CustomUser, TeacherProfile, StaffProfile
+
+    user = request.user
+    if user.role != 'admin':
+        messages.warning(request, "Access restricted to administrators.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        try:
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            phone = request.POST.get('phone', '').strip()
+            role = request.POST.get('role', 'teacher')
+            department = request.POST.get('department', '').strip()
+            employee_id = request.POST.get('employee_id', '').strip()
+            qualification = request.POST.get('qualification', '').strip()
+            position = request.POST.get('position', '').strip()
+
+            if not (first_name and last_name):
+                raise ValueError("First Name and Last Name are required.")
+
+            if role not in ['teacher', 'staff']:
+                raise ValueError("Role must be 'teacher' or 'staff'.")
+
+            # Generate username
+            username = request.POST.get('username') or f"{'TCH' if role == 'teacher' else 'STF'}{CustomUser.objects.count() + 1000}"
+
+            # Check for duplicate employee_id
+            if employee_id:
+                if TeacherProfile.objects.filter(employee_id=employee_id).exists() or \
+                   StaffProfile.objects.filter(employee_id=employee_id).exists():
+                    raise ValueError(f"Employee ID '{employee_id}' already exists.")
+
+            # Create User
+            new_user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password='password123',
+                first_name=first_name,
+                last_name=last_name,
+                role=role,
+                phone=phone,
+            )
+
+            # Create appropriate profile
+            if role == 'teacher':
+                TeacherProfile.objects.create(
+                    user=new_user,
+                    employee_id=employee_id or None,
+                    department=department,
+                    qualification=qualification,
+                )
+            else:
+                StaffProfile.objects.create(
+                    user=new_user,
+                    employee_id=employee_id or None,
+                    department=department,
+                    position=position,
+                    qualification=qualification,
+                )
+
+            messages.success(request, f"{role.capitalize()} {first_name} {last_name} added successfully.")
+
+        except Exception as e:
+            messages.error(request, f"Error adding staff: {str(e)}")
+
+    return redirect('manage_staff')
+
+
+@login_required
+def edit_staff(request, staff_id):
+    """Update an existing teacher/staff member and their profile."""
+    from .models import CustomUser, TeacherProfile, StaffProfile
+
+    user = request.user
+    if user.role != 'admin':
+        messages.warning(request, "Access restricted to administrators.")
+        return redirect('home')
+
+    try:
+        staff_member = CustomUser.objects.get(id=staff_id, role__in=['teacher', 'staff'])
+
+        if request.method == 'POST':
+            staff_member.first_name = request.POST.get('first_name', '').strip()
+            staff_member.last_name = request.POST.get('last_name', '').strip()
+            staff_member.email = request.POST.get('email', '').strip()
+            staff_member.phone = request.POST.get('phone', '').strip()
+            staff_member.save()
+
+            if staff_member.role == 'teacher':
+                profile, _ = TeacherProfile.objects.get_or_create(user=staff_member)
+                profile.employee_id = request.POST.get('employee_id', '').strip() or None
+                profile.department = request.POST.get('department', '').strip()
+                profile.qualification = request.POST.get('qualification', '').strip()
+                profile.save()
+            else:
+                profile, _ = StaffProfile.objects.get_or_create(user=staff_member)
+                profile.employee_id = request.POST.get('employee_id', '').strip() or None
+                profile.department = request.POST.get('department', '').strip()
+                profile.position = request.POST.get('position', '').strip()
+                profile.qualification = request.POST.get('qualification', '').strip()
+                profile.save()
+
+            messages.success(request, f"{staff_member.get_full_name()}'s details updated.")
+
+    except CustomUser.DoesNotExist:
+        messages.error(request, "Staff member not found.")
+
+    return redirect('manage_staff')
+
+
+@login_required
+def delete_staff(request, staff_id):
+    """Delete a staff member."""
+    from .models import CustomUser
+
+    user = request.user
+    if user.role != 'admin':
+        messages.warning(request, "Access restricted to administrators.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        try:
+            staff_member = CustomUser.objects.get(id=staff_id, role__in=['teacher', 'staff'])
+            name = staff_member.get_full_name()
+            staff_member.delete()
+            messages.success(request, f"{name} has been removed.")
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Staff member not found.")
+
+    return redirect('manage_staff')
+
+
+@login_required
+def assign_form_teacher(request):
+    """Assign or update a form teacher for a class."""
+    from .models import ClassInfo, CustomUser
+
+    user = request.user
+    if user.role != 'admin':
+        messages.warning(request, "Access restricted to administrators.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        try:
+            class_id = request.POST.get('class_id')
+            teacher_id = request.POST.get('teacher_id')
+
+            class_info = ClassInfo.objects.get(id=class_id)
+
+            if teacher_id:
+                teacher = CustomUser.objects.get(id=teacher_id, role='teacher')
+
+                # Check if teacher is already form teacher of another class
+                existing = ClassInfo.objects.filter(form_teacher=teacher).exclude(id=class_id).first()
+                if existing:
+                    raise ValueError(f"{teacher.get_full_name()} is already form teacher of {existing.name}.")
+
+                class_info.form_teacher = teacher
+                class_info.save()
+                messages.success(request, f"{teacher.get_full_name()} assigned as form teacher of {class_info.name}.")
+            else:
+                # Remove assignment
+                class_info.form_teacher = None
+                class_info.save()
+                messages.success(request, f"Form teacher removed from {class_info.name}.")
+
+        except ClassInfo.DoesNotExist:
+            messages.error(request, "Class not found.")
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Teacher not found.")
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+
+    return redirect('manage_staff')
+
+
+@login_required
+def assign_subject_teacher(request):
+    """Create or remove subject-teacher assignments."""
+    from .models import CustomUser, Subject, ClassInfo, SubjectAssignment
+
+    user = request.user
+    if user.role != 'admin':
+        messages.warning(request, "Access restricted to administrators.")
+        return redirect('home')
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'assign')
+
+        if action == 'assign':
+            try:
+                teacher_id = request.POST.get('teacher_id')
+                subject_id = request.POST.get('subject_id')
+                class_id = request.POST.get('class_id') or None
+
+                teacher = CustomUser.objects.get(id=teacher_id, role='teacher')
+                subject = Subject.objects.get(id=subject_id)
+                class_info = ClassInfo.objects.get(id=class_id) if class_id else None
+
+                assignment, created = SubjectAssignment.objects.get_or_create(
+                    teacher=teacher,
+                    subject=subject,
+                    class_info=class_info,
+                )
+
+                if created:
+                    cls_name = f" for {class_info.name}" if class_info else ""
+                    messages.success(request, f"{teacher.get_full_name()} assigned to {subject.name}{cls_name}.")
+                else:
+                    messages.info(request, "This assignment already exists.")
+
+            except CustomUser.DoesNotExist:
+                messages.error(request, "Teacher not found.")
+            except Subject.DoesNotExist:
+                messages.error(request, "Subject not found.")
+            except ClassInfo.DoesNotExist:
+                messages.error(request, "Class not found.")
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+
+        elif action == 'remove':
+            try:
+                assignment_id = request.POST.get('assignment_id')
+                assignment = SubjectAssignment.objects.get(id=assignment_id)
+                assignment.delete()
+                messages.success(request, "Subject assignment removed.")
+            except SubjectAssignment.DoesNotExist:
+                messages.error(request, "Assignment not found.")
+
+    return redirect('manage_staff')
+
+
 @login_required
 def enter_marks(request):
     from .models import ClassInfo, Subject, Term, AcademicSession, StudentResult, CustomUser

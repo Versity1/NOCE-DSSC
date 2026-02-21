@@ -28,6 +28,15 @@ urlpatterns = [
     path('admin-portal/students/edit/<int:student_id>/', views.edit_student, name='edit_student'),
     path('admin-portal/students/delete/<int:student_id>/', views.delete_student, name='delete_student'),
     path('admin-portal/students/promote/', views.promote_students, name='promote_students'),
+    
+    # Staff Management
+    path('admin-portal/staff/', views.manage_staff, name='manage_staff'),
+    path('admin-portal/staff/add/', views.add_staff, name='add_staff'),
+    path('admin-portal/staff/edit/<int:staff_id>/', views.edit_staff, name='edit_staff'),
+    path('admin-portal/staff/delete/<int:staff_id>/', views.delete_staff, name='delete_staff'),
+    path('admin-portal/staff/assign-form-teacher/', views.assign_form_teacher, name='assign_form_teacher'),
+    path('admin-portal/staff/assign-subject/', views.assign_subject_teacher, name='assign_subject_teacher'),
+    
     path('admin-portal/attendance/', views.attendance, name='attendance'),
     path('admin-portal/attendance/save/', views.save_attendance, name='save_attendance'),
     path('admin-portal/marks/', views.enter_marks, name='enter_marks'),

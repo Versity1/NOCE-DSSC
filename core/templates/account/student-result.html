@@ -297,13 +297,13 @@
                     </table>
 
                     <!-- 4. Footer Analysis (Exact Labels) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
+                    <div class="flex gap-4 mt-1">
                         
                         <!-- Grading Keys -->
-                        <div class="border-2 border-black rounded-xl p-2 h-full">
+                        <div class="flex-1 border-2 border-black rounded-xl p-2">
                             <h5 class="font-bold border-b border-black text-center mb-1 bg-gray-100 italic text-xs">KEYS TO GRADES:</h5>
                             <div class="text-[10px] grid grid-cols-1 gap-1 pl-4 font-mono font-bold">
-                                <p>70% AND ABOVE - A (DISTINCTION)</p>
+                                <p>70% AND ABOVE - A (EXCELLENT)</p>
                                 <p>55% - 69%     - C (CREDIT)</p>
                                 <p>40% - 54%     - P (PASS)</p>
                                 <p>0% - 39%      - F (FAIL)</p>
@@ -311,28 +311,28 @@
                         </div>
 
                         <!-- Result Analysis -->
-                        <div class="border-2 border-black rounded-xl p-2 h-full">
+                        <div class="flex-1 border-2 border-black rounded-xl p-2">
                              <h5 class="font-bold border-b border-black text-center mb-1 bg-gray-100 uppercase text-xs">Result Analysis</h5>
                              <div class="text-[10px] space-y-1 font-bold font-mono">
                                  <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                                     <span class="w-48">Class Position of Student:</span>
+                                     <span class="w-24 shrink-0">Class Position:</span>
                                      <span class="flex-1 pl-2 text-base text-blue-900 leading-none">{{ stats.position }}</span>
                                  </div>
                                  <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                                     <span class="w-48">Class Average:</span>
+                                     <span class="w-24 shrink-0">Class Avg:</span>
                                      <span class="flex-1 pl-2 leading-none">{{ stats.class_average }}</span>
                                  </div>
                                   <!-- The image has "Student Position Average". This is vague. Assuming it means Student Average. -->
                                  <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                                     <span class="w-48">Student Position Average:</span>
+                                     <span class="w-24 shrink-0">Student Avg:</span>
                                      <span class="flex-1 pl-2 leading-none">{{ stats.average }}</span>
                                  </div>
                                  <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                                     <span class="w-48">Student Total:</span>
+                                     <span class="w-24 shrink-0">Student Total:</span>
                                      <span class="flex-1 pl-2 leading-none">{{ stats.total_score }}</span>
                                  </div>
                                  <div class="flex border-b border-dotted border-gray-400 pb-0.5">
-                                     <span class="w-48">Result Status:</span>
+                                     <span class="w-24 shrink-0">Status:</span>
                                      <span class="flex-1 pl-2 uppercase text-green-700 leading-none">{% if stats.average >= 40 %}Pass{% else %}Fail{% endif %}</span>
                                  </div>
                              </div>
