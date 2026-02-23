@@ -1360,6 +1360,8 @@ def upload_marks_csv(request):
 def broadsheet(request):
     from .models import ClassInfo, Subject, Term, AcademicSession, StudentResult, CustomUser
     from django.db.models import Sum, Avg
+    import csv
+    from django.http import HttpResponse
     
     user = request.user
     classes = ClassInfo.objects.all()
@@ -1427,6 +1429,44 @@ def broadsheet(request):
             for data in broadsheet_data:
                 data['position'] = current_pos
                 current_pos += 1
+                
+            # Handle CSV Export
+            if request.GET.get('export') == 'csv':
+                # Try to get term name for filename
+                term_name = "Term"
+                try:
+                    term_obj = Term.objects.get(id=selected_term_id)
+                    term_name = term_obj.name
+                except Term.DoesNotExist:
+                    pass
+                    
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = f'attachment; filename="broadsheet_{selected_class.name}_{term_name}.csv"'
+                
+                writer = csv.writer(response)
+                
+                # Write Header Row
+                header = ['Pos', 'Student Name']
+                for subject in subjects:
+                    header.append(subject.code or subject.name)
+                header.extend(['Total', 'Avg'])
+                writer.writerow(header)
+                
+                # Write Data Rows
+                for row_data in broadsheet_data:
+                    row = [
+                        row_data['position'],
+                        row_data['student'].get_full_name()
+                    ]
+                    for score_data in row_data['scores']:
+                        score_val = score_data['score']
+                        # You can include grade too e.g. "85 (A)" if desired, here just score:
+                        row.append(score_val)
+                        
+                    row.extend([row_data['total'], row_data['average']])
+                    writer.writerow(row)
+                    
+                return response
                 
         except ClassInfo.DoesNotExist:
             messages.error(request, "Selected class not found.")

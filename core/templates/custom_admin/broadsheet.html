@@ -137,11 +137,17 @@
             <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Class Broadsheet</h1>
             <p class="text-text-sub dark:text-gray-400 text-base font-normal">View consolidated results for all students.</p>
         </div>
-        <div>
+        <div class="flex items-center gap-3">
              <button onclick="window.print()" class="flex items-center justify-center rounded-lg h-10 px-4 bg-white dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white gap-2 text-sm font-bold shadow-sm hover:bg-gray-50 dark:hover:bg-[#4a5568] transition-colors">
                 <span class="material-symbols-outlined text-lg">print</span>
                 <span class="truncate">Print Broadsheet</span>
             </button>
+            {% if broadsheet_data %}
+            <a href="?class_id={{ selected_class_id }}&term_id={{ selected_term_id }}&export=csv" class="flex items-center justify-center rounded-lg h-10 px-4 bg-green-600 text-white gap-2 text-sm font-bold shadow-sm hover:bg-green-700 transition-colors">
+                <span class="material-symbols-outlined text-lg">download</span>
+                <span class="truncate">Export CSV</span>
+            </a>
+            {% endif %}
         </div>
     </div>
 
