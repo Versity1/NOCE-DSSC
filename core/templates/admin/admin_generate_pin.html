@@ -232,9 +232,14 @@
                     {% if bulk_results.pins %}
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">Generated PINs</span>
-                        <button onclick="copyAllPins()" class="text-xs font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 transition-colors">
-                            <span class="material-symbols-outlined text-sm">content_copy</span> Copy All
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button onclick="printBulkPins()" class="text-xs font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 transition-colors">
+                                <span class="material-symbols-outlined text-sm">print</span> Print
+                            </button>
+                            <button onclick="copyAllPins()" class="text-xs font-bold text-purple-600 hover:text-purple-800 flex items-center gap-1 transition-colors">
+                                <span class="material-symbols-outlined text-sm">content_copy</span> Copy All
+                            </button>
+                        </div>
                     </div>
                     <div class="bg-white dark:bg-[#1a202c] rounded-lg max-h-[250px] overflow-y-auto">
                         <table class="w-full text-sm">
@@ -333,6 +338,33 @@
         });
         navigator.clipboard.writeText(text);
         showToast('All PINs copied to clipboard!');
+    }
+
+    function printBulkPins() {
+        const table = document.getElementById('bulk-pins-table');
+        if (!table) return;
+        const rows = table.querySelectorAll('tr');
+        let tableRows = '';
+        let i = 1;
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 2) {
+                tableRows += `<tr><td style="padding:6px 12px;border-bottom:1px solid #e5e7eb;">${i++}</td><td style="padding:6px 12px;border-bottom:1px solid #e5e7eb;">${cells[0].textContent.trim()}</td><td style="padding:6px 12px;border-bottom:1px solid #e5e7eb;font-family:monospace;font-weight:bold;">${cells[1].textContent.trim()}</td></tr>`;
+            }
+        });
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html><head><title>Bulk Generated PINs</title>
+            <style>body{font-family:Arial,sans-serif;padding:30px;}h1{font-size:20px;margin-bottom:4px;}p{color:#666;font-size:13px;margin-bottom:16px;}table{width:100%;border-collapse:collapse;}th{text-align:left;padding:8px 12px;background:#f3f4f6;border-bottom:2px solid #d1d5db;font-size:12px;text-transform:uppercase;}td{font-size:14px;}@media print{body{padding:10px;}}</style>
+            </head><body>
+            <h1>Bulk Generated PINs</h1>
+            <p>Printed on ${new Date().toLocaleDateString()} &bull; ${rows.length} PIN(s)</p>
+            <table><thead><tr><th>#</th><th>Student Name</th><th>PIN Code</th></tr></thead><tbody>${tableRows}</tbody></table>
+            </body></html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => win.print(), 300);
     }
     
     // Simple filter for student select
