@@ -1,13 +1,138 @@
 {% extends 'base_dashboard.html' %}
+{% load static %}
 
 {% block title %}Broadsheet - NOCEN DSSNN DSSN{% endblock %}
 
 {% block page_title_mobile %}Broadsheet{% endblock %}
 
 {% block content %}
-<div class="flex flex-col gap-6">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<style type="text/css">
+    @media print {
+        /* Reset layout for printing to ensure all pages print */
+        body, html, .h-screen, .flex-1, main, .overflow-hidden, .overflow-y-auto {
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            display: block !important;
+        }
+
+        /* Hide UI elements and ensure they don't take up space */
+        #sidebar, header, nav, #sidebar-overlay, .messages-container,
+        #hide-on-print-header, #hide-on-print-form, .print\:hidden, .hide-on-print {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            position: absolute !important;
+            z-index: -9999 !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Layout tweaks for print */
+        main {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+
+        .flex-col {
+            display: block !important;
+        }
+
+        #print-area {
+            display: block !important;
+            width: 100%;
+            margin-top: 0;
+        }
+
+        /* Table styling for print to fit landscape mode */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt !important;
+            table-layout: fixed;
+        }
+        
+        th, td {
+            border: 1px solid #64748b !important;
+            padding: 2px 4px !important;
+            min-width: 0 !important; /* Override tailwind min-width classes to allow auto-fitting */
+            word-break: break-all;
+        }
+        
+        th {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            font-size: 8pt !important;
+        }
+
+        td {
+            color: #0f172a !important;
+        }
+        
+        .print-header {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin-bottom: 16px !important;
+            width: 100% !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+            padding-bottom: 12px !important;
+        }
+        
+        .print-header .header-inner {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 16px !important;
+            margin-bottom: 8px !important;
+        }
+
+        .print-header img {
+            height: 60px !important;
+            width: 60px !important;
+            object-fit: contain !important;
+        }
+
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        @page { 
+            size: landscape; 
+            margin: 5mm; 
+        }
+    }
+</style>
+
+<div class="flex flex-col gap-6 print:gap-0" id="print-area">
+    <!-- Print Header (Hidden on screen, visible only when printing) -->
+    <div class="hidden print-header print:flex flex-col items-center justify-center mb-6 w-full text-center border-b border-gray-300 pb-4">
+        <div class="flex items-center justify-center gap-4 mb-2 header-inner">
+            <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="h-16 w-16 object-contain shadow-none">
+            <div class="flex flex-col text-left">
+                <h1 class="text-3xl font-black text-black m-0 leading-none">NOCEN DSSN</h1>
+                <p class="text-base font-bold text-gray-800 m-0 mt-1">Student Broadsheet</p>
+            </div>
+        </div>
+        <div class="text-sm font-semibold text-gray-700 mt-2">
+            {% for class_obj in classes %}
+                {% if selected_class_id|stringformat:"s" == class_obj.id|stringformat:"s" %}Class: {{ class_obj.name }}{% endif %}
+            {% endfor %}
+            <span class="mx-2">|</span>
+            {% for term in terms %}
+                {% if selected_term_id|stringformat:"s" == term.id|stringformat:"s" %}Term: {{ term.name }}{% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Header (Screen only) -->
+    <div id="hide-on-print-header" class="flex flex-col md:flex-row md:items-end justify-between gap-4 print:hidden hide-on-print">
         <div class="flex flex-col gap-1">
             <h1 class="text-text-main dark:text-white text-3xl font-black leading-tight tracking-tight">Class Broadsheet</h1>
             <p class="text-text-sub dark:text-gray-400 text-base font-normal">View consolidated results for all students.</p>
@@ -21,7 +146,7 @@
     </div>
 
     <!-- Filters -->
-    <form method="get" class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4 print:hidden">
+    <form id="hide-on-print-form" method="get" class="bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-border-color dark:border-[#2d3748] flex flex-col md:flex-row gap-4 print:hidden hide-on-print">
         <div class="flex-1">
             <label class="text-sm font-medium text-text-main dark:text-white mb-1 block">Class</label>
             <select name="class_id" class="w-full h-11 px-4 rounded-lg border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white">

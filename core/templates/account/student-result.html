@@ -271,8 +271,8 @@
                             
                             <!-- Better approach: Loop constant 20 times, check if result exists -->
                             <!-- We can't easily iterate 0..19. Let's just add a fixed number of empty rows for now or valid range filter -->
-                            {% for i in "123456789012345"|make_list %}
-                                {% if forloop.counter0|add:results.count < 20 %}
+                            {% for i in "1234567890"|make_list %}
+                                {% if forloop.counter0|add:results.count < 12 %}
                             <tr class="h-6">
 
                                 <td class="border-black"></td>

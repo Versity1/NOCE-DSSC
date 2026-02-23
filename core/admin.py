@@ -2,6 +2,12 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, StudentProfile, TeacherProfile, StaffProfile
 
+# site info headers
+admin.site.site_header = "NOCEN DSSN ADMIN"
+admin.site.site_title = "NOCEN DSSN ADMIN"
+admin.site.index_title = "NOCEN DSSN ADMIN"
+
+# admin site colors
 
 class CustomUserAdmin(UserAdmin):
     """Custom admin for the CustomUser model."""
