@@ -1377,8 +1377,8 @@ def broadsheet(request):
     if selected_class_id and selected_term_id:
         try:
             selected_class = ClassInfo.objects.get(id=selected_class_id)
-            # Get valid subjects for this class level (or all for now)
-            subjects = Subject.objects.all()
+            # Get valid subjects for this class level
+            subjects = selected_class.subjects.all()
             
             # Get students
             students = CustomUser.objects.filter(
