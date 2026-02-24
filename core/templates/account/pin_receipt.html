@@ -1,0 +1,126 @@
+{% extends 'base_dashboard.html' %}
+{% load static %}
+
+{% block title %}PIN Purchase Receipt - NOCEN DSSN{% endblock %}
+
+{% block page_title_mobile %}Receipt{% endblock %}
+
+{% block content %}
+<style type="text/css">
+    @media print {
+        body, html, .h-screen, .flex-1, main, .overflow-hidden, .overflow-y-auto {
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            display: block !important;
+            background: white !important;
+        }
+        #sidebar, header, nav, #sidebar-overlay, .messages-container, .hide-on-print {
+            display: none !important;
+        }
+        main {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        .receipt-container {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+    }
+</style>
+
+<div class="max-w-3xl mx-auto flex flex-col gap-6">
+    <div class="flex justify-end hide-on-print print:hidden">
+        <button onclick="window.print()" class="flex items-center justify-center rounded-lg h-10 px-6 bg-primary text-white gap-2 text-sm font-bold shadow-sm hover:bg-primary-dark transition-colors">
+            <span class="material-symbols-outlined text-lg">print</span>
+            <span>Print Receipt</span>
+        </button>
+    </div>
+
+    <div class="receipt-container bg-white dark:bg-surface-dark rounded-2xl p-8 border border-border-color dark:border-[#2d3748] shadow-sm relative overflow-hidden">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b-2 border-dashed border-gray-200 dark:border-gray-700 pb-6 mb-6">
+            <div class="flex items-center gap-4">
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo" class="h-16 w-16 object-contain">
+                <div>
+                    <h1 class="text-2xl font-black text-text-main dark:text-white leading-none mb-1">NOCEN DSSN</h1>
+                    <p class="text-text-sub dark:text-gray-400 text-sm font-medium uppercase tracking-wider">PIN Purchase Receipt</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-text-sub dark:text-gray-400 font-bold uppercase mb-1">Receipt No.</p>
+                <p class="font-mono font-bold text-lg text-text-main dark:text-white">{{ payment.reference }}</p>
+            </div>
+        </div>
+
+        <!-- Student Info -->
+        <div class="grid grid-cols-2 gap-6 mb-8">
+            <div>
+                <p class="text-xs text-text-sub dark:text-gray-400 font-bold uppercase mb-1">Billed To</p>
+                <p class="font-bold text-lg text-text-main dark:text-white">{{ student.get_full_name }}</p>
+                <p class="text-sm text-text-sub dark:text-gray-400">{{ student.student_profile.class_level|default:"Student" }}</p>
+                <p class="text-sm text-text-sub dark:text-gray-400">{{ student.email }}</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-text-sub dark:text-gray-400 font-bold uppercase mb-1">Date Paid</p>
+                <p class="font-bold text-text-main dark:text-white mb-2">{{ date|date:"F j, Y" }}</p>
+                
+                <p class="text-xs text-text-sub dark:text-gray-400 font-bold uppercase mb-1">Payment Method</p>
+                <p class="font-bold text-text-main dark:text-white capitalize">{{ payment.get_method_display }}</p>
+            </div>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="mb-8">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-[#2d3748]">
+                        <th class="py-3 px-4 text-xs font-bold text-text-sub dark:text-gray-400 uppercase tracking-wider border-b border-border-color dark:border-gray-700 rounded-tl-lg">Description</th>
+                        <th class="py-3 px-4 text-xs font-bold text-text-sub dark:text-gray-400 uppercase tracking-wider border-b border-border-color dark:border-gray-700">Term</th>
+                        <th class="py-3 px-4 text-xs font-bold text-text-sub dark:text-gray-400 uppercase tracking-wider border-b border-border-color dark:border-gray-700 text-right rounded-tr-lg">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-100 dark:border-gray-800">
+                        <td class="py-4 px-4 font-medium text-text-main dark:text-white">Result Checking PIN</td>
+                        <td class="py-4 px-4 text-text-sub dark:text-gray-400">{{ payment.term.name|default:"N/A" }}</td>
+                        <td class="py-4 px-4 font-mono font-bold text-text-main dark:text-white text-right">₦{{ payment.amount }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary -->
+        <div class="flex justify-end mb-8">
+            <div class="w-1/2">
+                <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                    <span class="text-text-sub dark:text-gray-400">Status</span>
+                    <span class="font-bold {% if payment.status == 'approved' %}text-green-600{% elif payment.status == 'declined' %}text-red-600{% else %}text-amber-500{% endif %} capitalize">
+                        {{ payment.status }}
+                    </span>
+                </div>
+                <div class="flex justify-between py-3">
+                    <span class="font-bold text-lg text-text-main dark:text-white">Total Paid</span>
+                    <span class="font-mono font-black text-xl text-primary">₦{{ payment.amount }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center pt-6 border-t border-border-color dark:border-[#2d3748]">
+            <p class="text-sm font-medium text-text-main dark:text-white mb-1">Thank you for your purchase!</p>
+            <p class="text-xs text-text-sub dark:text-gray-400">If you have any questions regarding this receipt, please contact the school administration.</p>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

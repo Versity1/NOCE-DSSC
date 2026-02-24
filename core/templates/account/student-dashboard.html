@@ -129,17 +129,42 @@
     </a>
 </div>
 
-<!-- Pending Payment Alert -->
-{% if pending_payments %}
-<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4 flex items-start gap-3">
-    <span class="material-symbols-outlined text-amber-500 shrink-0">hourglass_top</span>
-    <div class="flex-1">
-        <h4 class="font-bold text-amber-800 dark:text-amber-400 mb-1">Payment Under Review</h4>
-        <p class="text-sm text-amber-700 dark:text-amber-300/80">You have {{ pending_payments.count }} pending payment(s) awaiting approval.</p>
+<!-- My PIN Payments -->
+{% if pin_payments %}
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] mb-6" id="pin-payments">
+    <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex justify-between items-center">
+        <h3 class="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-purple-500">payments</span>
+            PIN Purchases
+        </h3>
     </div>
-    <a href="{% url 'payment_pending' %}" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-sm transition-colors whitespace-nowrap">
-        View Status
-    </a>
+    <div class="divide-y divide-border-color dark:divide-[#2d3748]">
+        {% for payment in pin_payments %}
+        <div class="p-4 hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-colors">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-lg flex items-center justify-center {% if payment.status == 'approved' %}bg-green-100 dark:bg-green-900/30 text-green-600{% elif payment.status == 'pending' %}bg-amber-100 dark:bg-amber-900/30 text-amber-600{% else %}bg-red-100 dark:bg-red-900/30 text-red-600{% endif %}">
+                        <span class="material-symbols-outlined">{% if payment.status == 'approved' %}check_circle{% elif payment.status == 'pending' %}hourglass_empty{% else %}cancel{% endif %}</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-text-main dark:text-white text-md">Result PIN ({{ payment.term.name|default:"N/A" }})</p>
+                        <p class="text-xs text-text-sub">{{ payment.reference }} | ₦{{ payment.amount }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-1 rounded-full text-xs font-bold {% if payment.status == 'approved' %}bg-green-100 dark:bg-green-900/30 text-green-600{% elif payment.status == 'pending' %}bg-amber-100 dark:bg-amber-900/30 text-amber-600{% else %}bg-red-100 dark:bg-red-900/30 text-red-600{% endif %}">
+                        {{ payment.status|title }}
+                    </span>
+                    {% if payment.status == 'approved' %}
+                    <a href="{% url 'pin_receipt' payment.id %}" target="_blank" class="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-text-sub hover:text-primary hover:bg-primary/10 flex items-center justify-center gap-1 transition-colors text-xs font-bold" title="Print Receipt">
+                        <span class="material-symbols-outlined text-sm">print</span> Receipt
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 
@@ -179,6 +204,45 @@
                     {% if pin.status == 'active' %}
                     <a href="{% url 'student_result' %}?pin_code={{ pin.code }}&term_id={{ pin.term.id }}" class="size-8 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white flex items-center justify-center transition-colors" title="Check Result">
                         <span class="material-symbols-outlined text-lg">visibility</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- My Fee Payments -->
+{% if fee_payments %}
+<div class="bg-white dark:bg-surface-dark rounded-xl border border-border-color dark:border-[#2d3748] mb-6" id="fee-payments">
+    <div class="p-4 border-b border-border-color dark:border-[#2d3748] flex justify-between items-center">
+        <h3 class="text-lg font-bold text-text-main dark:text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-orange-500">receipt_long</span>
+            My Fee Payments
+        </h3>
+    </div>
+    <div class="divide-y divide-border-color dark:divide-[#2d3748]">
+        {% for payment in fee_payments %}
+        <div class="p-4 hover:bg-gray-50 dark:hover:bg-[#2d3748] transition-colors">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="size-10 rounded-lg flex items-center justify-center {% if payment.status == 'approved' %}bg-green-100 dark:bg-green-900/30 text-green-600{% elif payment.status == 'pending' %}bg-amber-100 dark:bg-amber-900/30 text-amber-600{% else %}bg-red-100 dark:bg-red-900/30 text-red-600{% endif %}">
+                        <span class="material-symbols-outlined">{% if payment.status == 'approved' %}check_circle{% elif payment.status == 'pending' %}hourglass_empty{% else %}cancel{% endif %}</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-text-main dark:text-white text-md">{{ payment.fee_structure.fee_type.name }}</p>
+                        <p class="text-xs text-text-sub">{{ payment.fee_structure.term.name }} | ₦{{ payment.amount_paid }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-1 rounded-full text-xs font-bold {% if payment.status == 'approved' %}bg-green-100 dark:bg-green-900/30 text-green-600{% elif payment.status == 'pending' %}bg-amber-100 dark:bg-amber-900/30 text-amber-600{% else %}bg-red-100 dark:bg-red-900/30 text-red-600{% endif %}">
+                        {{ payment.status|title }}
+                    </span>
+                    {% if payment.status == 'approved' %}
+                    <a href="{% url 'fee_receipt' payment.id %}" target="_blank" class="px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 text-text-sub hover:text-primary hover:bg-primary/10 flex items-center justify-center gap-1 transition-colors text-xs font-bold" title="Print Receipt">
+                        <span class="material-symbols-outlined text-sm">print</span> Receipt
                     </a>
                     {% endif %}
                 </div>

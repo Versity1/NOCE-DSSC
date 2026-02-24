@@ -61,6 +61,8 @@ urlpatterns = [
     path('admin-portal/pins/generate/', views.admin_generate_pin, name='admin_generate_pin'),
     path('admin-portal/sales-report/', views.admin_sales_report, name='admin_sales_report'),
     path('admin-portal/sales-report/export/', views.export_sales_csv, name='export_sales_csv'),
+    path('receipt/fee/<int:payment_id>/', views.fee_receipt, name='fee_receipt'),
+    path('receipt/pin/<int:payment_id>/', views.pin_receipt, name='pin_receipt'),
     
     # Fee Management
     path('admin-portal/fee-types/', views.manage_fee_types, name='manage_fee_types'),

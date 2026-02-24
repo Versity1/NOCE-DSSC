@@ -340,8 +340,9 @@ def student_dashboard(request):
     # 3. Get all purchased PINs for this student
     pins = Pin.objects.filter(student=user).order_by('-created_at')
     
-    # 4. Get pending payments
-    pending_payments = Payment.objects.filter(student=user, status='pending').order_by('-created_at')
+    # 4. Get all PIN payments (pending and approved)
+    pin_payments = Payment.objects.filter(student=user).order_by('-created_at')
+    fee_payments = user.fee_payments.all().order_by('-created_at')
 
     context = {
         'user_role': user.role,
@@ -359,7 +360,8 @@ def student_dashboard(request):
         
         # New: PINs and Payments
         'pins': pins,
-        'pending_payments': pending_payments,
+        'pin_payments': pin_payments,
+        'fee_payments': fee_payments,
     }
     return render(request, 'account/student-dashboard.html', context)
 
@@ -2600,3 +2602,46 @@ def approve_fee_payment(request, payment_id):
     
     return redirect('manage_fee_payments')
 
+
+def page_not_found(request, exception):
+    return render(request, 'errors/404.html', status=404)
+
+
+@login_required
+def fee_receipt(request, payment_id):
+    from .models import FeePayment
+    from django.shortcuts import get_object_or_404
+    
+    payment = get_object_or_404(FeePayment, id=payment_id)
+    
+    # Ensure only the student who made the payment or an admin can view the receipt
+    if request.user != payment.student and request.user.role not in ['admin', 'staff']:
+        messages.error(request, "Access denied to this receipt.")
+        return redirect('home')
+        
+    context = {
+        'payment': payment,
+        'student': payment.student,
+        'fee': payment.fee_structure,
+        'date': payment.updated_at if payment.status == 'approved' else payment.created_at,
+    }
+    return render(request, 'account/fee_receipt.html', context)
+
+@login_required
+def pin_receipt(request, payment_id):
+    from .models import Payment
+    from django.shortcuts import get_object_or_404
+    
+    payment = get_object_or_404(Payment, id=payment_id)
+    
+    # Ensure only the student who made the payment or an admin can view the receipt
+    if request.user != payment.student and request.user.role not in ['admin', 'staff']:
+        messages.error(request, "Access denied to this receipt.")
+        return redirect('home')
+        
+    context = {
+        'payment': payment,
+        'student': payment.student,
+        'date': payment.updated_at if payment.status == 'approved' else payment.created_at,
+    }
+    return render(request, 'account/pin_receipt.html', context)
