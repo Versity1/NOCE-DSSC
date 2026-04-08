@@ -31,9 +31,9 @@ class CustomUserAdmin(UserAdmin):
 
 
 class StudentProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'admission_number', 'class_level')
+    list_display = ('user', 'admission_number', 'assigned_class')
     search_fields = ('user__username', 'user__first_name', 'admission_number')
-    list_filter = ('class_level',)
+    list_filter = ('assigned_class',)
 
 
 class TeacherProfileAdmin(admin.ModelAdmin):

@@ -35,7 +35,7 @@
                 <select name="class_level" onchange="this.form.submit()" class="appearance-none w-full h-11 pl-3 pr-10 rounded-lg bg-background-light dark:bg-[#2d3748] border border-border-color dark:border-[#4a5568] text-text-main dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
                     <option value="">All Classes</option>
                     {% for cls in classes %}
-                    <option value="{{ cls.level }}" {% if selected_class == cls.level %}selected{% endif %}>{{ cls.level }}</option>
+                    <option value="{{ cls.name }}" {% if selected_class == cls.name %}selected{% endif %}>{{ cls.name }}</option>
                     {% endfor %}
                 </select>
                 <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[#9ca3af] pointer-events-none">expand_more</span>
@@ -72,14 +72,14 @@
                             </div>
                         </div>
                     </td>
-                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">{{ student.student_profile.class_level }}</td>
+                    <td class="py-4 px-6 text-sm text-text-main dark:text-white">{{ student.student_profile.class_name }}</td>
                     <td class="py-4 px-6 text-sm text-text-main dark:text-white">
                         <p>{{ student.student_profile.parent_name }}</p>
                         <p class="text-xs text-text-sub">{{ student.student_profile.parent_phone }}</p>
                     </td>
                     <td class="py-4 px-6 text-right">
                         <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="openEditModal('{{ student.id }}', '{{ student.first_name }}', '{{ student.last_name }}', '{{ student.email }}', '{{ student.student_profile.class_level }}', '{{ student.student_profile.parent_name }}', '{{ student.student_profile.parent_phone }}')" class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors" title="Edit">
+                            <button onclick="openEditModal('{{ student.id }}', '{{ student.first_name }}', '{{ student.last_name }}', '{{ student.email }}', '{{ student.student_profile.assigned_class.id }}', '{{ student.student_profile.parent_name }}', '{{ student.student_profile.parent_phone }}')" class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 transition-colors" title="Edit">
                                 <span class="material-symbols-outlined text-lg">edit</span>
                             </button>
                             <form action="{% url 'delete_student' student.id %}" method="post" onsubmit="return confirm('Are you sure you want to delete this student? This cannot be undone.');">
@@ -151,14 +151,12 @@
                     </div>
 
                     <div class="mt-4">
-                        <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Class Level</label>
+                        <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">Class</label>
                         <select name="class_level" class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2 bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
-                             <option value="JSS 1">JSS 1</option>
-                             <option value="JSS 2">JSS 2</option>
-                             <option value="JSS 3">JSS 3</option>
-                             <option value="SS 1">SS 1</option>
-                             <option value="SS 2">SS 2</option>
-                             <option value="SS 3">SS 3</option>
+                             <option value="">Select Class</option>
+                             {% for cls in classes %}
+                             <option value="{{ cls.id }}">{{ cls.name }}</option>
+                             {% endfor %}
                         </select>
                     </div>
 
@@ -202,23 +200,18 @@
                             <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">From Class</label>
                             <select name="current_class" required class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2 bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
                                 <option value="">Select</option>
-                                <option value="JSS 1">JSS 1</option>
-                                <option value="JSS 2">JSS 2</option>
-                                <option value="JSS 3">JSS 3</option>
-                                <option value="SS 1">SS 1</option>
-                                <option value="SS 2">SS 2</option>
+                                {% for cls in classes %}
+                                <option value="{{ cls.id }}">{{ cls.name }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div>
                              <label class="block text-sm font-medium text-text-sub dark:text-gray-400 mb-1">To Class</label>
                             <select name="target_class" required class="w-full rounded-lg border border-border-color dark:border-[#4a5568] px-3 py-2 bg-white dark:bg-[#2d3748] text-text-main dark:text-white">
                                 <option value="">Select</option>
-                                <option value="JSS 2">JSS 2</option>
-                                <option value="JSS 3">JSS 3</option>
-                                <option value="SS 1">SS 1</option>
-                                <option value="SS 2">SS 2</option>
-                                <option value="SS 3">SS 3</option>
-                                <option value="Graduated">Graduated</option>
+                                {% for cls in classes %}
+                                <option value="{{ cls.id }}">{{ cls.name }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                     </div>
@@ -244,7 +237,7 @@
         document.getElementById('student-modal').classList.remove('hidden');
     }
     
-    function openEditModal(id, fname, lname, email, cls, parent, phone) {
+    function openEditModal(id, fname, lname, email, classId, parent, phone) {
         document.getElementById('modal-title').innerText = 'Edit Student';
         document.getElementById('student-form').action = "/admin-portal/students/edit/" + id + "/";
         
@@ -252,7 +245,7 @@
         form.elements['first_name'].value = fname;
         form.elements['last_name'].value = lname;
         form.elements['email'].value = email;
-        form.elements['class_level'].value = cls;
+        form.elements['class_level'].value = classId;
         form.elements['parent_name'].value = parent;
         form.elements['parent_phone'].value = phone;
         

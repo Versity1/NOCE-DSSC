@@ -71,7 +71,14 @@ class StudentProfile(models.Model):
         limit_choices_to={'role': 'student'}
     )
     admission_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
-    class_level = models.CharField(max_length=50, blank=True)
+    assigned_class = models.ForeignKey(
+        'ClassInfo',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='students',
+        help_text='The specific class section this student belongs to (e.g. JSS 1A)'
+    )
     
     GENDER_CHOICES = [
         ('Male', 'Male'),
@@ -83,6 +90,16 @@ class StudentProfile(models.Model):
     
     parent_name = models.CharField(max_length=100, blank=True)
     parent_phone = models.CharField(max_length=20, blank=True)
+    
+    @property
+    def class_level(self):
+        """Backward-compatible: returns the level (e.g. JSS 1) from the assigned class."""
+        return self.assigned_class.level if self.assigned_class else ''
+    
+    @property
+    def class_name(self):
+        """Returns the full class section name (e.g. JSS 1A)."""
+        return self.assigned_class.name if self.assigned_class else ''
     
     def __str__(self):
         return f"Student Profile: {self.user.get_full_name()}"
@@ -288,6 +305,19 @@ class StudentResult(models.Model):
         else:
             self.grade = 'F'
             self.remark = 'Fail'
+        
+        # Django 4.2+ optimization: update_or_create passes update_fields
+        # to save(), which means computed fields won't be persisted unless
+        # we explicitly add them to update_fields.
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None:
+            update_fields = set(update_fields)
+            # Ensure all computed/validated fields are saved
+            update_fields.update({
+                'ca1', 'ca2', 'ca3', 'ca4', 'exam',
+                'total', 'grade', 'remark',
+            })
+            kwargs['update_fields'] = list(update_fields)
             
         super().save(*args, **kwargs)
 

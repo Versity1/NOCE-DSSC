@@ -318,7 +318,7 @@ def student_dashboard(request):
         
     # Student Profile data
     profile = getattr(user, 'student_profile', None)
-    student_class = profile.class_level if profile else "N/A"
+    student_class = profile.class_name if profile else "N/A"
     
     # 1. Attendance Stats
     attendance_qs = Attendance.objects.filter(student=user)
@@ -486,7 +486,7 @@ def student_result(request):
                      result_class_name = first_result.student_class.name
                      result_class_id = first_result.student_class.id
                 else:
-                     result_class_name = user.student_profile.class_level if hasattr(user, 'student_profile') else ''
+                     result_class_name = user.student_profile.class_name if hasattr(user, 'student_profile') else ''
                      # Try to find the ID if possible, else None (limitations of legacy data)
                      result_class_obj = ClassInfo.objects.filter(name=result_class_name).first()
                      result_class_id = result_class_obj.id if result_class_obj else None
@@ -618,7 +618,7 @@ def student_result(request):
         'terms': terms,
         'results': results,
         'subject_stats': locals().get('subject_stats', {}),
-        'result_class': result_class_name if 'result_class_name' in locals() else (user.student_profile.class_level if hasattr(user, 'student_profile') else ''),
+        'result_class': result_class_name if 'result_class_name' in locals() else (user.student_profile.class_name if hasattr(user, 'student_profile') else ''),
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
         'stats': stats,
         'student_profile': user.student_profile,
@@ -706,7 +706,7 @@ def manage_students(request):
     # Filters
     selected_class = request.GET.get('class_level')
     if selected_class:
-        students_list = students_list.filter(student_profile__class_level=selected_class)
+        students_list = students_list.filter(student_profile__assigned_class__name=selected_class)
         
     # Pagination
     paginator = Paginator(students_list, 20) # 20 students per page
@@ -739,7 +739,7 @@ def add_student(request):
             last_name = request.POST.get('last_name')
             username = request.POST.get('username') or f"STD{CustomUser.objects.count() + 1000}"
             email = request.POST.get('email', '')
-            class_level = request.POST.get('class_level')
+            class_id = request.POST.get('class_level')
             parent_name = request.POST.get('parent_name')
             parent_phone = request.POST.get('parent_phone')
             
@@ -758,9 +758,10 @@ def add_student(request):
             )
             
             # Create Profile
+            assigned_class_obj = ClassInfo.objects.filter(id=class_id).first() if class_id else None
             StudentProfile.objects.create(
                 user=user,
-                class_level=class_level,
+                assigned_class=assigned_class_obj,
                 parent_name=parent_name,
                 parent_phone=parent_phone
             )
@@ -776,7 +777,7 @@ def add_student(request):
 
 @login_required
 def edit_student(request, student_id):
-    from .models import CustomUser
+    from .models import CustomUser, ClassInfo
     
     try:
         student = CustomUser.objects.get(id=student_id, role='student')
@@ -788,7 +789,8 @@ def edit_student(request, student_id):
             student.save()
             
             profile = student.student_profile
-            profile.class_level = request.POST.get('class_level')
+            class_id = request.POST.get('class_level')
+            profile.assigned_class = ClassInfo.objects.filter(id=class_id).first() if class_id else None
             profile.parent_name = request.POST.get('parent_name')
             profile.parent_phone = request.POST.get('parent_phone')
             profile.save()
@@ -819,33 +821,26 @@ def delete_student(request, student_id):
 
 @login_required
 def promote_students(request):
-    from .models import CustomUser, ClassInfo
+    from .models import CustomUser, ClassInfo, StudentProfile
     
     if request.method == 'POST':
         try:
-            current_class = request.POST.get('current_class')
-            target_class = request.POST.get('target_class')
+            current_class_id = request.POST.get('current_class')
+            target_class_id = request.POST.get('target_class')
             
-            if not (current_class and target_class):
+            if not (current_class_id and target_class_id):
                 raise ValueError("Please select both current and target classes.")
                 
-            if current_class == target_class:
+            if current_class_id == target_class_id:
                  raise ValueError("Target class cannot be the same as current class.")
             
-            # Update students
-            updated_count = CustomUser.objects.filter(
-                role='student', 
-                student_profile__class_level=current_class
-            ).update(
-                # We can't update related fields directly in update() for some DBs/Django versions cleanly directly on OneToOne in bulk easily in one go for fields on related model efficiently without filtering on related model directly
-                # However, for simplicity let's do it via the Profile model directly
-            )
+            current_class_obj = ClassInfo.objects.get(id=current_class_id)
+            target_class_obj = ClassInfo.objects.get(id=target_class_id)
             
-            # Correct approach for related model bulk update
-            from .models import StudentProfile
-            updated_count = StudentProfile.objects.filter(class_level=current_class).update(class_level=target_class)
+            # Bulk update students from current class to target class
+            updated_count = StudentProfile.objects.filter(assigned_class=current_class_obj).update(assigned_class=target_class_obj)
             
-            messages.success(request, f"Successfully promoted {updated_count} students from {current_class} to {target_class}.")
+            messages.success(request, f"Successfully promoted {updated_count} students from {current_class_obj.name} to {target_class_obj.name}.")
             
         except Exception as e:
             messages.error(request, f"Error promoting students: {str(e)}")
@@ -1201,7 +1196,7 @@ def enter_marks(request):
              
              students = CustomUser.objects.filter(
                  role='student', 
-                 student_profile__class_level=selected_class.level
+                 student_profile__assigned_class=selected_class
              ).order_by('last_name')
              
              # Fetch existing results
@@ -1387,7 +1382,7 @@ def broadsheet(request):
             # Get students
             students = CustomUser.objects.filter(
                  role='student', 
-                 student_profile__class_level=selected_class.level
+                 student_profile__assigned_class=selected_class
              ).order_by('last_name')
              
             # Build broadsheet data
@@ -1614,9 +1609,8 @@ def attendance(request):
              selected_class_obj = ClassInfo.objects.get(name=class_filter) # Filter by unique Name (JSS 1A)
              
              # Fetch students in that class. 
-             # Since StudentProfile only has 'class_level' (e.g. JSS 1), we fetch all students in that Level.
-             # Ideally we should match exact class but Profile doesn't support it yet.
-             students = CustomUser.objects.filter(role='student', student_profile__class_level=selected_class_obj.level).order_by('last_name')
+             # Fetch students assigned to this specific class section
+             students = CustomUser.objects.filter(role='student', student_profile__assigned_class=selected_class_obj).order_by('last_name')
              
              # Fetch existing attendance for this specific ClassInfo object
              records = Attendance.objects.filter(class_info=selected_class_obj, date=date_filter)
@@ -1670,7 +1664,7 @@ def save_attendance(request):
 
             selected_class_obj = ClassInfo.objects.get(name=class_name)
             # Fetch same students as GET view
-            students = CustomUser.objects.filter(role='student', student_profile__class_level=selected_class_obj.level)
+            students = CustomUser.objects.filter(role='student', student_profile__assigned_class=selected_class_obj)
             
             for student in students:
                 status_key = f"status_{student.id}"
@@ -2167,7 +2161,7 @@ def admin_generate_pin(request):
                 target_students = CustomUser.objects.filter(role='student')
                 if class_filter:
                     target_students = target_students.filter(
-                        student_profile__class_level=class_filter
+                        student_profile__assigned_class__name=class_filter
                     )
                 target_students = target_students.order_by('last_name', 'first_name')
                 
