@@ -254,7 +254,7 @@
                                 <td class="italic text-gray-600 border-black">{{ stat.average|default:"-" }}</td>
                                 <td class="font-bold border-black">{{ stat.position }}</td>
                                 <td class="font-bold border-black {% if result.grade == 'F' %}text-red-600{% else %}text-green-700{% endif %}">{{ result.grade }}</td>
-                                <td class="text-[9px] uppercase font-semibold px-1 leading-tight text-center border-black">{{ result.remark }}</td>
+                                <td class="text-[9px] uppercase font-semibold px-1 leading-tight text-center border-black">{% if result.teacher_remark %}{{ result.teacher_remark }}{% else %}{{ result.remark }}{% endif %}</td>
                                 
                             </tr>
                                 {% endwith %}
@@ -343,16 +343,16 @@
                     <div class="mt-4 space-y-2 text-xs font-bold font-mono">
                          <div class="flex border-b border-black pb-0.5 items-end">
                              <span class="w-40 shrink-0">FORM TEACHER'S NAME:</span>
-                             <span class="flex-1 pl-2"></span>
+                             <span class="flex-1 pl-2 uppercase">{{ form_teacher_name|default:"" }}</span>
                          </div>
                          <div class="flex border-b border-black pb-0.5 items-end">
                              <span class="w-40 shrink-0">FORM TEACHER'S COMMENT:</span>
-                             <span class="flex-1 pl-2 italic truncate">A good result. Keep it up.</span>
+                             <span class="flex-1 pl-2 italic truncate">{{ form_teacher_comment|default:"" }}</span>
                          </div>
                          
                          <div class="flex border-b border-black pb-0.5 mt-2 items-end">
                              <span class="w-40 shrink-0">PRINCIPAL'S COMMENT:</span>
-                             <span class="flex-1 pl-2 italic truncate">Excellent performance.</span>
+                             <span class="flex-1 pl-2 italic truncate">{{ principal_comment|default:"" }}</span>
                          </div>
                          
                          <div class="flex items-end mt-4 pt-2">
@@ -364,11 +364,11 @@
                              </div>
                              <div class="flex-1 flex border-b border-black pb-0.5 justify-end items-end ml-4">
                                  <span class="mr-2 whitespace-nowrap">SCHOOL CLOSES:</span>
-                                 <span class="italic">13/12/2024</span>
+                                 <span class="italic">{% if selected_term_obj and selected_term_obj.school_closes %}{{ selected_term_obj.school_closes|date:'d/m/Y' }}{% else %}-{% endif %}</span>
                              </div>
                              <div class="flex-1 flex border-b border-black pb-0.5 justify-end items-end ml-4">
                                  <span class="mr-2 whitespace-nowrap">NEXT TERM BEGINS:</span>
-                                 <span class="italic">08/01/2025</span>
+                                 <span class="italic">{% if selected_term_obj and selected_term_obj.next_term_begins %}{{ selected_term_obj.next_term_begins|date:'d/m/Y' }}{% else %}-{% endif %}</span>
                              </div>
                          </div>
                     </div>

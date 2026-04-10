@@ -116,6 +116,7 @@
                     <th class="py-4 px-4 text-center font-bold text-text-sub">Exam (60)</th>
                     <th class="py-4 px-4 text-center font-bold text-text-sub">Total</th>
                     <th class="py-4 px-4 text-center font-bold text-text-sub">Grade</th>
+                    <th class="py-4 px-4 text-left font-bold text-text-sub">Teacher's Remark</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border-color dark:divide-[#4a5568]">
@@ -133,6 +134,7 @@
                     <td class="py-3 px-4"><input type="number" name="exam_{{ item.student.id }}" class="mark-input w-16 h-9 text-center rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white" value="{{ item.result.exam|default:0 }}" max="60" min="0"></td>
                     <td class="py-3 px-4 text-center font-bold text-primary total-display">{{ item.result.total|default:0 }}</td>
                     <td class="py-3 px-4 text-center"><span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded font-bold grade-display">{{ item.result.grade|default:"-" }}</span></td>
+                    <td class="py-3 px-4"><input type="text" name="teacher_remark_{{ item.student.id }}" class="w-full h-9 px-2 rounded border border-border-color dark:border-[#4a5568] bg-white dark:bg-[#2d3748] text-text-main dark:text-white text-sm" value="{{ item.result.teacher_remark|default:'' }}" placeholder="Optional remark"></td>
                 </tr>
                 {% endfor %}
             </tbody>

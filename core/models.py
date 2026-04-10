@@ -170,6 +170,8 @@ class Term(models.Model):
     name = models.CharField(max_length=20, choices=TERM_CHOICES)
     academic_session = models.ForeignKey(AcademicSession, on_delete=models.CASCADE, related_name='terms')
     is_current = models.BooleanField(default=False)
+    school_closes = models.DateField(null=True, blank=True, help_text='Date the school closes for this term')
+    next_term_begins = models.DateField(null=True, blank=True, help_text='Date the next term begins after this term')
 
     class Meta:
         unique_together = ['name', 'academic_session']
@@ -273,6 +275,7 @@ class StudentResult(models.Model):
     total = models.IntegerField(default=0, editable=False, help_text="Max 100")
     grade = models.CharField(max_length=2, blank=True, editable=False)
     remark = models.CharField(max_length=20, blank=True)
+    teacher_remark = models.CharField(max_length=200, blank=True, help_text='Optional free-text remark by the teacher')
     
     recorded_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='recorded_results')
     created_at = models.DateTimeField(auto_now_add=True)

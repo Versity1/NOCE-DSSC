@@ -492,10 +492,10 @@ def student_result(request):
                      result_class_id = result_class_obj.id if result_class_obj else None
 
                 # Calculate Class Stats (Positions & Averages)
-                # We need all results for this class and term to calculate stats
+                # We need all results for this class SECTION and term to calculate stats
                 class_results = StudentResult.objects.filter(
                     term=term, 
-                    student_class__name=result_class_name
+                    student_class_id=result_class_id
                 ).select_related('student', 'subject')
 
                 # 1. Subject Stats (Average & Position per subject)
@@ -549,8 +549,12 @@ def student_result(request):
                 except ValueError:
                     overall_position = "-"
                 
-                class_size = len(student_totals)
-                class_average_score = round(sum(sorted_totals) / class_size, 1) if class_size else 0
+                # Count enrolled students in the specific class SECTION (not level)
+                if result_class_id:
+                    class_size = StudentProfile.objects.filter(assigned_class_id=result_class_id).count()
+                else:
+                    class_size = len(student_totals)
+                class_average_score = round(sum(sorted_totals) / len(student_totals), 1) if student_totals else 0
 
                 stats = {
                     'total_score': total_score,
@@ -609,6 +613,44 @@ def student_result(request):
             pass
 
             
+    # Load school config (still used for other settings if needed)
+    from .models import SchoolConfiguration
+    config = SchoolConfiguration.load()
+    
+    # Get the selected term object for its dates
+    selected_term_obj = None
+    if selected_term_id:
+        try:
+            selected_term_obj = Term.objects.get(id=selected_term_id)
+        except Term.DoesNotExist:
+            pass
+    
+    # Determine form teacher name from the student's class
+    form_teacher_name = ''
+    result_class_name_for_teacher = result_class_name if 'result_class_name' in dir() else (user.student_profile.class_name if hasattr(user, 'student_profile') else '')
+    if result_class_name_for_teacher:
+        class_obj = ClassInfo.objects.filter(name=result_class_name_for_teacher).select_related('form_teacher').first()
+        if class_obj and class_obj.form_teacher:
+            form_teacher_name = class_obj.form_teacher.get_full_name()
+    
+    # Auto-generate Form Teacher's Comment based on student average
+    form_teacher_comment = ''
+    principal_comment = ''
+    if stats and stats.get('average') is not None:
+        avg = stats['average']
+        if avg >= 70:
+            form_teacher_comment = 'An excellent result. Keep it up!'
+            principal_comment = 'Outstanding performance. Well done!'
+        elif avg >= 55:
+            form_teacher_comment = 'A good result. Keep up the good work.'
+            principal_comment = 'Good performance. Keep striving for excellence.'
+        elif avg >= 40:
+            form_teacher_comment = 'Fair performance. Can do better with more effort.'
+            principal_comment = 'Average performance. More effort is needed.'
+        else:
+            form_teacher_comment = 'Poor performance. Needs serious improvement.'
+            principal_comment = 'Below average. Must work much harder next term.'
+
     context = {
         'active_page': 'results',
         'user_role': user.role,
@@ -620,11 +662,16 @@ def student_result(request):
         'subject_stats': locals().get('subject_stats', {}),
         'result_class': result_class_name if 'result_class_name' in locals() else (user.student_profile.class_name if hasattr(user, 'student_profile') else ''),
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
+        'selected_term_obj': selected_term_obj,
         'stats': stats,
         'student_profile': user.student_profile,
         'student_age': student_age,
         'attendance_stats': attendance_stats,
         'access_granted': access_granted,
+        'config': config,
+        'form_teacher_name': form_teacher_name,
+        'form_teacher_comment': form_teacher_comment,
+        'principal_comment': principal_comment,
     }
     return render(request, 'account/student-result.html', context)
 
@@ -1236,6 +1283,8 @@ def enter_marks(request):
                 ca4 = int(request.POST.get(f'ca4_{student_id}', 0) or 0)
                 exam = int(request.POST.get(f'exam_{student_id}', 0) or 0)
                 
+                teacher_remark = request.POST.get(f'teacher_remark_{student_id}', '').strip()
+                
                 # Update or Create Result
                 StudentResult.objects.update_or_create(
                     student_id=student_id,
@@ -1248,6 +1297,7 @@ def enter_marks(request):
                         'ca3': ca3,
                         'ca4': ca4,
                         'exam': exam,
+                        'teacher_remark': teacher_remark,
                         'recorded_by': user
                     }
                 )
@@ -1762,7 +1812,7 @@ def buy_pin_page(request):
 @login_required
 def manage_configuration(request):
     """Admin view to manage school configuration."""
-    from .models import SchoolConfiguration
+    from .models import SchoolConfiguration, AcademicSession, Term
     
     user = request.user
     if not user.is_admin_user:
@@ -1770,18 +1820,53 @@ def manage_configuration(request):
         return redirect('home')
         
     config = SchoolConfiguration.load()
+    sessions = AcademicSession.objects.all().order_by('-id')
+    current_session = AcademicSession.objects.filter(is_current=True).first()
+    terms = Term.objects.filter(academic_session=current_session) if current_session else Term.objects.none()
+    
+    # Which term is selected for date editing
+    selected_term_id = request.GET.get('term_id')
+    selected_term = None
+    if selected_term_id:
+        try:
+            selected_term = Term.objects.get(id=selected_term_id)
+        except Term.DoesNotExist:
+            pass
     
     if request.method == 'POST':
-        try:
-            config.pin_price = request.POST.get('pin_price')
-            config.bank_name = request.POST.get('bank_name')
-            config.account_number = request.POST.get('account_number')
-            config.account_name = request.POST.get('account_name')
-            config.save()
-            
-            messages.success(request, "Settings updated successfully.")
-        except Exception as e:
-            messages.error(request, f"Error updating settings: {str(e)}")
+        form_type = request.POST.get('form_type', 'config')
+        
+        if form_type == 'config':
+            # Save global configuration (pin price, bank details)
+            try:
+                config.pin_price = request.POST.get('pin_price')
+                config.bank_name = request.POST.get('bank_name')
+                config.account_number = request.POST.get('account_number')
+                config.account_name = request.POST.get('account_name')
+                config.save()
+                
+                messages.success(request, "Settings updated successfully.")
+            except Exception as e:
+                messages.error(request, f"Error updating settings: {str(e)}")
+        
+        elif form_type == 'term_dates':
+            # Save per-term closing/resumption dates
+            try:
+                term_id = request.POST.get('term_id')
+                term = Term.objects.get(id=term_id)
+                
+                school_closes = request.POST.get('school_closes', '').strip()
+                next_term_begins = request.POST.get('next_term_begins', '').strip()
+                term.school_closes = school_closes if school_closes else None
+                term.next_term_begins = next_term_begins if next_term_begins else None
+                term.save()
+                
+                messages.success(request, f"Term dates saved for {term.name} — {term.academic_session.name}.")
+                return redirect(f"{reverse('manage_configuration')}?term_id={term.id}")
+            except Term.DoesNotExist:
+                messages.error(request, "Term not found.")
+            except Exception as e:
+                messages.error(request, f"Error saving term dates: {str(e)}")
             
         return redirect('manage_configuration')
         
@@ -1790,6 +1875,10 @@ def manage_configuration(request):
         'user_name': user.get_full_name(),
         'active_page': 'settings',
         'config': config,
+        'sessions': sessions,
+        'current_session': current_session,
+        'terms': terms,
+        'selected_term': selected_term,
     }
     return render(request, 'custom_admin/school_settings.html', context)
 
