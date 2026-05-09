@@ -402,8 +402,10 @@ def student_result(request):
     
     selected_term_id = request.GET.get('term_id')
     manual_pin_code = request.GET.get('pin_code', '').strip()
+    is_annual = request.GET.get('annual') == 'true'
     
     results = []
+    annual_results = []
     stats = {}
     
     # 1. Check PIN Access
@@ -467,104 +469,239 @@ def student_result(request):
                              messages.error(request, "Invalid PIN code. Please check your digits.")
 
             if access_granted:
-                results = StudentResult.objects.filter(student=user, term=term).exclude(ca1=0, ca2=0, ca3=0, ca4=0)
-                
-                # Calculate stats
-                total_score = results.aggregate(Sum('total'))['total__sum'] or 0
-                count = results.count()
-                average = round(total_score / count, 2) if count > 0 else 0
-                
-                # Determine grade
-                if average >= 70: grade = 'A'
-                elif average >= 55: grade = 'C'
-                elif average >= 40: grade = 'P'
-                else: grade = 'F'
-                
-                # Determine class from results (use the first result's class)
-                first_result = results.first()
-                if first_result and first_result.student_class:
-                     result_class_name = first_result.student_class.name
-                     result_class_id = first_result.student_class.id
-                else:
-                     result_class_name = user.student_profile.class_name if hasattr(user, 'student_profile') else ''
-                     # Try to find the ID if possible, else None (limitations of legacy data)
-                     result_class_obj = ClassInfo.objects.filter(name=result_class_name).first()
-                     result_class_id = result_class_obj.id if result_class_obj else None
-
-                # Calculate Class Stats (Positions & Averages)
-                # We need all results for this class SECTION and term to calculate stats
-                class_results = StudentResult.objects.filter(
-                    term=term, 
-                    student__student_profile__assigned_class_id=result_class_id
-                ).exclude(ca1=0, ca2=0, ca3=0, ca4=0).select_related('student', 'subject')
-
-                # 1. Subject Stats (Average & Position per subject)
-                subject_stats = {}
-                # Group by subject
-                from collections import defaultdict
-                subject_scores = defaultdict(list)
-                
-                for res in class_results:
-                    subject_scores[res.subject_id].append(res.total)
-                
-                for res in results:
-                    scores = subject_scores.get(res.subject_id, [])
-                    scores.sort(reverse=True)
+                if is_annual and 'Third' in term.name:
+                    session_terms = Term.objects.filter(academic_session=term.academic_session)
                     
-                    # Position
-                    try:
-                        position = scores.index(res.total) + 1
-                        # Handle ties (optional, simple ranking)
-                        if 10 <= position % 100 <= 20: suffix = 'th'
-                        else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(position % 10, 'th')
-                        position_str = f"{position}{suffix}"
-                    except ValueError:
-                        position_str = "-"
+                    # Get all results for this student in this session
+                    session_results = StudentResult.objects.filter(
+                        student=user,
+                        term__in=session_terms
+                    ).exclude(ca1=0, ca2=0, ca3=0, ca4=0)
+                    
+                    # Group by subject
+                    subject_map = {}
+                    for res in session_results:
+                        if res.subject_id not in subject_map:
+                            subject_map[res.subject_id] = {
+                                'subject': res.subject,
+                                'first': '-', 'second': '-', 'third': '-',
+                                'total': 0,
+                                'count': 0
+                            }
                         
-                    # Class Average
-                    avg = round(sum(scores) / len(scores)) if scores else 0
+                        term_name = res.term.name
+                        if 'First' in term_name: subject_map[res.subject_id]['first'] = res.total
+                        elif 'Second' in term_name: subject_map[res.subject_id]['second'] = res.total
+                        elif 'Third' in term_name: subject_map[res.subject_id]['third'] = res.total
+                        
+                        subject_map[res.subject_id]['total'] += res.total
+                        subject_map[res.subject_id]['count'] += 1
+                        
+                    # Compute annual stats per subject
+                    annual_total_score = 0
+                    subject_averages = []
                     
-                    subject_stats[res.subject_id] = {
-                        'position': position_str,
-                        'average': avg,
-                        'highest': scores[0] if scores else 0,
-                        'lowest': scores[-1] if scores else 0
+                    for sub_id, data in subject_map.items():
+                        avg = round(data['total'] / 3, 1) # Divide by 3 terms as per plan
+                        data['average'] = avg
+                        annual_total_score += avg
+                        
+                        # Grade
+                        if avg >= 70: grade = 'A'; remark = 'Excellent'
+                        elif avg >= 55: grade = 'C'; remark = 'Credit'
+                        elif avg >= 40: grade = 'P'; remark = 'Pass'
+                        else: grade = 'F'; remark = 'Fail'
+                        data['grade'] = grade
+                        data['remark'] = remark
+                        
+                        annual_results.append(data)
+                        
+                    # Determine class from Third Term results
+                    first_result = session_results.filter(term=term).first()
+                    if first_result and first_result.student_class:
+                         result_class_name = first_result.student_class.name
+                         result_class_id = first_result.student_class.id
+                    else:
+                         result_class_name = user.student_profile.class_name if hasattr(user, 'student_profile') else ''
+                         result_class_obj = ClassInfo.objects.filter(name=result_class_name).first()
+                         result_class_id = result_class_obj.id if result_class_obj else None
+
+                    # Class Stats for Annual
+                    class_results = StudentResult.objects.filter(
+                        term__in=session_terms,
+                        student__student_profile__assigned_class_id=result_class_id
+                    ).exclude(ca1=0, ca2=0, ca3=0, ca4=0)
+                    
+                    # Subject positions for Annual
+                    from collections import defaultdict
+                    class_subject_totals = defaultdict(lambda: defaultdict(int))
+                    for res in class_results:
+                        class_subject_totals[res.subject_id][res.student_id] += res.total
+                        
+                    for data in annual_results:
+                        sub_id = data['subject'].id
+                        student_totals_for_sub = class_subject_totals[sub_id]
+                        # We divide by 3 for everyone to rank
+                        scores = [round(tot / 3, 1) for tot in student_totals_for_sub.values()]
+                        scores.sort(reverse=True)
+                        
+                        try:
+                            position = scores.index(data['average']) + 1
+                            if 10 <= position % 100 <= 20: suffix = 'th'
+                            else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(position % 10, 'th')
+                            data['position'] = f"{position}{suffix}"
+                        except ValueError:
+                            data['position'] = "-"
+                            
+                        data['class_avg'] = round(sum(scores) / len(scores), 1) if scores else 0
+                        
+                    # Overall Class Stats
+                    student_annual_totals = defaultdict(float)
+                    for res in class_results:
+                        student_annual_totals[res.student_id] += res.total
+                        
+                    # We need the average of their totals
+                    for sid in student_annual_totals:
+                        student_annual_totals[sid] = round(student_annual_totals[sid] / 3, 1)
+                        
+                    sorted_totals = sorted(student_annual_totals.values(), reverse=True)
+                    my_annual_total = student_annual_totals.get(user.id, 0)
+                    
+                    try:
+                        overall_pos = sorted_totals.index(my_annual_total) + 1
+                        if 10 <= overall_pos % 100 <= 20: suffix = 'th'
+                        else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(overall_pos % 10, 'th')
+                        overall_position = f"{overall_pos}{suffix}"
+                    except ValueError:
+                        overall_position = "-"
+                        
+                    if result_class_id:
+                        class_size = StudentProfile.objects.filter(assigned_class_id=result_class_id).count()
+                    else:
+                        class_size = len(student_annual_totals)
+                        
+                    class_average_score = round(sum(sorted_totals) / len(student_annual_totals), 1) if student_annual_totals else 0
+                    
+                    count = len(annual_results)
+                    average = round(annual_total_score / count, 2) if count > 0 else 0
+                    
+                    if average >= 70: grade = 'A'
+                    elif average >= 55: grade = 'C'
+                    elif average >= 40: grade = 'P'
+                    else: grade = 'F'
+                    
+                    stats = {
+                        'total_score': round(my_annual_total, 1),
+                        'average': average,
+                        'count': count,
+                        'grade': grade,
+                        'position': overall_position,
+                        'class_size': class_size,
+                        'class_average': class_average_score
                     }
-
-                # 2. Overall Class Stats
-                # Group totals by student
-                student_totals = defaultdict(int)
-                for res in class_results:
-                    student_totals[res.student_id] += res.total
-                
-                # Convert to list and sort
-                sorted_totals = sorted(student_totals.values(), reverse=True)
-                my_total = student_totals.get(user.id, 0)
-                
-                try:
-                    overall_pos = sorted_totals.index(my_total) + 1
-                    if 10 <= overall_pos % 100 <= 20: suffix = 'th'
-                    else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(overall_pos % 10, 'th')
-                    overall_position = f"{overall_pos}{suffix}"
-                except ValueError:
-                    overall_position = "-"
-                
-                # Count enrolled students in the specific class SECTION (not level)
-                if result_class_id:
-                    class_size = StudentProfile.objects.filter(assigned_class_id=result_class_id).count()
+                    
+                    # Set results to something truthy so template renders
+                    results = session_results
                 else:
-                    class_size = len(student_totals)
-                class_average_score = round(sum(sorted_totals) / len(student_totals), 1) if student_totals else 0
-
-                stats = {
-                    'total_score': total_score,
-                    'average': average,
-                    'count': count,
-                    'grade': grade,
-                    'position': overall_position,
-                    'class_size': class_size,
-                    'class_average': class_average_score
-                }
+                    is_annual = False
+                    results = StudentResult.objects.filter(student=user, term=term).exclude(ca1=0, ca2=0, ca3=0, ca4=0)
+                    
+                    # Calculate stats
+                    total_score = results.aggregate(Sum('total'))['total__sum'] or 0
+                    count = results.count()
+                    average = round(total_score / count, 2) if count > 0 else 0
+                    
+                    # Determine grade
+                    if average >= 70: grade = 'A'
+                    elif average >= 55: grade = 'C'
+                    elif average >= 40: grade = 'P'
+                    else: grade = 'F'
+                    
+                    # Determine class from results (use the first result's class)
+                    first_result = results.first()
+                    if first_result and first_result.student_class:
+                         result_class_name = first_result.student_class.name
+                         result_class_id = first_result.student_class.id
+                    else:
+                         result_class_name = user.student_profile.class_name if hasattr(user, 'student_profile') else ''
+                         # Try to find the ID if possible, else None (limitations of legacy data)
+                         result_class_obj = ClassInfo.objects.filter(name=result_class_name).first()
+                         result_class_id = result_class_obj.id if result_class_obj else None
+    
+                    # Calculate Class Stats (Positions & Averages)
+                    # We need all results for this class SECTION and term to calculate stats
+                    class_results = StudentResult.objects.filter(
+                        term=term, 
+                        student__student_profile__assigned_class_id=result_class_id
+                    ).exclude(ca1=0, ca2=0, ca3=0, ca4=0).select_related('student', 'subject')
+    
+                    # 1. Subject Stats (Average & Position per subject)
+                    subject_stats = {}
+                    # Group by subject
+                    from collections import defaultdict
+                    subject_scores = defaultdict(list)
+                    
+                    for res in class_results:
+                        subject_scores[res.subject_id].append(res.total)
+                    
+                    for res in results:
+                        scores = subject_scores.get(res.subject_id, [])
+                        scores.sort(reverse=True)
+                        
+                        # Position
+                        try:
+                            position = scores.index(res.total) + 1
+                            # Handle ties (optional, simple ranking)
+                            if 10 <= position % 100 <= 20: suffix = 'th'
+                            else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(position % 10, 'th')
+                            position_str = f"{position}{suffix}"
+                        except ValueError:
+                            position_str = "-"
+                            
+                        # Class Average
+                        avg = round(sum(scores) / len(scores)) if scores else 0
+                        
+                        subject_stats[res.subject_id] = {
+                            'position': position_str,
+                            'average': avg,
+                            'highest': scores[0] if scores else 0,
+                            'lowest': scores[-1] if scores else 0
+                        }
+    
+                    # 2. Overall Class Stats
+                    # Group totals by student
+                    student_totals = defaultdict(int)
+                    for res in class_results:
+                        student_totals[res.student_id] += res.total
+                    
+                    # Convert to list and sort
+                    sorted_totals = sorted(student_totals.values(), reverse=True)
+                    my_total = student_totals.get(user.id, 0)
+                    
+                    try:
+                        overall_pos = sorted_totals.index(my_total) + 1
+                        if 10 <= overall_pos % 100 <= 20: suffix = 'th'
+                        else: suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(overall_pos % 10, 'th')
+                        overall_position = f"{overall_pos}{suffix}"
+                    except ValueError:
+                        overall_position = "-"
+                    
+                    # Count enrolled students in the specific class SECTION (not level)
+                    if result_class_id:
+                        class_size = StudentProfile.objects.filter(assigned_class_id=result_class_id).count()
+                    else:
+                        class_size = len(student_totals)
+                    class_average_score = round(sum(sorted_totals) / len(student_totals), 1) if student_totals else 0
+    
+                    stats = {
+                        'total_score': total_score,
+                        'average': average,
+                        'count': count,
+                        'grade': grade,
+                        'position': overall_position,
+                        'class_size': class_size,
+                        'class_average': class_average_score
+                    }
             else:
                  # Access Denied
                  results = []
@@ -664,6 +801,8 @@ def student_result(request):
         'selected_term_id': int(selected_term_id) if selected_term_id else None,
         'selected_term_obj': selected_term_obj,
         'stats': stats,
+        'is_annual': is_annual if 'is_annual' in locals() else False,
+        'annual_results': annual_results if 'annual_results' in locals() else None,
         'student_profile': user.student_profile,
         'student_age': student_age,
         'attendance_stats': attendance_stats,
