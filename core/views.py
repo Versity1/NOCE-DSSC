@@ -329,7 +329,7 @@ def student_dashboard(request):
     # 2. Academic Stats (Current Session/Term ideally, currently global for simplicity or latest)
     # Let's get stats for the current session/term if available, or just all time
     # For dashboard, maybe an overall average is good
-    results = StudentResult.objects.filter(student=user)
+    results = StudentResult.objects.filter(student=user).exclude(ca1=0, ca2=0, ca3=0, ca4=0)
     avg_score = results.aggregate(Avg('total'))['total__avg'] or 0
     total_subjects = results.values('subject').distinct().count()
     
@@ -467,7 +467,7 @@ def student_result(request):
                              messages.error(request, "Invalid PIN code. Please check your digits.")
 
             if access_granted:
-                results = StudentResult.objects.filter(student=user, term=term)
+                results = StudentResult.objects.filter(student=user, term=term).exclude(ca1=0, ca2=0, ca3=0, ca4=0)
                 
                 # Calculate stats
                 total_score = results.aggregate(Sum('total'))['total__sum'] or 0
@@ -495,8 +495,8 @@ def student_result(request):
                 # We need all results for this class SECTION and term to calculate stats
                 class_results = StudentResult.objects.filter(
                     term=term, 
-                    student_class_id=result_class_id
-                ).select_related('student', 'subject')
+                    student__student_profile__assigned_class_id=result_class_id
+                ).exclude(ca1=0, ca2=0, ca3=0, ca4=0).select_related('student', 'subject')
 
                 # 1. Subject Stats (Average & Position per subject)
                 subject_stats = {}
@@ -1440,8 +1440,8 @@ def broadsheet(request):
                 results = StudentResult.objects.filter(
                     student=student, 
                     term_id=selected_term_id,
-                    student_class_id=selected_class_id
-                )
+                    student__student_profile__assigned_class_id=selected_class_id
+                ).exclude(ca1=0, ca2=0, ca3=0, ca4=0)
                 result_map = {res.subject_id: res for res in results}
                 
                 subject_scores = []
